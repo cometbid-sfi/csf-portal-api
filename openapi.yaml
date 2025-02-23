@@ -458,7 +458,7 @@ components:
         rateLimitInfo:
           $ref: '#/components/schemas/RateLimitInfo'
 
-  responses:
+  #responses:
     SignUpSuccess:
       description: User successfully registered
       content:
