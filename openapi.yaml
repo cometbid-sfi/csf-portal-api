@@ -124,27 +124,27 @@ paths:
           schema:
             type: string
             default: "en-US"
-            pattern: '^[a-z]{2}-[A-Z]{2}$'
+            pattern: "^[a-z]{2}-[A-Z]{2}$"
       responses:
-        '200':
+        "200":
           description: Rate limit status retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RateLimitStatus'
-        '429':
+                $ref: "#/components/schemas/RateLimitStatus"
+        "429":
           description: Too many requests
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TooManyRequests'
-        '500':
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalServerError'
-  
+                $ref: "#/components/schemas/InternalServerError"
+
   /account/username/recover:
     post:
       tags:
@@ -166,45 +166,54 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UsernameRecoveryRequest'
+              $ref: "#/components/schemas/UsernameRecoveryRequest"
       responses:
-        '200':
+        "200":
           description: Username recovery initiated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UsernameRecoveryResponse'
-        '400':
+                $ref: "#/components/schemas/UsernameRecoveryResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
-        '429':
+                $ref: "#/components/schemas/BadRequest"
+        "429":
           description: Too many requests
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TooManyRequests'
-        '500':
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InternalServerError'
-        '503':
+                $ref: "#/components/schemas/InternalServerError"
+        "503":
           description: Service unavailable
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServiceUnavailable'
-                
+                $ref: "#/components/schemas/ServiceUnavailable"
+
   /auth/signup:
     post:
       tags:
         - Authentication
       summary: Register a new user
       operationId: signUp
+      x-amazon-apigateway-integration:
+        uri: ${Functions.signUpFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
       requestBody:
         required: true
         content:
@@ -255,6 +264,15 @@ paths:
         - Authentication
       summary: Confirm user registration.
       operationId: confirmSignUp
+      x-amazon-apigateway-integration:
+        uri: ${Functions.confirmSignUpFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
       requestBody:
         required: true
         content:
@@ -293,6 +311,53 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ServiceUnavailable"
+
+  /auth/verify-email:
+    post:
+      tags:
+        - User Management
+      summary: Verify email address
+      operationId: verifyEmail
+      x-amazon-apigateway-integration:
+        uri: ${Functions.verifyEmailFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailVerificationRequest"
+      responses:
+        "200":
+          description: Email verification successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailVerificationResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
 
   /auth/signin:
     post:
@@ -402,6 +467,8 @@ components:
         - password
         - firstName
         - lastName
+        - brandName
+        - jobTitle
       properties:
         email:
           type: string
@@ -415,17 +482,29 @@ components:
           description: Must contain at least one uppercase letter, one lowercase letter, one number and one special character
         firstName:
           type: string
-          minLength: 1
+          minLength: 2
           description: First name of the user
         lastName:
           type: string
-          minLength: 1
+          minLength: 2
           description: Last name of the user
-        phoneNumber:
+        brandName:
           type: string
-          pattern: '^\+[1-9]\d{1,14}$'
-          description: Phone number of the user
+          minLength: 2
+          maxLength: 12
+          description: Brand name of the user
+        country:
+          type: string
           minLength: 1
+          description: Country of the user
+        jobTitle:
+          type: string
+          minLength: 1
+          description: Job title of the user
+        company:
+          type: string
+          minLength: 1
+          description: Company of the user
 
     SignUpResponse:
       description: Response body for user sign-up
@@ -519,6 +598,37 @@ components:
           type: string
           description: Session ID for the multi-factor authentication flow
 
+    EmailVerificationRequest:
+      description: Request body for verifying a user's email address
+      type: object
+      required:
+        - email
+        - code
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+        code:
+          type: string
+          pattern: '^\d{6}$'
+          description: 6-digit verification code sent to the user's email
+        session:
+          type: string
+          description: Session ID for the MFA verification
+
+    EmailVerificationResponse:
+      description: Response body for verifying a user's email address
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the email verification was successful
+        message:
+          type: string
+          description: Message describing the result of the email verification attempt
+          example: "Email verification successful"
+
     TokenResponse:
       description: token response
       type: object
@@ -535,7 +645,7 @@ components:
         expiresIn:
           description: seconds remaining before the token expires
           type: integer
-          
+
     UsernameRecoveryRequest:
       type: object
       required:
@@ -559,14 +669,10 @@ components:
           type: string
           minLength: 1
           maxLength: 100
-          description: User's brand name
+          description: User's membership name(brand name)
         recaptchaToken:
           type: string
           description: Google reCAPTCHA token for verification
-        preferredContactMethod:
-          type: string
-          enum: [EMAIL, SMS]
-          description: Preferred method for receiving recovery information
 
     UsernameRecoveryResponse:
       type: object
@@ -579,7 +685,7 @@ components:
           type: string
           description: Recovered username (masked)
         rateLimitInfo:
-          $ref: '#/components/schemas/RateLimitInfo'
+          $ref: "#/components/schemas/RateLimitInfo"
 
     RateLimitInfo:
       type: object
@@ -635,12 +741,12 @@ components:
           additionalProperties: true
         rateLimitInfo:
           $ref: "#/components/schemas/RateLimitInfo"
-    
+
     RateLimitStatus:
       description: Rate limit status response body
       properties:
         schema:
-          $ref: '#/components/schemas/RateLimitInfo'
+          $ref: "#/components/schemas/RateLimitInfo"
 
     TooManyRequests:
       description: Rate limit exceeded
@@ -665,7 +771,7 @@ components:
       properties:
         schema:
           $ref: "#/components/schemas/Error"
-         
+
     Conflict:
       description: Resource already exists
       properties:
