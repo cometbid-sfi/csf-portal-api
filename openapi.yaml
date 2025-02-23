@@ -590,17 +590,17 @@ components:
         schema:
           $ref: "#/components/schemas/Error"
 
-securitySchemes:
-  CognitoAuth:
-    description: Cognito User Pools Authorizer
-    type: apiKey
-    name: SecurityScheme
-    in: header
-    x-amazon-apigateway-authtype: jwt
-    x-amazon-apigateway-authorizer:
-      type: jwt
-      jwtConfiguration:
-        issuer: ${cognito_issuer}
-        audience:
-          - ${cognito_client_id}
-      identitySource: $request.header.Authorization
+  securitySchemes:
+    CognitoAuth:
+      description: Cognito User Pools Authorizer
+      type: apiKey
+      name: SecurityScheme
+      in: header
+      x-amazon-apigateway-authtype: jwt
+      x-amazon-apigateway-authorizer:
+        type: jwt
+        jwtConfiguration:
+          issuer: ${cognito_issuer}
+          audience:
+            - ${cognito_client_id}
+        identitySource: $request.header.Authorization
