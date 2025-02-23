@@ -537,7 +537,7 @@ components:
           $ref: "#/components/schemas/RateLimitInfo"
     
     RateLimitStatus:
-      type: object
+      description: Rate limit status response body
       properties:
         schema:
           $ref: '#/components/schemas/RateLimitInfo'
