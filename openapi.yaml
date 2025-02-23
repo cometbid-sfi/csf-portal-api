@@ -76,7 +76,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/SignUpRequest"
-      responses:
+      schemas:
         "201":
           description: User successfully registered
           content:
@@ -88,31 +88,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/BadRequest"
+                $ref: "#/components/schemas/BadRequest"
         "409":
           description: Conflict
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/Conflict"
+                $ref: "#/components/schemas/Conflict"
         "429":
           description: Too many requests
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/TooManyRequests"
+                $ref: "#/components/schemas/TooManyRequests"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/InternalServerError"
+                $ref: "#/components/schemas/InternalServerError"
         "503":
           description: Service unavailable
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/ServiceUnavailable"
+                $ref: "#/components/schemas/ServiceUnavailable"
 
   /auth/confirm-signup:
     post:
@@ -138,26 +138,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/BadRequest"
+                $ref: "#/components/schemas/BadRequest"
 
         "429":
           description: Too many requests
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/TooManyRequests"
+                $ref: "#/components/schemas/TooManyRequests"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/InternalServerError"
+                $ref: "#/components/schemas/InternalServerError"
         "503":
           description: Service unavailable
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/ServiceUnavailable"
+                $ref: "#/components/schemas/ServiceUnavailable"
 
   /auth/signin:
     post:
@@ -183,25 +183,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/Unauthorized"
+                $ref: "#/components/schemas/Unauthorized"
         "403":
           description: Forbidden
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/Forbidden"
+                $ref: "#/components/schemas/Forbidden"
         "429":
           description: Too many requests
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/TooManyRequests"
+                $ref: "#/components/schemas/TooManyRequests"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/InternalServerError"
+                $ref: "#/components/schemas/InternalServerError"
 
 components:
   schemas:
