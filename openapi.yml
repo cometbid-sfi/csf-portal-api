@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.3
 info:
   title: CSF Portal Authentication & Authorization API
   version: 1.0.0
@@ -67,8 +67,6 @@ tags:
     description: Authentication endpoints
   - name: Authorization
     description: Authorization and permission management
-  - name: User Management
-    description: User profile and account management operations
   - name: Session
     description: Session management operations
  
@@ -212,49 +210,7 @@ paths:
               schema:
                 $ref: "#/components/responses/InternalServerError"
 
-  /user/current:
-    get:
-      tags:
-        - User Management
-      summary: Get current user details
-      description: Retrieve detailed information about the authenticated user
-      operationId: getCurrentUser
-      security:
-        - CognitoAuth: []
-      parameters:
-        - in: header
-          name: SecurityScheme
-          required: true
-          description: Bearer token for authentication
-          schema:
-            type: string
-            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
-          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
-      responses:
-        "200":
-          description: User details retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserProfile"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/Unauthorized"
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/NotFound"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/InternalServerError"              
+
 components:
   schemas:
     UserProfile:
@@ -544,21 +500,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/TokenResponse"
-
-    SignOutSuccess:
-      description: User successfully signed out
-      content:
-        application/json:
-          schema:
-            type: object
-            description: Success response for sign out requests
-            properties:
-              success:
-                type: boolean
-                description: Always true for successful sign out requests
-              message:
-                type: string
-                description: Success message
 
     PasswordResetSuccess:
       description: Password reset email sent
