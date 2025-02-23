@@ -79,15 +79,6 @@ paths:
         - Authentication
       summary: Register a new user
       operationId: signUp
-      x-amazon-apigateway-integration:
-        uri: ${lambdaFunctions.signUpFunctionArn}
-        httpMethod: POST
-        type: aws_proxy
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
-      x-amazon-apigateway-throttling:
-        rateLimit: 3
-        burstLimit: 5
       requestBody:
         required: true
         content:
@@ -138,12 +129,6 @@ paths:
         - Authentication
       summary: Confirm user registration.
       operationId: confirmSignUp
-      x-amazon-apigateway-integration:
-        uri: ${lambdaFunctions.confirmSignUpFunctionArn}
-        httpMethod: POST
-        type: aws_proxy
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       requestBody:
         required: true
         content:
@@ -189,12 +174,6 @@ paths:
         - Authentication
       summary: Sign in user
       operationId: signIn
-      x-amazon-apigateway-integration:
-        uri: ${lambdaFunctions.signInFunctionArn}
-        httpMethod: POST
-        type: aws_proxy
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       requestBody:
         required: true
         content:
@@ -240,12 +219,6 @@ paths:
       summary: Get current user details
       description: Retrieve detailed information about the authenticated user
       operationId: getCurrentUser
-      x-amazon-apigateway-integration:
-        uri: ${lambdaFunctions.getCurrentUserFunctionArn}
-        httpMethod: POST
-        type: aws_proxy
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       security:
         - CognitoAuth: []
       parameters:
@@ -657,22 +630,3 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
-
-  securitySchemes:
-    CognitoAuth:
-      description: Cognito User Pools Authorizer
-      type: apiKey
-      name: SecurityScheme
-      in: header
-      x-amazon-apigateway-authtype: jwt
-      x-amazon-apigateway-authorizer:
-        type: jwt
-        jwtConfiguration:
-          issuer: ${cognito_issuer}
-          audience:
-            - ${cognito_client_id}
-        identitySource: $request.header.Authorization
-      #x-amazon-apigateway-authorizer:
-        #type: cognito_user_pools
-        #providerARNs:
-          #- arn:aws:cognito-idp:{region}:{account-id}:userpool/{user-pool-id}
