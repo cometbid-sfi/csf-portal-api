@@ -67,8 +67,30 @@ tags:
     description: Authentication endpoints
   - name: Authorization
     description: Authorization and permission management
+  - name: User Management
+    description: User profile and account management operations
+  - name: Account Recovery
+    description: Account recovery and verification operations
+  - name: Username Recovery
+    description: Username recovery operations and verification
   - name: Session
     description: Session management operations
+  - name: Password
+    description: Password management operations
+  - name: Profile
+    description: User profile and attributes management
+  - name: MFA
+    description: Multi-factor authentication operations
+  - name: MFA Management
+    description: MFA configuration and management operations
+  - name: MFA Verification
+    description: MFA verification and challenge response operations
+  - name: Token
+    description: Token management operations
+  - name: Phone Verification
+    description: Phone verification workflow operations
+  - name: Rate Limiting
+    description: Rate limiting information and status
 
 paths:
   /auth/signup:
