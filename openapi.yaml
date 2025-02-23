@@ -477,7 +477,6 @@ components:
     Forbidden:
       description: Permission denied
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/Error"
          
