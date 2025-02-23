@@ -144,6 +144,61 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
+  
+  /account/username/recover:
+    post:
+      tags:
+        - Username Recovery
+      summary: Initiate username recovery
+      description: Start username recovery process using personal information
+      operationId: recoverUsername
+      x-amazon-apigateway-integration:
+        uri: ${Functions.recoverUsernameFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsernameRecoveryRequest'
+      responses:
+        '200':
+          description: Username recovery initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsernameRecoveryResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequests'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
+                
   /auth/signup:
     post:
       tags:
@@ -480,6 +535,51 @@ components:
         expiresIn:
           description: seconds remaining before the token expires
           type: integer
+          
+    UsernameRecoveryRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - brandName
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[a-zA-Z\s-]+$'
+          description: User's first name
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[a-zA-Z\s-]+$'
+          description: User's last name
+        brandName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User's brand name
+        recaptchaToken:
+          type: string
+          description: Google reCAPTCHA token for verification
+        preferredContactMethod:
+          type: string
+          enum: [EMAIL, SMS]
+          description: Preferred method for receiving recovery information
+
+    UsernameRecoveryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        username:
+          type: string
+          description: Recovered username (masked)
+        rateLimitInfo:
+          $ref: '#/components/schemas/RateLimitInfo'
 
     RateLimitInfo:
       type: object
