@@ -137,13 +137,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/responses/TooManyRequests'
+                $ref: '#/components/schemas/TooManyRequests'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/responses/InternalServerError'
+                $ref: '#/components/schemas/InternalServerError'
   /auth/signup:
     post:
       tags:
@@ -535,6 +535,12 @@ components:
           additionalProperties: true
         rateLimitInfo:
           $ref: "#/components/schemas/RateLimitInfo"
+    
+    RateLimitStatus:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/RateLimitInfo'
 
     TooManyRequests:
       description: Rate limit exceeded
@@ -583,3 +589,18 @@ components:
       properties:
         schema:
           $ref: "#/components/schemas/Error"
+
+securitySchemes:
+  CognitoAuth:
+    description: Cognito User Pools Authorizer
+    type: apiKey
+    name: SecurityScheme
+    in: header
+    x-amazon-apigateway-authtype: jwt
+    x-amazon-apigateway-authorizer:
+      type: jwt
+      jwtConfiguration:
+        issuer: ${cognito_issuer}
+        audience:
+          - ${cognito_client_id}
+      identitySource: $request.header.Authorization
