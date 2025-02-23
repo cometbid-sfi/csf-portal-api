@@ -53,7 +53,14 @@ externalDocs:
   url: http://www.cometbid.org/faq
 
 servers:
-  - url: https://ecommerce.swagger.io/api/v1
+  - url: https://{apiId}.execute-api.{region}.amazonaws.com/{stage}
+    variables:
+      apiId:
+        default: your-api-id
+        description: API Gateway ID
+      stage:
+        default: Prod
+        description: API Deployment Stage
 
 tags:
   - name: Authentication
