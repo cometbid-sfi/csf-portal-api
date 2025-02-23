@@ -76,7 +76,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/SignUpRequest"
-      schemas:
+      responses:
         "201":
           description: User successfully registered
           content:
@@ -459,21 +459,18 @@ components:
     TooManyRequests:
       description: Rate limit exceeded
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/RateLimitInfo"
 
     BadRequest:
       description: Invalid request
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/Error"
 
     Unauthorized:
       description: Authentication required
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/Error"
 
@@ -487,27 +484,23 @@ components:
     Conflict:
       description: Resource already exists
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/Error"
 
     NotFound:
       description: Resource not found
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/Error"
 
     ServiceUnavailable:
       description: Service unavailable
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/Error"
 
     InternalServerError:
       description: Internal server error
       properties:
-        type: object
         schema:
           $ref: "#/components/schemas/Error"
