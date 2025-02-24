@@ -38,7 +38,7 @@ info:
 
     Some useful links:
     - [The CSF's Portal Backend API repository](https://github.com/cometbid-sfi/csf-portal-backend)  
-    - [The source API definition for the CSF's Portal BAckend appliation](https://github.com/cometbid-sfi/csf-portal-backend/blob/master/src/openapi.yaml)
+    - [The source API definition for the CSF's Portal Backend appliation](https://github.com/cometbid-sfi/csf-portal-backend/blob/master/src/openapi.yaml)
 
   termsOfService: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE
   contact:
