@@ -1426,6 +1426,132 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ServiceUnavailable"
+  
+  /user/attributes:
+    get:
+      tags:
+        - Profile
+      summary: Get user attributes
+      description: Retrieve all attributes for the authenticated user
+      operationId: getUserAttributes
+      x-amazon-apigateway-integration:
+        uri: ${Functions.getUserAttributesFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      responses:
+        "200":
+          description: User attributes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAttributes"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "404":
+          description: User attributes not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailable"
+    put:
+      tags:
+        - Profile
+      summary: Update user attributes
+      description: Update one or more attributes for the authenticated user
+      operationId: updateUserAttributes
+      x-amazon-apigateway-integration:
+        uri: ${Functions.updateUserAttributesFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserAttributesRequest"
+      responses:
+        "200":
+          description: Attributes updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateUserAttributesResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
 components:
   schemas:
     UserProfile:
@@ -2138,7 +2264,7 @@ components:
         message:
           type: string
           description: Message describing the result of the password reset attempt
-          
+
     ResetPasswordResponse:
       description: Response body for confirming a user's password reset flow
       type: object
@@ -2207,7 +2333,98 @@ components:
           type: integer
           description: Seconds until the temporary token expires
           example: 3600
-  
+    
+    UserAttributes:
+      description: Response body for retrieving user attributes
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+        email_verified:
+          type: boolean
+          description: Indicates if the user's email address has been verified
+        phone_number:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+          description: Phone number of the user
+        phone_number_verified:
+          type: boolean
+          description: Indicates if the user's phone number has been verified
+        given_name:
+          type: string
+          minLength: 1
+          description: First name of the user
+        family_name:
+          type: string
+          minLength: 1
+          description: Last name of the user
+        preferred_username:
+          type: string
+          minLength: 1
+          description: Preferred username of the user
+        locale:
+          type: string
+          description: Locale of the user
+        zoneinfo:
+          type: string
+          description: Time zone of the user
+        custom:
+          type: object
+          additionalProperties: true
+          description: Custom attributes of the user
+
+    UpdateUserAttributesRequest:
+      description: Request body for updating user attributes
+      type: object
+      minProperties: 1
+      properties:
+        given_name:
+          type: string
+          description: First name of the user
+        family_name:
+          type: string
+          description: Last name of the user
+        phone_number:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+          description: Phone number of the user
+        preferred_username:
+          type: string
+          description: Preferred username of the user
+        locale:
+          type: string
+          description: Locale of the user
+        zoneinfo:
+          type: string
+          description: Time zone of the user
+        custom:
+          type: object
+          additionalProperties: true
+          description: Custom attributes must be prefixed with "custom:" in the request
+
+    UpdateUserAttributesResponse:
+      description: Response body for updating user attributes
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the update was successful
+        message:
+          type: string
+          description: Message describing the result of the update attempt
+        verificationRequired:
+          type: boolean
+          description: Indicates if the user needs to verify their email address
+        verificationAttributes:
+          description: List of attributes that require verification
+          type: array
+          items:
+            type: string
+            enum: [email, phone_number]
+            description: Attributes that require verification
+            
     Error:
       description: Error response body
       type: object
