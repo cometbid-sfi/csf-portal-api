@@ -638,7 +638,203 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailable"
   
+  /auth/mfa/resend:
+    post:
+      tags:
+        - MFA
+      summary: Resend MFA token
+      description: Resend MFA token to user's device
+      operationId: resendMfaToken
+      x-amazon-apigateway-integration:
+        uri: ${Functions.resendMfaTokenFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendMfaTokenRequest"
+      responses:
+        "200":
+          description: MFA token resent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResendMfaTokenResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  
+  /auth/mfa/enable:
+    post:
+      tags:
+        - MFA Management
+      summary: Enable MFA for user
+      description: Enable and configure MFA for the authenticated user
+      operationId: enableMfa
+      x-amazon-apigateway-integration:
+        uri: ${Functions.enableMfaFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnableMfaRequest"
+      responses:
+        "200":
+          description: MFA enabled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnableMfaResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  
+  /auth/mfa/disable:
+    post:
+      tags:
+        - MFA Management
+      summary: Disable MFA for user
+      description: Disable MFA for the authenticated user
+      operationId: disableMfa
+      x-amazon-apigateway-integration:
+        uri: ${Functions.disableMfaFunctionArn}
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisableMfaRequest"
+      responses:
+        "200":
+          description: MFA disabled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisableMfaResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
 
 components:
   schemas:
@@ -1025,6 +1221,104 @@ components:
         idToken:
           type: string
           description: ID token for the user
+    
+    ResendMfaTokenRequest:
+      description: Request body for resending the MFA token
+      type: object
+      required:
+        - deliveryMedium
+      properties:
+        deliveryMedium:
+          description: Medium through which the reset code was sent
+          type: string
+          enum: [EMAIL, SMS]
+
+    ResendMfaTokenResponse:
+      description: Response body for resending the MFA token
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the resend was successful
+        message:
+          type: string
+          description: Message describing the result of the resend attempt
+        deliveryMedium:
+          type: string
+          enum: [EMAIL, SMS]
+          description: Medium through which the reset code was sent
+        destination:
+          type: string
+          description: Masked email or phone number where code was sent
+          example: "j***@example.com"
+    
+    EnableMfaRequest:
+      type: object
+      description: Request body for enabling MFA
+      required:
+        - mfaType
+      properties:
+        mfaType:
+          type: string
+          enum: [SMS, EMAIL, TOTP]
+          description: Type of MFA to enable
+        phoneNumber:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+          description: Required if MFA type is SMS
+        email:
+          type: string
+          format: email
+          description: Required if MFA type is EMAIL
+
+    EnableMfaResponse:
+      description: Response body for enabling MFA
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the MFA was successfully enabled
+        message:
+          type: string
+          description: Message describing the result of the enable MFA attempt
+        secretCode:
+          type: string
+          description: TOTP secret code (only for TOTP MFA)
+        qrCodeUrl:
+          type: string
+          description: QR code URL for TOTP setup
+        backupCodes:
+          type: array
+          items:
+            type: string
+          description: Backup codes for account recovery
+
+    DisableMfaRequest:
+      description: Request body for disabling MFA
+      type: object
+      required:
+        - mfaType
+        - verificationCode
+      properties:
+        mfaType:
+          type: string
+          enum: [SMS, EMAIL, TOTP]
+          description: Type of MFA to disable
+        verificationCode:
+          type: string
+          pattern: '^\d{6}$'
+          description: Verification code sent to user during MFA setup
+
+    DisableMfaResponse:
+      type: object
+      description: Response body for disabling MFA
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the MFA was successfully disabled
+        message:
+          type: string
+          description: Message describing the result of the disable MFA attempt
           
     Error:
       description: Error response body
