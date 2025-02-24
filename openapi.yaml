@@ -529,6 +529,116 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ServiceUnavailable"
+  
+  /auth/mfa/setup:
+    post:
+      tags:
+        - MFA
+      summary: Setup MFA for user
+      operationId: setupMFA
+      x-amazon-apigateway-integration:
+        uri: ${Functions.setupMFAFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+      responses:
+        "200":
+          description: MFA setup successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MFASetupResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailable"
+                
+  /auth/mfa/verify:
+    post:
+      tags:
+        - MFA
+      summary: Verify MFA code
+      operationId: verifyMFA
+      x-amazon-apigateway-integration:
+        uri: ${Functions.verifyMFAFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyMFARequest"
+      responses:
+        "200":
+          description: MFA verification successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyMFAResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  
 
 components:
   schemas:
@@ -867,7 +977,55 @@ components:
           pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
           description: Must contain at least one uppercase letter, one lowercase letter, one number and one special character
           example: "NewPassword123!"
+    
+    MFASetupResponse:
+      description: Response body for setting up multi-factor authentication
+      type: object
+      properties:
+        secretCode:
+          type: string
+          description: Base32 encoded secret key for the user
+        qrCodeUrl:
+          type: string
+          description: URL for the QR code to be scanned by the user
+        backupCodes:
+          description: Backup codes are used in case the user cannot receive the QR code
+          type: array
+          items:
+            type: string
+            description: Backup code for the user
+    
+    VerifyMFARequest:
+      description: Request body for verifying a user's MFA
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          pattern: '^\d{6}$'
+          description: 6-digit verification code sent to the user
+        session:
+          type: string
+          description: Session ID for the MFA verification
 
+    VerifyMFAResponse:
+      description: Response body for verifying a user's MFA
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the MFA verification was successful
+        accessToken:
+          type: string
+          description: Access token for the user
+        refreshToken:
+          type: string
+          description: Refresh token for the user
+        idToken:
+          type: string
+          description: ID token for the user
+          
     Error:
       description: Error response body
       type: object
