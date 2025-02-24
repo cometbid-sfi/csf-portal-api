@@ -835,6 +835,127 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
+  
+  put:
+    tags:
+      - MFA Management
+    summary: Update user MFA preferences
+    description: Update MFA settings and preferences for the authenticated user
+    operationId: setUserMfaPreference
+    x-amazon-apigateway-integration:
+      uri: ${Functions.setUserMfaPreferenceFunctionArn}
+      httpMethod: POST
+      type: aws_proxy
+      payloadFormatVersion: "2.0"
+      connectionType: INTERNET
+    security:
+      - CognitoAuth: []
+    parameters:
+      - in: header
+        name: SecurityScheme
+        required: true
+        description: Bearer token for authentication
+        schema:
+          type: string
+          pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+        example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+      - in: header
+        name: Accept-Language
+        required: false
+        description: Preferred response language
+        schema:
+          type: string
+          default: "en-US"
+          pattern: '^[a-z]{2}-[A-Z]{2}$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SetMfaPreferenceRequest"
+    responses:
+      "200":
+        description: MFA preferences updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetMfaPreferenceResponse"
+      "400":
+        description: Bad request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadRequest"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Unauthorized"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InternalServerError"
+
+  /auth/mfa/preferences:
+    get:
+      tags:
+        - MFA Management
+      summary: Get user MFA preferences
+      description: Retrieve current MFA settings and preferences for the authenticated user
+      operationId: getUserMfaPreference
+      x-amazon-apigateway-integration:
+        uri: ${Functions.getUserMfaPreferenceFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      responses:
+        "200":
+          description: MFA preferences retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetMfaPreferenceResponse"
+        "404":
+          description: Mfa preference not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
 
 components:
   schemas:
@@ -1319,7 +1440,71 @@ components:
         message:
           type: string
           description: Message describing the result of the disable MFA attempt
-          
+
+    SetMfaPreferenceRequest:
+      description: Request body for setting MFA preference
+      type: object
+      properties:
+        preferredMethod:
+          description: Preferred MFA method
+          type: string
+          enum: [SMS, EMAIL, TOTP]
+        smsSettings:
+          description: SMS settings for MFA
+          type: object
+          properties:
+            enabled:
+              description: Whether SMS is enabled as a preferred MFA method
+              type: boolean
+            phoneNumber:
+              description: Phone number for SMS MFA
+              type: string
+              pattern: '^\+[1-9]\d{1,14}$'
+        emailSettings:
+          description: Email settings for MFA
+          type: object
+          properties:
+            enabled:
+              description: Whether email is enabled as a preferred MFA method
+              type: boolean
+            email:
+              description: Email address for email MFA
+              type: string
+              format: email
+        totpSettings:
+          description: TOTP settings for MFA
+          type: object
+          properties:
+            enabled:
+              description: Whether TOTP is enabled as a preferred MFA method
+              type: boolean
+
+    SetMfaPreferenceResponse:
+      description: Response body for setting MFA preference
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the MFA preference was successfully set
+        message:
+          type: string
+          description: Message describing the result of the set MFA preference attempt
+        verificationRequired:
+          type: boolean
+          description: Indicates if the user needs to verify their email address
+        verificationDetails:
+          description: List of attributes that require verification
+          type: object
+          properties:
+            method:
+              type: string
+              enum: [SMS, EMAIL]
+              description: Method that requires verification
+            destination:
+              type: string
+              description: Masked phone number or email where verification code was sent
+              example: "j***@example.com"
+
     Error:
       description: Error response body
       type: object
