@@ -1637,6 +1637,167 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceUnavailable'
+  
+  /phone/verify/check:
+    post:
+      tags:
+        - Phone Verification
+      summary: Verify phone number
+      description: Verify phone number using verification code
+      operationId: verifyPhoneNumber
+      x-amazon-apigateway-integration:
+        uri: ${Functions.verifyPhoneNumberFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyPhoneRequest'
+      responses:
+        '200':
+          description: Phone number verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyPhoneResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequests'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
+
+  /phone/verify/status:
+    post:
+      tags:
+        - Phone Verification
+      summary: Get verification status
+      description: Check the current status of phone verification
+      operationId: getVerificationStatus
+      x-amazon-apigateway-integration:
+        uri: ${Functions.getVerificationStatusFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+        - in: header
+          name: Accept-Language
+          required: false
+          description: Preferred response language
+          schema:
+            type: string
+            default: "en-US"
+            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneNumber'
+      responses:
+        '200':
+          description: Verification status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneNumberVerificationStatus'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequests'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
          
 components:
   schemas:
@@ -2553,6 +2714,85 @@ components:
         attemptsRemaining:
           type: integer
           description: Number of verification attempts remaining
+        rateLimitInfo:
+          $ref: '#/components/schemas/RateLimitInfo'
+
+    VerifyPhoneRequest:
+      description: Request body for verifying a phone number
+      type: object
+      required:
+        - verificationId
+        - code
+      properties:
+        verificationId:
+          type: string
+          description: Verification session identifier
+        code:
+          type: string
+          pattern: '^\d{6}$'
+          description: 6-digit verification code sent to the user's phone number
+        session:
+          type: string
+          description: Session ID for the MFA verification
+
+    VerifyPhoneResponse:
+      description: Response body for verifying a phone number
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the phone number verification was successful
+        message:
+          type: string
+          description: Message describing the result of the phone number verification
+        verified:
+          type: boolean
+          description: Indicates if the phone number is verified
+        verifiedAt:
+          type: string
+          format: date-time
+          description: Time when the phone number was verified
+        rateLimitInfo:
+          $ref: '#/components/schemas/RateLimitInfo'
+
+    PhoneNumber:
+      description: Phone number details
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+          description: Phone number 
+        rateLimitInfo:
+          $ref: '#/components/schemas/RateLimitInfo'
+
+    PhoneNumberVerificationStatus:
+      description: Response body for verification status
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+          description: Masked phone number where verification code was sent
+        status:
+          type: string
+          enum: [PENDING, VERIFIED, FAILED, EXPIRED]
+          description: Status of the verification
+        verifiedAt:
+          type: string
+          format: date-time
+          description: Time when the phone number was verified
+        attemptsRemaining:
+          type: integer
+          description: Number of verification attempts remaining
+        lastAttempt:
+          type: string
+          format: date-time
+          description: Time when the last verification attempt was made
+        expiresAt:
+          type: string
+          format: date-time
+          description: Time when the verification code expires
         rateLimitInfo:
           $ref: '#/components/schemas/RateLimitInfo'
           
