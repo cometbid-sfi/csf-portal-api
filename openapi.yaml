@@ -1089,6 +1089,110 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ServiceUnavailable"
+  
+
+  /auth/password/reset-request:
+    post:
+      tags:
+        - Password
+      summary: Initiate password reset flow
+      description: Send password reset code to user's email
+      x-amazon-apigateway-integration:
+        uri: ${Functions.requestPasswordResetFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequest"
+      responses:
+        "200":
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordResetResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailable"
+  
+
+  /auth/password/reset:
+    post:
+      tags:
+        - Password
+      summary: Complete reset password flow
+      description: Reset password using verification code
+      security:
+        - CognitoAuth: []
+      x-amazon-apigateway-integration:
+        uri: ${Functions.resetPasswordFunctionArn}
+        httpMethod: POST
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        connectionType: INTERNET
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmResetPasswordRequest"
+      responses:
+        "200":
+          description: Password successfully reset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResetPasswordResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailable"
 
 components:
   schemas:
@@ -1690,7 +1794,104 @@ components:
           type: string
           description: Type of token
           enum: [Bearer]
+    
+    PasswordResetRequest:
+      description: Request body for initiating a password reset
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+    
+    PasswordResetResponse:
+      description: Response body for initiating a password reset
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the reset code was sent successfully
+        message:
+          type: string
+          description: Message describing the result of the reset password attempt
+        recoveryId:
+          type: string
+          description: Unique identifier for the recovery session
+        expiresIn:
+          type: integer
+          description: Seconds until the recovery session expires
+        deliveryMedium:
+          type: string
+          enum: [EMAIL, SMS]
+          description: Medium through which the reset code was sent
+        maskedDestination:
+          type: string
+          description: Masked email or phone number where verification code was sent
+          example: "j***@example.com"
 
+    ForgotPasswordRequest:
+      description: Request body for initiating the forgot password flow
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+
+    ForgotPasswordResponse:
+      description: Response body for initiating the forgot password flow
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the reset code was sent successfully
+        message:
+          type: string
+          description: Message describing the result of the forgot password attempt
+        recoveryId:
+          type: string
+          description: Unique identifier for the recovery session
+        expiresIn:
+          type: integer
+          description: Seconds until the recovery session expires
+        deliveryMedium:
+          type: string
+          enum: [EMAIL, SMS]
+          description: Medium through which the reset code was sent
+        maskedDestination:
+          type: string
+          description: Masked email or phone number where verification code was sent
+    
+    ConfirmResetPasswordRequest:
+      description: Request body for resetting a user's password
+      type: object
+      required:
+        - temporaryAccessToken
+        - newPassword
+      properties:
+        temporaryAccessToken:
+          type: string
+        newPassword:
+          type: string
+          minLength: 8
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+          description: Must contain at least one uppercase letter, one lowercase letter, one number and one special character
+
+    ResetPasswordResponse:
+      description: Response body for confirming a user's password reset flow
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the password reset was successful
+        message:
+          type: string
+          description: Message describing the result of the reset password attempt
+               
     Error:
       description: Error response body
       type: object
