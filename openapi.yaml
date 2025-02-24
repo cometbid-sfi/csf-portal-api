@@ -898,6 +898,12 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/InternalServerError"
+      "503":
+        description: Service unavailable
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceUnavailable"
 
   /auth/mfa/preferences:
     get:
@@ -956,7 +962,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
-
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailable"
+                
 components:
   schemas:
     UserProfile:
