@@ -53,14 +53,50 @@ externalDocs:
   url: http://www.cometbid.org/faq
 
 servers:
-  - url: https://{apiId}.execute-api.{region}.amazonaws.com/{stage}
+  - url: https://{api-id}.execute-api.{region}.amazonaws.com/{stage}
     variables:
-      apiId:
+      api-id:
         default: your-api-id
         description: API Gateway ID
+      region:
+        default: 'us-east-1'
       stage:
-        default: Prod
+        default: 'dev'
         description: API Deployment Stage
+x-amazon-apigateway-cors:
+  allowOrigins:
+    - "*"
+  allowMethods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowHeaders:
+    - content-type
+    - x-amz-date
+    - authorization
+    - x-api-key
+    - x-amz-security-token
+  maxAge: 3600
+  allowCredentials: false
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+  params-only:
+    validateRequestBody: false
+    validateRequestParameters: true
+x-amazon-apigateway-request-validator: params-only
+x-amazon-apigateway-gateway-responses:
+  DEFAULT_4XX:
+    statusCode: 400
+    responseTemplates:
+      application/json: "{\"message\":$context.error.messageString}"
+  DEFAULT_5XX:
+    statusCode: 500
+    responseTemplates:
+      application/json: "{\"message\":$context.error.messageString}"
 
 tags:
   - name: Authentication
@@ -101,7 +137,10 @@ paths:
       description: Retrieve current rate limit status and remaining requests
       operationId: getRateLimitStatus
       x-amazon-apigateway-integration:
-        uri: ${Functions.getRateLimitStatusFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref getRateLimitStatusFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -153,7 +192,10 @@ paths:
       description: Start username recovery process using personal information
       operationId: recoverUsername
       x-amazon-apigateway-integration:
-        uri: ${Functions.recoverUsernameFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref recoverUsernameFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -206,7 +248,10 @@ paths:
       summary: Register a new user
       operationId: signUp
       x-amazon-apigateway-integration:
-        uri: ${Functions.signUpFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref signUpFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -265,7 +310,10 @@ paths:
       summary: Confirm user registration.
       operationId: confirmSignUp
       x-amazon-apigateway-integration:
-        uri: ${Functions.confirmSignUpFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref confirmSignUpFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -319,7 +367,10 @@ paths:
       summary: Verify email address
       operationId: verifyEmail
       x-amazon-apigateway-integration:
-        uri: ${Functions.verifyEmailFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref verifyEmailFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -366,7 +417,10 @@ paths:
       summary: Sign in user
       operationId: signIn
       x-amazon-apigateway-integration:
-        uri: ${Functions.signInFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref signInFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -426,7 +480,10 @@ paths:
       description: Retrieve detailed information about the authenticated user
       operationId: getCurrentUser
       x-amazon-apigateway-integration:
-        uri: ${Functions.getCurrentUserFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref getCurrentUserFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -479,7 +536,10 @@ paths:
       description: Invalidates all refresh tokens and signs out user from all devices
       operationId: signOut
       x-amazon-apigateway-integration:
-        uri: ${Functions.signOutFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref signOutFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -537,7 +597,10 @@ paths:
       summary: Setup MFA for user
       operationId: setupMFA
       x-amazon-apigateway-integration:
-        uri: ${Functions.setupMFAFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref setupMFAFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -589,7 +652,10 @@ paths:
       summary: Verify MFA code
       operationId: verifyMFA
       x-amazon-apigateway-integration:
-        uri: ${Functions.verifyMFAFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref verifyMFAFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -653,7 +719,10 @@ paths:
       description: Resend MFA token to user's device
       operationId: resendMfaToken
       x-amazon-apigateway-integration:
-        uri: ${Functions.resendMfaTokenFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref resendMfaTokenFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -717,7 +786,10 @@ paths:
       description: Enable and configure MFA for the authenticated user
       operationId: enableMfa
       x-amazon-apigateway-integration:
-        uri: ${Functions.enableMfaFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref enableMfaFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -781,7 +853,10 @@ paths:
       description: Disable MFA for the authenticated user
       operationId: disableMfa
       x-amazon-apigateway-integration:
-        uri: ${Functions.disableMfaFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref disableMfaFunction
         type: aws_proxy
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
@@ -844,7 +919,10 @@ paths:
       description: Retrieve current MFA settings and preferences for the authenticated user
       operationId: getUserMfaPreference
       x-amazon-apigateway-integration:
-        uri: ${Functions.getUserMfaPreferenceFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref getUserMfaPreferenceFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -907,7 +985,10 @@ paths:
       description: Update MFA settings and preferences for the authenticated user
       operationId: setUserMfaPreference
       x-amazon-apigateway-integration:
-        uri: ${Functions.setUserMfaPreferenceFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref setUserMfaPreferenceFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -977,7 +1058,10 @@ paths:
       description: Submit MFA verification code in response to an authentication challenge
       operationId: respondToMfaChallenge
       x-amazon-apigateway-integration:
-        uri: ${Functions.respondToMfaChallengeFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref respondToMfaChallengeFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1028,7 +1112,10 @@ paths:
       description: Change password for authenticated user
       operationId: changePassword
       x-amazon-apigateway-integration:
-        uri: ${Functions.changePasswordFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref changePasswordFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1098,7 +1185,10 @@ paths:
       summary: Initiate password reset flow
       description: Send password reset code to user's email
       x-amazon-apigateway-integration:
-        uri: ${Functions.requestPasswordResetFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref requestPasswordResetFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1150,7 +1240,10 @@ paths:
       security:
         - CognitoAuth: []
       x-amazon-apigateway-integration:
-        uri: ${Functions.resetPasswordFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref resetPasswordFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1200,7 +1293,10 @@ paths:
       summary: Refresh access token
       operationId: refreshToken
       x-amazon-apigateway-integration:
-        uri: ${Functions.refreshTokenFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref refreshTokenFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1276,7 +1372,10 @@ paths:
       description: Send password reset code to user's email
       operationId: forgotPassword
       x-amazon-apigateway-integration:
-        uri: ${Functions.forgotPasswordFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref forgotPasswordFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1327,7 +1426,10 @@ paths:
       description: Verify account recovery using verification code
       operationId: verifyAccountRecovery
       x-amazon-apigateway-integration:
-        uri: ${Functions.verifyAccountRecoveryFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref verifyAccountRecoveryFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1384,7 +1486,10 @@ paths:
       description: Reset password using verification code
       operationId: confirmForgotPassword
       x-amazon-apigateway-integration:
-        uri: ${Functions.confirmForgotPasswordFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref confirmForgotPasswordFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1435,7 +1540,10 @@ paths:
       description: Retrieve all attributes for the authenticated user
       operationId: getUserAttributes
       x-amazon-apigateway-integration:
-        uri: ${Functions.getUserAttributesFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref getUserAttributesFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1497,7 +1605,10 @@ paths:
       description: Update one or more attributes for the authenticated user
       operationId: updateUserAttributes
       x-amazon-apigateway-integration:
-        uri: ${Functions.updateUserAttributesFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref updateUserAttributesFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1567,7 +1678,10 @@ paths:
       description: Start phone verification process by sending verification code
       operationId: initiatePhoneVerification
       x-amazon-apigateway-integration:
-        uri: ${Functions.initiatePhoneVerificationFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref initiatePhoneVerificationFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1646,7 +1760,10 @@ paths:
       description: Verify phone number using verification code
       operationId: verifyPhoneNumber
       x-amazon-apigateway-integration:
-        uri: ${Functions.verifyPhoneNumberFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref verifyPhoneNumberFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1731,7 +1848,10 @@ paths:
       description: Check the current status of phone verification
       operationId: getVerificationStatus
       x-amazon-apigateway-integration:
-        uri: ${Functions.getVerificationStatusFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref getVerificationStatusFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1807,7 +1927,10 @@ paths:
       description: Resend verification code to phone number
       operationId: resendVerificationCode
       x-amazon-apigateway-integration:
-        uri: ${Functions.resendVerificationCodeFunctionArn}
+        uri: 
+          Fn::Sub: 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
+            - functionArn: !Ref resendVerificationCodeFunction
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -3000,9 +3123,9 @@ components:
       type: apiKey
       name: SecurityScheme
       in: header
-      x-amazon-apigateway-authtype: jwt
+      x-amazon-apigateway-authtype: aws_iam
       x-amazon-apigateway-authorizer:
-        type: jwt
+        type: aws_iam
         jwtConfiguration:
           issuer: ${cognito_issuer}
           audience:
