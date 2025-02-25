@@ -258,25 +258,40 @@ paths:
         payloadFormatVersion: "2.0"
         requestTemplates:
           application/json: |
+            #set($body = $input.json('$'))
             {
-              "email": "mock-email@example.com",
-              "password": "mock-password",
-              "firstName": "mock-first-name"
-              "lastName": "mock-last-name",
-              "brandName": "mock-brand-name",
-              "country": "mock-country",
-              "jobTitle": "mock-job-title",
-              "company": "mock-comapny"
+              #if(!$body.email || !$body.password || !$body.username)
+                "statusCode": 400,
+                "message": "Missing required fields"
+              #elseif($body.email.indexOf("@") == -1)
+                "statusCode": 400,
+                "message": "Invalid email format"
+              #elseif($body.password.length() < 8)
+                "statusCode": 400,
+                "message": "Password too short"
+              #else
+                "statusCode": 201,
+                "email": "$body.email",
+                "message": "Check your email for further steps"
+              #end
             }
         responses:
-          default:
-            statusCode: 201
-            responseTemplates:
-              application/json: |
-                {
-                  "message": "Congrat! You have been successfully registered",
-                  "verificationRequired": true
-                }
+        "400":
+          statusCode: 400
+          responseTemplates:
+            application/json: |
+              {
+                "message": "Validation Error",
+                "error": "$input.path('$.message')"
+              }
+        default:
+          statusCode: 201
+          responseTemplates:
+            application/json: |
+              {
+                "message": "Congrat! You have been successfully registered. $input.path('$.message')",
+                "verificationRequired": "true",
+              }
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
@@ -449,24 +464,37 @@ paths:
         requestTemplates:
           application/json: |
             {
-              "email": "mock-email@example.com",
-              "password": "mock-password",
-              "rememberMe": true,
+              #set($body = $input.json('$'))
+              #if(!$body.username || !$body.password)
+                "statusCode": 400,
+                "message": "Missing required fields"
+              #else
+                "statusCode": 200,
+                "email": "$body.email"
+              #end
             }
         responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Bad Request",
+                  "error": "$input.path('$.message')"
+                }
           default:
             statusCode: 200
-            responseTemplates:                
+            responseTemplates:
               application/json: |
                 {
                   "message": "Successfully signed in",
-                  "accessToken": "mock-access-token-12345",
-                  "refreshToken": "mock-refresh-token-12345",
-                  "idToken": "mock-id-token-12345",
+                  "accessToken": "mock-token-${context.requestId}",
+                  "refreshToken": "mock-refresh-${context.requestId}",
+                  "idToken": "mock-id-token-${context.requestId}",
                   "expiresIn": 3600,
                   "tokenType": "Bearer",
-                  "mfaRequired": false,
-                  "mfaSession": "mock-session-id-12345"
+                  "mfaRequired": true,
+                  "mfaSession": "mock-session-id-${context.requestId}"
                 }
       x-amazon-apigateway-throttling:
         rateLimit: 3
