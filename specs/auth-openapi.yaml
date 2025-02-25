@@ -139,9 +139,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getRateLimitStatusFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getRateLimitStatusFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -193,9 +194,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${recoverUsernameFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${recoverUsernameFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -246,13 +248,35 @@ paths:
       summary: Register a new user
       operationId: signUp
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signUpFunction.Arn}/invocations"
-        httpMethod: POST
-        type: aws_proxy
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signUpFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        requestTemplates:
+          application/json: |
+            {
+              "email": "mock-email@example.com",
+              "password": "mock-password",
+              "firstName": "mock-first-name"
+              "lastName": "mock-last-name",
+              "brandName": "mock-brand-name",
+              "country": "mock-country",
+              "jobTitle": "mock-job-title",
+              "company": "mock-comapny"
+            }
+        responses:
+          default:
+            statusCode: 201
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Congrat! You have been successfully registered",
+                  "verificationRequired": true
+                }
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
@@ -309,9 +333,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmSignUpFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmSignUpFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -365,9 +390,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyEmailFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyEmailFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -412,13 +438,36 @@ paths:
       summary: Sign in user
       operationId: signIn
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signInFunction.Arn}/invocations"
-        httpMethod: POST
-        type: aws_proxy
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signInFunctionArn}/invocations"
+        #httpMethod: POST
+        #connectionType: INTERNET
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        requestTemplates:
+          application/json: |
+            {
+              "email": "mock-email@example.com",
+              "password": "mock-password",
+              "rememberMe": true,
+            }
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:                
+              application/json: |
+                {
+                  "message": "Successfully signed in",
+                  "accessToken": "mock-access-token-12345",
+                  "refreshToken": "mock-refresh-token-12345",
+                  "idToken": "mock-id-token-12345",
+                  "expiresIn": 3600,
+                  "tokenType": "Bearer",
+                  "mfaRequired": false,
+                  "mfaSession": "mock-session-id-12345"
+                }
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
@@ -474,13 +523,41 @@ paths:
       description: Retrieve detailed information about the authenticated user
       operationId: getCurrentUser
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getCurrentUserFunction.Arn}/invocations"
-        httpMethod: POST
-        type: aws_proxy
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getCurrentUserFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        requestTemplates:
+          application/json: |
+            {}
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:                
+              application/json: |
+                {
+                  "email": "Successfully signed in",
+                  "firstName": "mock-access-token-12345",
+                  "lastName": "mock-refresh-token-12345",
+                  "brandName": "mock-id-token-12345",
+                  "phoneNumber": 3600,
+                  "emailVerified": "Bearer",
+                  "phoneVerified": "Bearer",
+                  "createdAt": "Bearer",
+                  "lastLoginAt": "Bearer",
+                  "preferences": {
+                    "language": "mock-lang-code",
+                    "timezone": "mock-timezone-id",
+                    "notifications": {
+                      "email": true,
+                      "sms": false
+                    }
+                  }"
+                }
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
@@ -531,9 +608,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signOutFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signOutFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -591,9 +669,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setupMFAFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setupMFAFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -645,9 +724,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyMFAFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyMFAFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -711,9 +791,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendMfaTokenFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendMfaTokenFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -777,9 +858,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${enableMfaFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${enableMfaFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -843,8 +925,9 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${disableMfaFunction.Arn}/invocations"
-        type: aws_proxy
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${disableMfaFunctionArn}/invocations"
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -908,9 +991,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserMfaPreferenceFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserMfaPreferenceFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -973,9 +1057,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setUserMfaPreferenceFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setUserMfaPreferenceFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -1045,9 +1130,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${respondToMfaChallengeFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${respondToMfaChallengeFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       requestBody:
@@ -1098,9 +1184,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${changePasswordFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${changePasswordFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -1170,9 +1257,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${requestPasswordResetFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${requestPasswordResetFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       requestBody:
@@ -1224,9 +1312,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resetPasswordFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resetPasswordFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       requestBody:
@@ -1276,9 +1365,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${refreshTokenFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${refreshTokenFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -1354,9 +1444,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${forgotPasswordFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${forgotPasswordFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       requestBody:
@@ -1407,9 +1498,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyAccountRecoveryFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyAccountRecoveryFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       requestBody:
@@ -1466,9 +1558,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmForgotPasswordFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmForgotPasswordFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       requestBody:
@@ -1519,9 +1612,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserAttributesFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserAttributesFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -1583,9 +1677,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateUserAttributesFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateUserAttributesFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -1655,9 +1750,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${initiatePhoneVerificationFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${initiatePhoneVerificationFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -1736,9 +1832,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyPhoneNumberFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyPhoneNumberFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -1823,9 +1920,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getVerificationStatusFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getVerificationStatusFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       security:
@@ -1901,9 +1999,10 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendVerificationCodeFunction.Arn}/invocations"
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendVerificationCodeFunctionArn}/invocations"
         httpMethod: POST
-        type: aws_proxy
+        #type: aws_proxy
+        type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
       x-amazon-apigateway-throttling:
@@ -1971,9 +2070,6 @@ components:
     UserProfile:
       type: object
       properties:
-        userId:
-          type: string
-          description: Unique identifier for the user
         email:
           type: string
           format: email
@@ -2074,12 +2170,6 @@ components:
       description: Response body for user sign-up
       type: object
       properties:
-        userId:
-          type: string
-          description: Unique identifier for the user
-        email:
-          type: string
-          description: Email address of the user
         verificationRequired:
           type: boolean
           description: Indicates if the user needs to verify their email address
@@ -2143,6 +2233,9 @@ components:
       description: Response body for user sign-in
       type: object
       properties:
+        message:
+          type: string
+          description: Message describing the result of the sign-in attempt
         accessToken:
           type: string
           description: JWT access token for the user
