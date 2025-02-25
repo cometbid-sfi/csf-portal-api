@@ -1938,6 +1938,7 @@ components:
         - lastName
         - brandName
         - jobTitle
+        - country
       properties:
         email:
           type: string
@@ -1998,6 +1999,7 @@ components:
       required:
         - email
         - code
+        - session
       properties:
         email:
           type: string
@@ -2005,8 +2007,13 @@ components:
           description: Email address of the user
         code:
           type: string
-          pattern: '^\d{6}$'
-          description: 6-digit verification code sent to the user's email
+          description: verification code sent to the user's email as part of the link to click on
+        session:
+          type: string
+          description: Session ID for the Signup verification
+        expiresIn:
+          type: integer
+          description: Number of seconds until the verification code expires
 
     ConfirmSignUpResponse:
       description: Response body for confirming a user's sign-up
