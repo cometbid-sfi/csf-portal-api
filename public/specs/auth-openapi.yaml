@@ -272,7 +272,7 @@ paths:
               #else
                 "statusCode": 201,
                 "email": "$body.email",
-                "message": "Check your email for further steps"
+                "message": "Check your email for further steps."
               #end
             }
         responses:
@@ -561,30 +561,53 @@ paths:
         payloadFormatVersion: "2.0"
         requestTemplates:
           application/json: |
-            {}
+            #set($authHeader = $input.params().header.get('Authorization'))
+            {
+              #if(!$authHeader || !$authHeader.startsWith("Bearer "))
+                "statusCode": 401,
+                "message": "Missing or invalid authorization token"
+              #else
+                "statusCode": 200,
+                "token": "$authHeader.substring(7)"
+              #end
+            }
         responses:
-          default:
-            statusCode: 200
-            responseTemplates:                
+          "401":
+            statusCode: 401
+            responseTemplates:
               application/json: |
                 {
-                  "email": "Successfully signed in",
-                  "firstName": "mock-access-token-12345",
-                  "lastName": "mock-refresh-token-12345",
-                  "brandName": "mock-id-token-12345",
-                  "phoneNumber": 3600,
-                  "emailVerified": "Bearer",
-                  "phoneVerified": "Bearer",
-                  "createdAt": "Bearer",
-                  "lastLoginAt": "Bearer",
-                  "preferences": {
-                    "language": "mock-lang-code",
-                    "timezone": "mock-timezone-id",
-                    "notifications": {
-                      "email": true,
-                      "sms": false
+                  "message": "Unauthorized",
+                  "error": "$input.path('$.message')"
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                #set($userId = "user-${context.requestId}")
+                {
+                  "userId": "$userId",
+                  "email": "user_${userId.substring(5,10)}@example.com",
+                  "profile": {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "brandName": "our-unique-brand-name",
+                    "createdAt": "$context.requestTime",
+                    "lastLoginAt": "$context.requestTime",
+                    "emailVerified": true,
+                    "mfaEnabled": false,
+                    "mfaType": "TOTP",
+                    "phoneVerified": false,
+                    "phoneNumber": "+1234567890",
+                    "preferences": {
+                      "language": "en-US",
+                      "timezone": "UTC",
+                      "notifications": {
+                        "email": true,
+                        "sms": false
+                      }
                     }
-                  }"
+                  },
                 }
       x-amazon-apigateway-throttling:
         rateLimit: 3
