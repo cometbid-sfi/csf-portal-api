@@ -139,8 +139,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref getRateLimitStatusFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getRateLimitStatusFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -194,8 +193,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref recoverUsernameFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${recoverUsernameFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -250,8 +248,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref signUpFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signUpFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -312,8 +309,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref confirmSignUpFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmSignUpFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -369,8 +365,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref verifyEmailFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyEmailFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -419,8 +414,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref signInFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signInFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -482,8 +476,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref getCurrentUserFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getCurrentUserFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -538,8 +531,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref signOutFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signOutFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -599,8 +591,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref setupMFAFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setupMFAFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -654,8 +645,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref verifyMFAFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyMFAFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -721,8 +711,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref resendMfaTokenFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendMfaTokenFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -788,8 +777,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref enableMfaFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${enableMfaFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -855,8 +843,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref disableMfaFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${disableMfaFunction.Arn}/invocations"
         type: aws_proxy
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
@@ -921,8 +908,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref getUserMfaPreferenceFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserMfaPreferenceFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -987,8 +973,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref setUserMfaPreferenceFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setUserMfaPreferenceFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1060,8 +1045,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref respondToMfaChallengeFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${respondToMfaChallengeFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1114,8 +1098,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref changePasswordFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${changePasswordFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1187,8 +1170,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref requestPasswordResetFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${requestPasswordResetFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1242,8 +1224,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref resetPasswordFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resetPasswordFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1295,8 +1276,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref refreshTokenFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${refreshTokenFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1374,8 +1354,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref forgotPasswordFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${forgotPasswordFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1428,8 +1407,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref verifyAccountRecoveryFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyAccountRecoveryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1488,8 +1466,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref confirmForgotPasswordFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmForgotPasswordFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1542,8 +1519,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref getUserAttributesFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserAttributesFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1607,8 +1583,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref updateUserAttributesFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateUserAttributesFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1680,8 +1655,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref initiatePhoneVerificationFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${initiatePhoneVerificationFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1762,8 +1736,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref verifyPhoneNumberFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyPhoneNumberFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1850,8 +1823,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref getVerificationStatusFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getVerificationStatusFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
@@ -1929,8 +1901,7 @@ paths:
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${functionArn}/invocations"
-            - functionArn: !Ref resendVerificationCodeFunction
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendVerificationCodeFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         payloadFormatVersion: "2.0"
