@@ -4839,7 +4839,10 @@ components:
 
     UserPreferences:
       type: object
-      description: User preferences
+      description: User preferences configuration
+      required:
+        - notifications
+        - security
       properties:
         language:
           type: string
@@ -4857,15 +4860,31 @@ components:
               type: boolean
         security:
           type: object
+          description: Security settings
+          required:
+            - mfaEnabled
+            - loginNotifications
           properties:
             mfaEnabled:
               type: boolean
+              description: Whether MFA is enabled
+              default: false
+            loginNotifications:
+              type: boolean
+              description: Whether to send notifications on login
+              default: true
             lastPasswordChange:
               type: string
               format: date-time
-              description: 
-            loginNotifications:
-              type: boolean
+              description: the last time password was changed
+      example:
+        notifications:
+          email: true
+          sms: false
+          push: true
+        security:
+          mfaEnabled: true
+          loginNotifications: true
 
     SignUpRequest:
       description: Request body for user sign-up
@@ -5741,7 +5760,6 @@ components:
         refreshToken:
           type: string
           description: Valid refresh token previously issued
-          example: "rt_valid_token"
 
     RefreshTokenResponse:
       description: Response body for refreshing an access token
@@ -5759,15 +5777,20 @@ components:
           description: Message describing the result of the token refresh attempt
         data:
           type: object
+          required:
+            - accessToken
+            - refreshToken
+            - tokenType
+            - expiresIn
           properties:
             accessToken:
               type: string
               description: New access token for the user
             refreshToken:
               type: string
-              description: 
+              description: New refresh token
             tokenType:
-              description: 
+              description: Type of token
               type: string
               enum: [Bearer]
             expiresIn:
@@ -5778,26 +5801,29 @@ components:
               description: Refresh token expiration in seconds
             scope:
               type: string
+              description: Token scope
             issuedAt:
               type: string
               format: date-time
+              description: Token issuance timestamp
             sessionId:
               type: string
+              description: Current session identifier
             deviceInfo:
               description: Information about the device used for authentication
               type: object
               properties:
-                deviceId:
-                  description: 
+                deviceId: 
+                  description: User device identifier
                   type: string
                 ipAddress:
-                  description:  
+                  description: User ip address 
                   type: string
                 userAgent:
                   type: string
                   description: User agent of the client
                 location:
-                  description: 
+                  description: user's location (country)
                   type: string
       
     AccountRecoveryVerificationRequest:
