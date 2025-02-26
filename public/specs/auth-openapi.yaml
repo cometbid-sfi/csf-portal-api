@@ -1452,14 +1452,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MFAVerificationRequest"
+              $ref: "#/components/schemas/MFASetupVerificationRequest"
       responses:
         "200":
           description: MFA setup verified successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MFAVerificationResponse"
+                $ref: "#/components/schemas/MFASetupVerificationResponse"
         "400":
           description: Bad request or invalid verification code
           content:
@@ -1799,7 +1799,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ResendMfaTokenRequest"
+              $ref: "#/components/schemas/MFAResendRequest"
       responses:
         "200":
           description: MFA code resent successfully
@@ -3572,7 +3572,15 @@ components:
               type: string
             requestId:
               type: string
-   
+    
+    RateLimitStatus:
+      type: object
+      properties:
+        endpoints:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/RateLimitInfo'
+
     RateLimitInfo:
       type: object            
       properties:
