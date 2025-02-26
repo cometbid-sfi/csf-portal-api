@@ -4834,6 +4834,8 @@ components:
         mfaEnabled:
           type: boolean
           description: Indicates if MFA is enabled for the user
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
 
     UserPreferences:
       type: object
@@ -5836,8 +5838,7 @@ components:
       properties:
         profile:
           $ref: '#/components/schemas/UserProfile'
-        preferences:
-          $ref: '#/components/schemas/UserPreferences'
+        
 
     UpdateUserAttributesResponse:
       description: Response body for updating user attributes
