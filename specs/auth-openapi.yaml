@@ -117,8 +117,6 @@ tags:
     description: User profile and attributes management
   - name: MFA
     description: Multi-factor authentication operations
-  - name: MFA Management
-    description: MFA configuration and management operations
   - name: MFA Verification
     description: MFA verification and challenge response operations
   - name: Token
@@ -759,7 +757,11 @@ paths:
       tags:
         - Authentication
       summary: Sign in user
+      description: Authenticate user and initiate MFA if enabled
       operationId: signIn
+      x-amazon-apigateway-throttling:
+        rateLimit: 5
+        burstLimit: 10
       x-amazon-apigateway-integration:
         #uri: 
           #Fn::Sub: 
@@ -771,14 +773,35 @@ paths:
         payloadFormatVersion: "2.0"
         requestTemplates:
           application/json: |
+            #set($body = $input.json('$'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
             {
-              #set($body = $input.json('$'))
               #if(!$body.username || !$body.password)
                 "statusCode": 400,
-                "message": "Missing required fields"
+                "message": "Username and password are required",
+                "success": false
               #else
-                "statusCode": 200,
-                "email": "$body.email"
+                #set($mockUsername = "testuser")
+                #set($mockPassword = "Password123!")
+                #if($body.username == $mockUsername && $body.password == $mockPassword)
+                  #set($mfaEnabled = true)
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "userId": "user-${context.requestId.substring(0,8)}",
+                    "username": "$body.username",
+                    "mfaRequired": $mfaEnabled,
+                    "mfaToken": "mfa-${context.requestId}",
+                    "sessionId": "sess-${context.requestId}",
+                    "loginTimestamp": "$util.time.nowFormatted()",
+                    "expiresIn": 300
+                  }
+                #else
+                  "statusCode": 401,
+                  "message": "Invalid username or password",
+                  "success": false,
+                  "remainingAttempts": 2
+                #end
               #end
             }
         responses:
@@ -787,26 +810,64 @@ paths:
             responseTemplates:
               application/json: |
                 {
-                  "message": "Bad Request",
-                  "error": "$input.path('$.message')"
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "INVALID_CREDENTIALS",
+                    "details": "$input.path('$.message')",
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
                 }
           default:
             statusCode: 200
             responseTemplates:
               application/json: |
                 {
-                  "message": "Successfully signed in",
-                  "accessToken": "mock-token-${context.requestId}",
-                  "refreshToken": "mock-refresh-${context.requestId}",
-                  "idToken": "mock-id-token-${context.requestId}",
-                  "expiresIn": 3600,
-                  "tokenType": "Bearer",
-                  "mfaRequired": true,
-                  "mfaSession": "mock-session-id-${context.requestId}"
+                  "success": true,
+                  "message": #if($input.path('$.data.mfaRequired')) "MFA verification required" #else "Successfully signed in" #end,
+                  "data": {
+                    "userId": "$input.path('$.data.userId')",
+                    "username": "$input.path('$.data.username')",
+                    "mfaRequired": $input.path('$.data.mfaRequired'),
+                    #if($input.path('$.data.mfaRequired'))
+                    "mfaToken": "$input.path('$.data.mfaToken')",
+                    #end
+                    "sessionId": "$input.path('$.data.sessionId')",
+                    "loginTimestamp": "$input.path('$.data.loginTimestamp')",
+                    "expiresIn": $input.path('$.data.expiresIn')
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
                 }
-      x-amazon-apigateway-throttling:
-        rateLimit: 3
-        burstLimit: 5
       requestBody:
         required: true
         content:
@@ -858,6 +919,20 @@ paths:
       summary: Get current user details
       description: Retrieve detailed information about the authenticated user
       operationId: getCurrentUser
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
+      security:
+        - CognitoAuth: []
+      parameters:
+        - in: header
+          name: SecurityScheme
+          required: true
+          description: Bearer token for authentication
+          schema:
+            type: string
+            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
+          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
       x-amazon-apigateway-integration:
         #uri: 
           #Fn::Sub: 
@@ -917,20 +992,6 @@ paths:
                     }
                   },
                 }
-      x-amazon-apigateway-throttling:
-        rateLimit: 3
-        burstLimit: 5
-      security:
-        - CognitoAuth: []
-      parameters:
-        - in: header
-          name: SecurityScheme
-          required: true
-          description: Bearer token for authentication
-          schema:
-            type: string
-            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
-          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
       responses:
         "200":
           description: User details retrieved successfully
@@ -964,18 +1025,9 @@ paths:
       summary: Sign out user from all devices
       description: Invalidates all refresh tokens and signs out user from all devices
       operationId: signOut
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signOutFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       x-amazon-apigateway-throttling:
-        rateLimit: 3
-        burstLimit: 5
+        rateLimit: 5
+        burstLimit: 10
       security:
         - CognitoAuth: []
       parameters:
@@ -987,6 +1039,98 @@ paths:
             type: string
             pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
           example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${signOutFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($authHeader = $input.params().header.get('Authorization'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$authHeader || !$authHeader.startsWith("Bearer "))
+                "statusCode": 401,
+                "message": "Missing or invalid authorization token",
+                "success": false
+              #else
+                #set($token = $authHeader.substring(7))
+                #if($token.length() < 10)
+                  "statusCode": 401,
+                  "message": "Invalid token format",
+                  "success": false
+                #else
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "sessionId": "$context.requestId",
+                    "signOutTime": "$util.time.nowFormatted()",
+                    "deviceId": "$context.identity.userAgent.replaceAll('[^a-zA-Z0-9]', '')"
+                  }
+                #end
+              #end
+            }      
+        responses:
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "UNAUTHORIZED",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "429":
+            statusCode: 429
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "Too many requests",
+                  "error": {
+                    "code": "RATE_LIMIT_EXCEEDED",
+                    "details": "Please try again later"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "Successfully signed out",
+                  "data": {
+                    "sessionId": "$input.path('$.data.sessionId')",
+                    "signOutTime": "$input.path('$.data.signOutTime')",
+                    "deviceId": "$input.path('$.data.deviceId')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
       responses:
         "200":
           description: Successfully signed out
@@ -1022,18 +1166,11 @@ paths:
   /auth/mfa/setup:
     post:
       tags:
+        - Authentication
         - MFA
-      summary: Setup MFA for user
+      summary: Setup Multi-Factor Authentication for a user
+      description: Initialize MFA setup and generate QR code for authenticator app
       operationId: setupMFA
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setupMFAFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
@@ -1048,15 +1185,289 @@ paths:
             type: string
             pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
           example: "Bearer eyJhbGciOiJIUzI1NiIs..."
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setupMFAFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($authHeader = $input.params().header.get('Authorization'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$authHeader || !$authHeader.startsWith("Bearer "))
+                "statusCode": 401,
+                "message": "Missing or invalid authorization token",
+                "success": false
+              #else
+                #set($token = $authHeader.substring(7))
+                #if($token.length() < 10)
+                  "statusCode": 401,
+                  "message": "Invalid token format",
+                  "success": false
+                #else
+                  #set($userId = "user-${context.requestId.substring(0,8)}")
+                  #set($secretKey = "BASE32SECRET${context.requestId.substring(0,10)}")
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "userId": "$userId",
+                    "secretKey": "$secretKey",
+                    "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+                    "recoveryKeys": [
+                      "ABCD-EFGH-IJKL-MNOP",
+                      "QRST-UVWX-YZAB-CDEF",
+                      "GHIJ-KLMN-OPQR-STUV"
+                    ],
+                    "setupTime": "$util.time.nowFormatted()",
+                    "status": "PENDING_VERIFICATION",
+                    "expiresIn": 600
+                  }
+                #end
+              #end
+            }
+        responses:
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "UNAUTHORIZED",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "429":
+            statusCode: 429
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "Too many MFA setup attempts",
+                  "error": {
+                    "code": "RATE_LIMIT_EXCEEDED",
+                    "details": "Please try again in 5 minutes",
+                    "cooldownPeriod": 300
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "MFA setup initialized successfully",
+                  "data": {
+                    "userId": "$input.path('$.data.userId')",
+                    "secretKey": "$input.path('$.data.secretKey')",
+                    "qrCode": "$input.path('$.data.qrCode')",
+                    "recoveryKeys": $input.json('$.data.recoveryKeys'),
+                    "setupTime": "$input.path('$.data.setupTime')",
+                    "status": "$input.path('$.data.status')",
+                    "expiresIn": $input.path('$.data.expiresIn')
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
       responses:
         "200":
-          description: MFA setup successful
+          description: MFA setup initialized successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/MFASetupResponse"
         "401":
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "429":
+          description: Too many setup attempts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailable"
+    
+    put:
+      tags:
+        - Authentication
+        - MFA
+      summary: Verify MFA setup
+      description: Complete MFA setup by verifying the authenticator code
+      operationId: verifyMFASetup
+      security:
+        - CongitoAuth: []
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setupMFAFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: mock
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($body = $input.json('$'))
+            #set($authHeader = $input.params().header.get('Authorization'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$authHeader || !$authHeader.startsWith("Bearer "))
+                "statusCode": 401,
+                "message": "Missing or invalid authorization token",
+                "success": false
+              #elseif(!$body.code)
+                "statusCode": 400,
+                "message": "Verification code is required",
+                "success": false
+              #elseif($body.code.length() != 6)
+                "statusCode": 400,
+                "message": "Invalid verification code format",
+                "success": false
+              #elseif(!$body.code.matches("[0-9]+"))
+                "statusCode": 400,
+                "message": "Verification code must contain only numbers",
+                "success": false
+              #else
+                #set($validCode = "123456")
+                #if($body.code == $validCode)
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "userId": "user-${context.requestId.substring(0,8)}",
+                    "verificationTime": "$util.time.nowFormatted()",
+                    "status": "ENABLED",
+                    "nextVerificationRequired": "$util.time.nowPlus(24 * 60 * 60 * 1000).format('yyyy-MM-dd HH:mm:ss')"
+                  }
+                #else
+                  "statusCode": 400,
+                  "success": false,
+                  "message": "Invalid verification code",
+                  "remainingAttempts": 2
+                #end
+              #end
+            }
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')",
+                    #if($input.path('$.remainingAttempts'))
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                    #end
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "UNAUTHORIZED",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "MFA setup verified successfully",
+                  "data": {
+                    "userId": "$input.path('$.data.userId')",
+                    "verificationTime": "$input.path('$.data.verificationTime')",
+                    "status": "$input.path('$.data.status')",
+                    "nextVerificationRequired": "$input.path('$.data.nextVerificationRequired')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MFAVerificationRequest"
+      responses:
+        "200":
+          description: MFA setup verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MFAVerificationResponse"
+        "400":
+          description: Bad request or invalid verification code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        "401":
+          description: Unauthorized - Invalid or missing token
           content:
             application/json:
               schema:
@@ -1073,54 +1484,158 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ServiceUnavailable"
-                
+
   /auth/mfa/verify:
     post:
       tags:
+        - Authentication
         - MFA
-      summary: Verify MFA code
+      summary: Verify MFA code during sign-in
+      description: Complete sign-in process by verifying MFA code
       operationId: verifyMFA
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyMFAFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       security:
         - CognitoAuth: []
-      parameters:
-        - in: header
-          name: SecurityScheme
-          required: true
-          description: Bearer token for authentication
-          schema:
-            type: string
-            pattern: '^Bearer\s[\w-]+\.[\w-]+\.[\w-]+$'
-          example: "Bearer eyJhbGciOiJIUzI1NiIs..."
-        - in: header
-          name: Accept-Language
-          required: false
-          description: Preferred response language
-          schema:
-            type: string
-            default: "en-US"
-            pattern: '^[a-z]{2}-[A-Z]{2}$'
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyMFAFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($body = $input.json('$'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$body.mfaToken || !$body.code)
+                "statusCode": 400,
+                "message": "MFA token and verification code are required",
+                "success": false
+              #elseif($body.code.length() != 6)
+                "statusCode": 400,
+                "message": "Invalid verification code format",
+                "success": false
+              #elseif(!$body.code.matches("[0-9]+"))
+                "statusCode": 400,
+                "message": "Verification code must contain only numbers",
+                "success": false
+              #else
+                #set($validCode = "123456")
+                #if($body.code == $validCode)
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+                    "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
+                    "tokenType": "Bearer",
+                    "expiresIn": 3600,
+                    "userId": "user-${context.requestId.substring(0,8)}",
+                    "sessionId": "sess-${context.requestId}",
+                    "verificationTime": "$util.time.nowFormatted()",
+                    "permissions": [
+                      "READ",
+                      "WRITE",
+                      "DELETE"
+                    ]
+                  }
+                #else
+                  "statusCode": 401,
+                  "success": false,
+                  "message": "Invalid verification code",
+                  "remainingAttempts": 2
+                #end
+              #end
+            }
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')",
+                    #if($input.path('$.remainingAttempts'))
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                    #end
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "INVALID_MFA_CODE",
+                    "details": "$input.path('$.message')",
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "Successfully authenticated",
+                  "data": {
+                    "accessToken": "$input.path('$.data.accessToken')",
+                    "refreshToken": "$input.path('$.data.refreshToken')",
+                    "tokenType": "$input.path('$.data.tokenType')",
+                    "expiresIn": $input.path('$.data.expiresIn'),
+                    "userId": "$input.path('$.data.userId')",
+                    "sessionId": "$input.path('$.data.sessionId')",
+                    "verificationTime": "$input.path('$.data.verificationTime')",
+                    "permissions": $input.json('$.data.permissions')
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VerifyMFARequest"
+              $ref: "#/components/schemas/MFASigninVerificationRequest"
       responses:
         "200":
           description: MFA verification successful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VerifyMFAResponse"
+                $ref: "#/components/schemas/MFASigninVerificationResponse"
+        "400":
+          description: Bad request or invalid verification code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
         "401":
           description: Unauthorized
           content:
@@ -1143,19 +1658,14 @@ paths:
   /auth/mfa/resend:
     post:
       tags:
+        - Authentication
         - MFA
-      summary: Resend MFA token
-      description: Resend MFA token to user's device
-      operationId: resendMfaToken
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendMfaTokenFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+      summary: Resend MFA verification code
+      description: Request a new MFA verification code during sign-in process
+      operationId: resendMFACode
+      x-amazon-apigateway-throttling:
+        rateLimit: 2
+        burstLimit: 3
       security:
         - CognitoAuth: []
       parameters:
@@ -1175,6 +1685,115 @@ paths:
             type: string
             default: "en-US"
             pattern: '^[a-z]{2}-[A-Z]{2}$'
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendMfaTokenFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($body = $input.json('$'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$body.mfaToken)
+                "statusCode": 400,
+                "message": "MFA token is required",
+                "success": false
+              #elseif(!$body.mfaToken.startsWith("mfa-"))
+                "statusCode": 400,
+                "message": "Invalid MFA token format",
+                "success": false
+              #else
+                #set($resendCount = $util.random(0, 4))
+                #if($resendCount >= 3)
+                  "statusCode": 429,
+                  "message": "Maximum resend attempts reached",
+                  "success": false,
+                  "cooldownPeriod": 300
+                #else
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "mfaToken": "$body.mfaToken",
+                    "deliveryMethod": "EMAIL",
+                    "maskedDestination": "t***t@example.com",
+                    "resendCount": $resendCount,
+                    "remainingResends": #set($remaining = 3 - $resendCount)$remaining,
+                    "requestTime": "$util.time.nowFormatted()",
+                    "expiresIn": 300,
+                    "nextResendAllowed": "$util.time.nowPlus(60 * 1000).format('yyyy-MM-dd HH:mm:ss')"
+                  }
+                #end
+              #end
+            }
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "429":
+            statusCode: 429
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "RATE_LIMIT_EXCEEDED",
+                    "details": "Maximum resend attempts reached",
+                    "cooldownPeriod": $input.path('$.cooldownPeriod'),
+                    "nextAttemptAllowed": "$util.time.nowPlus($input.path('$.cooldownPeriod') * 1000).format('yyyy-MM-dd HH:mm:ss')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "MFA code resent successfully",
+                  "data": {
+                    "mfaToken": "$input.path('$.data.mfaToken')",
+                    "deliveryMethod": "$input.path('$.data.deliveryMethod')",
+                    "maskedDestination": "$input.path('$.data.maskedDestination')",
+                    "resendCount": $input.path('$.data.resendCount'),
+                    "remainingResends": $input.path('$.data.remainingResends'),
+                    "requestTime": "$input.path('$.data.requestTime')",
+                    "expiresIn": $input.path('$.data.expiresIn'),
+                    "nextResendAllowed": "$input.path('$.data.nextResendAllowed')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
       requestBody:
         required: true
         content:
@@ -1183,23 +1802,23 @@ paths:
               $ref: "#/components/schemas/ResendMfaTokenRequest"
       responses:
         "200":
-          description: MFA token resent successfully
+          description: MFA code resent successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ResendMfaTokenResponse"
+                $ref: "#/components/schemas/MFAResendResponse"
         "400":
-          description: Bad request
+          description: Bad request or invalid MFA token
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/BadRequest"
-        "401":
-          description: Unauthorized
+        "429":
+          description: Too many resend attempts
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Unauthorized"
+                $ref: "#/components/schemas/TooManyMfaRequests"
         "500":
           description: Internal server error
           content:
@@ -1210,19 +1829,11 @@ paths:
   /auth/mfa/enable:
     post:
       tags:
-        - MFA Management
-      summary: Enable MFA for user
-      description: Enable and configure MFA for the authenticated user
+        - Authentication
+        - MFA
+      summary: Enable MFA for user account
+      description: Enable and configure MFA for authenticated user
       operationId: enableMfa
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${enableMfaFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       security:
         - CognitoAuth: []
       parameters:
@@ -1242,6 +1853,128 @@ paths:
             type: string
             default: "en-US"
             pattern: '^[a-z]{2}-[A-Z]{2}$'
+      x-amazon-apigateway-throttling:
+        rateLimit: 2
+        burstLimit: 3
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${enableMfaFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($authHeader = $input.params().header.get('Authorization'))
+            #set($body = $input.json('$'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$authHeader || !$authHeader.startsWith("Bearer "))
+                "statusCode": 401,
+                "message": "Missing or invalid authorization token",
+                "success": false
+              #elseif(!$body.mfaType || !$body.code)
+                "statusCode": 400,
+                "message": "MFA type and verification code are required",
+                "success": false
+              #elseif($body.mfaType != "TOTP" && $body.mfaType != "SMS" && $body.mfaType != "EMAIL")
+                "statusCode": 400,
+                "message": "Invalid MFA type. Supported types: TOTP, SMS, EMAIL",
+                "success": false
+              #elseif($body.code.length() != 6 || !$body.code.matches("[0-9]+"))
+                "statusCode": 400,
+                "message": "Invalid verification code format",
+                "success": false
+              #else
+                #set($validCode = "123456")
+                #if($body.code == $validCode)
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "userId": "user-${context.requestId.substring(0,8)}",
+                    "mfaEnabled": true,
+                    "mfaType": "$body.mfaType",
+                    "enabledAt": "$util.time.nowFormatted()",
+                    "backupCodes": [
+                      "1234-5678",
+                      "8765-4321",
+                      "9876-5432"
+                    ],
+                    "recoveryEmail": "u***r@example.com"
+                  }
+                #else
+                  "statusCode": 400,
+                  "success": false,
+                  "message": "Invalid verification code",
+                  "remainingAttempts": 2
+                #end
+              #end
+            }  
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')",
+                    #if($input.path('$.remainingAttempts'))
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                    #end
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "UNAUTHORIZED",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "MFA enabled successfully",
+                  "data": {
+                    "userId": "$input.path('$.data.userId')",
+                    "mfaEnabled": $input.path('$.data.mfaEnabled'),
+                    "mfaType": "$input.path('$.data.mfaType')",
+                    "enabledAt": "$input.path('$.data.enabledAt')",
+                    "backupCodes": $input.json('$.data.backupCodes'),
+                    "recoveryEmail": "$input.path('$.data.recoveryEmail')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
       requestBody:
         required: true
         content:
@@ -1277,20 +2010,11 @@ paths:
   /auth/mfa/disable:
     post:
       tags:
-        - MFA Management
+        - Authentication
+        - MFA
       summary: Disable MFA for user
       description: Disable MFA for the authenticated user
       operationId: disableMfa
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${disableMfaFunctionArn}/invocations"
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
-      security:
-        - CognitoAuth: []
       parameters:
         - in: header
           name: SecurityScheme
@@ -1308,6 +2032,117 @@ paths:
             type: string
             default: "en-US"
             pattern: '^[a-z]{2}-[A-Z]{2}$'
+      security:
+        - CognitoAuth: []
+      x-amazon-apigateway-throttling:
+        rateLimit: 2
+        burstLimit: 3
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${disableMfaFunctionArn}/invocations"
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($authHeader = $input.params().header.get('Authorization'))
+            #set($body = $input.json('$'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$authHeader || !$authHeader.startsWith("Bearer "))
+                "statusCode": 401,
+                "message": "Missing or invalid authorization token",
+                "success": false
+              #elseif(!$body.code)
+                "statusCode": 400,
+                "message": "Verification code is required",
+                "success": false
+              #elseif($body.code.length() != 6 || !$body.code.matches("[0-9]+"))
+                "statusCode": 400,
+                "message": "Invalid verification code format",
+                "success": false
+              #else
+                #set($validCode = "123456")
+                #if($body.code == $validCode)
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "userId": "user-${context.requestId.substring(0,8)}",
+                    "mfaEnabled": false,
+                    "disabledAt": "$util.time.nowFormatted()",
+                    "securityNotice": "Your account security level has been reduced"
+                  }
+                #else
+                  "statusCode": 400,
+                  "success": false,
+                  "message": "Invalid verification code",
+                  "remainingAttempts": 2
+                #end
+              #end
+            }
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')",
+                    #if($input.path('$.remainingAttempts'))
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                    #end
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "UNAUTHORIZED",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "MFA disabled successfully",
+                  "data": {
+                    "userId": "$input.path('$.data.userId')",
+                    "mfaEnabled": $input.path('$.data.mfaEnabled'),
+                    "disabledAt": "$input.path('$.data.disabledAt')",
+                    "securityNotice": "$input.path('$.data.securityNotice')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
       requestBody:
         required: true
         content:
@@ -2571,39 +3406,48 @@ components:
         password:
           type: string
           description: Password of the user
-        rememberMe:
-          type: boolean
-          description: Indicates if the user wants to stay signed in
-          default: false
+          example: "P@ssw0rd123!"
 
     SignInResponse:
-      description: Response body for user sign-in
       type: object
+      required:
+        - success
+        - message
+        - data
       properties:
+        success:
+          type: boolean
+          description: Indicates if the sign-in was successful
         message:
           type: string
-          description: Message describing the result of the sign-in attempt
-        accessToken:
-          type: string
-          description: JWT access token for the user
-        refreshToken:
-          type: string
-          description: JWT refresh token for the user
-        idToken:
-          type: string
-          description: JWT ID token for the user
-        expiresIn:
-          type: integer
-          description: Number of seconds until the access token expires
-        tokenType:
-          type: string
-          description: Type of token, always 'Bearer'
-        mfaRequired:
-          type: boolean
-          description: Indicates if the user needs to complete multi-factor authentication
-        mfaSession:
-          type: string
-          description: Session ID for the multi-factor authentication flow
+          description: Response message describing the result of the sign-in attempt
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              description: JWT access token for the user
+            refreshToken:
+              type: string
+              description: JWT refresh token for the user
+            idToken:
+              type: string
+              description: JWT ID token for the user
+            expiresIn:
+              type: integer
+              description: Number of seconds until the access token expires
+            tokenType:
+              type: string
+              description: Type of token, always 'Bearer'
+            mfaRequired:
+              type: boolean
+              description: Indicates if the user needs to complete multi-factor authentication
+            mfaSession:
+              type: string
+              description: Session ID for the multi-factor authentication flow
+            loginTimestamp:
+              type: string
+              format: date-time
 
     EmailVerificationRequest:
       description: Request body for verifying a user's email address
@@ -2728,7 +3572,35 @@ components:
               type: string
             requestId:
               type: string
-
+   
+    RateLimitInfo:
+      type: object            
+      properties:
+        message:
+          type: string
+          description: Error message
+        limit:
+          type: integer
+          description: Maximum requests allowed in the time window
+        remaining:
+          type: integer
+          description: Remaining requests in the current window
+        reset:
+          type: string
+          format: date-time
+          description: Time when the rate limit resets
+        retryAfter:
+          type: integer
+          description: Seconds until next request is allowed (when limited)
+        window:
+          type: integer
+          description: Time window in seconds
+        resetTime:
+          type: string
+          format: date-time
+          description: Time when the rate limit will be reset
+          example: "2023-04-01T00:00:00Z"
+    
     SignOutResponse:
       description: Response body for user sign-out
       type: object
@@ -2786,58 +3658,142 @@ components:
             type: string
             description: Backup code for the user
     
-    VerifyMFARequest:
+    MFASetupVerificationRequest:
       description: Request body for verifying a user's MFA
       type: object
       required:
+        - mfaSession
         - code
       properties:
         code:
           type: string
-          pattern: '^\d{6}$'
-          description: 6-digit verification code sent to the user
-        session:
+          pattern: "^[0-9]{6}$"
+          description: 6-digit verification code
+        mfaSession:
           type: string
-          description: Session ID for the MFA verification
+          description: Session ID token received from sign-in
 
-    VerifyMFAResponse:
-      description: Response body for verifying a user's MFA
+    MFASetupVerificationResponse:
       type: object
+      required:
+        - success
+        - message
+        - data
+        - metadata
       properties:
         success:
           type: boolean
-          description: Indicates if the MFA verification was successful
-        accessToken:
+          description: Indicates if the verification was successful
+          example: true
+        message:
           type: string
-          description: Access token for the user
-        refreshToken:
-          type: string
-          description: Refresh token for the user
-        idToken:
-          type: string
-          description: ID token for the user
+          description: Human-readable message describing the result
+          example: "MFA setup verified successfully"
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+              description: User identifier
+              example: "user-12345678"
+            verificationTime:
+              type: string
+              format: date-time
+              description: Verification timestamp
+            status:
+              type: string
+              enum: [ENABLED]
+              description: MFA status after verification
+            nextVerificationRequired:
+              type: string
+              format: date-time
+              description: Next verification requirement timestamp
+        metadata:
+          $ref: "#/components/schemas/ResponseMetadata"
     
-    ResendMfaTokenRequest:
+    MFASigninVerificationRequest:
+      type: object
+      required:
+        - mfaToken
+        - code
+      properties:
+        mfaSessionToken:
+          type: string
+          description: MFA session token received from sign-in
+        code:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: 6-digit verification code
+
+    MFASigninVerificationResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the verification was successful
+        message:
+          type: string
+          description: Response message
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            tokenType:
+              type: string
+            expiresIn:
+              type: integer
+            userId:
+              type: string
+            sessionId:
+              type: string
+            verificationTime:
+              type: string
+              format: date-time
+            permissions:
+              type: array
+              items:
+                type: string
+
+    MFAResendRequest:
       description: Request body for resending the MFA token
       type: object
       required:
+        - mfaSession
         - deliveryMedium
       properties:
+        mfaSession:
+          type: string
+          description: MFA token received during sign-in
+          example: "mfa-abc123def456"
         deliveryMedium:
           description: Medium through which the reset code was sent
           type: string
           enum: [EMAIL, SMS]
 
-    ResendMfaTokenResponse:
+    MFAResendResponse:
       description: Response body for resending the MFA token
       type: object
+      required:
+        - success
+        - message
+        - data
+        - metadata
       properties:
         success:
           type: boolean
           description: Indicates if the resend was successful
+          example: true
         message:
           type: string
           description: Message describing the result of the resend attempt
+          example: "MFA code resent successfully"
         deliveryMedium:
           type: string
           enum: [EMAIL, SMS]
@@ -2846,25 +3802,82 @@ components:
           type: string
           description: Masked email or phone number where code was sent
           example: "j***@example.com"
-    
+        data:
+          type: object
+          properties:
+            mfaToken:
+              type: string
+              description: MFA token for verification
+              example: "mfa-abc123def456"
+            deliveryMethod:
+              type: string
+              enum: [EMAIL, SMS]
+              description: Method used to deliver the code
+              example: "EMAIL"
+            maskedDestination:
+              type: string
+              description: Masked email or phone number
+              example: "t***t@example.com"
+            resendCount:
+              type: integer
+              description: Number of times code has been resent
+              example: 1
+            remainingResends:
+              type: integer
+              description: Number of remaining resend attempts
+              example: 2
+            requestTime:
+              type: string
+              format: date-time
+              description: Time of resend request
+            expiresIn:
+              type: integer
+              description: Seconds until code expires
+              example: 300
+            nextResendAllowed:
+              type: string
+              format: date-time
+              description: Time when next resend is allowed
+        metadata:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+              description: Request timestamp
+            region:
+              type: string
+              description: Region where request was processed
+              example: "us-east-1"
+            userAgent:
+              type: string
+              description: User agent of the client
+            path:
+              type: string
+              description: API path
+              example: "/auth/mfa/resend"
+            httpMethod:
+              type: string
+              description: HTTP method used
+              example: "POST"
+
     EnableMfaRequest:
       type: object
       description: Request body for enabling MFA
       required:
         - mfaType
+        - code
       properties:
         mfaType:
           type: string
           enum: [SMS, EMAIL, TOTP]
           description: Type of MFA to enable
-        phoneNumber:
+          example: "TOTP"
+        code:
           type: string
-          pattern: '^\+[1-9]\d{1,14}$'
-          description: Required if MFA type is SMS
-        email:
-          type: string
-          format: email
-          description: Required if MFA type is EMAIL
+          pattern: "^[0-9]{6}$"
+          description: Verification code
+          example: "123456"
 
     EnableMfaResponse:
       description: Response body for enabling MFA
@@ -2876,36 +3889,48 @@ components:
         message:
           type: string
           description: Message describing the result of the enable MFA attempt
-        secretCode:
-          type: string
-          description: TOTP secret code (only for TOTP MFA)
-        qrCodeUrl:
-          type: string
-          description: QR code URL for TOTP setup
-        backupCodes:
-          type: array
-          items:
-            type: string
-          description: Backup codes for account recovery
+        data:
+          type: object
+          properties:
+            mfaEnabled:
+              type: boolean
+            mfaType:
+              type: string
+              enum: [TOTP, SMS, EMAIL]
+            enabledAt:
+              type: string
+              format: date-time
+            backupCodes:
+              type: array
+              items:
+                type: string
+              description: Backup codes for account recovery
+            recoveryEmail:
+              type: string
 
     DisableMfaRequest:
       description: Request body for disabling MFA
       type: object
       required:
         - mfaType
-        - verificationCode
+        - code
       properties:
         mfaType:
           type: string
           enum: [SMS, EMAIL, TOTP]
           description: Type of MFA to disable
-        verificationCode:
+        code:
           type: string
-          pattern: '^\d{6}$'
-          description: Verification code sent to user during MFA setup
+          pattern: "^[0-9]{6}$"
+          description: Current MFA verification code
+          example: "123456"
 
     DisableMfaResponse:
       type: object
+      required:
+        - success
+        - message
+        - data
       description: Response body for disabling MFA
       properties:
         success:
@@ -2914,6 +3939,16 @@ components:
         message:
           type: string
           description: Message describing the result of the disable MFA attempt
+        data:
+          type: object
+          properties:
+            mfaEnabled:
+              type: boolean
+            disabledAt:
+              type: string
+              format: date-time
+            securityNotice:
+              type: string
 
     SetMfaPreferenceRequest:
       description: Request body for setting MFA preference
@@ -3453,6 +4488,26 @@ components:
           description: Number of verification attempts remaining
         rateLimitInfo:
           $ref: '#/components/schemas/RateLimitInfo'
+    
+    ResponseMetadata:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Request timestamp
+        region:
+          type: string
+          description: Region where request was processed
+        userAgent:
+          type: string
+          description: User agent of the client
+        path:
+          type: string
+          description: API path
+        httpMethod:
+          type: string
+          description: HTTP method used
 
     Error:
       description: Error response body
@@ -3481,11 +4536,49 @@ components:
         rateLimitInfo:
           $ref: "#/components/schemas/RateLimitInfo"
 
-    RateLimitsResponse:
-      description: Rate limit status response body
+    TooManyMfaRequests:
+      type: object
+      required:
+        - success
+        - message
+        - error
+        - metadata
       properties:
-        schema:
-          $ref: "#/components/schemas/RateLimitInfo"
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Maximum resend attempts reached"
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "RATE_LIMIT_EXCEEDED"
+            details:
+              type: string
+              example: "Maximum resend attempts reached"
+            cooldownPeriod:
+              type: integer
+              description: Seconds until next attempt is allowed
+              example: 300
+            nextAttemptAllowed:
+              type: string
+              format: date-time
+              description: Time when next attempt is allowed
+        metadata:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            requestId:
+              type: string
+            path:
+              type: string
+            httpMethod:
+              type: string
 
     TooManyRequests:
       description: Rate limit exceeded
