@@ -40,7 +40,7 @@ info:
 
     Some useful links:
     - [The CTF's Portal Backend API repository](https://github.com/cometbid-sfi/csf-portal-backend) 
-     
+
     - [The source API definition for the CTF's Portal Backend appliation](https://github.com/cometbid-sfi/csf-portal-backend/blob/master/src/openapi.yaml)
 
   termsOfService: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE
@@ -2191,14 +2191,15 @@ paths:
       description: Retrieve current MFA settings and preferences for the authenticated user
       operationId: getUserMfaPreference
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserMfaPreferenceFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserMfaPreferenceFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       security:
         - CognitoAuth: []
       parameters:
@@ -2257,14 +2258,15 @@ paths:
       description: Update MFA settings and preferences for the authenticated user
       operationId: setUserMfaPreference
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setUserMfaPreferenceFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${setUserMfaPreferenceFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       security:
         - CognitoAuth: []
       parameters:
@@ -2330,14 +2332,15 @@ paths:
       description: Submit MFA verification code in response to an authentication challenge
       operationId: respondToMfaChallenge
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${respondToMfaChallengeFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${respondToMfaChallengeFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+       
       requestBody:
         required: true
         content:
@@ -2384,14 +2387,15 @@ paths:
       description: Change password for authenticated user
       operationId: changePassword
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${changePasswordFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${changePasswordFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       security:
         - CognitoAuth: []
       parameters:
@@ -2456,14 +2460,15 @@ paths:
       summary: Initiate password reset flow
       description: Send password reset code to user's email
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${requestPasswordResetFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${requestPasswordResetFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       requestBody:
         required: true
         content:
@@ -2511,14 +2516,15 @@ paths:
       security:
         - CognitoAuth: []
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resetPasswordFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resetPasswordFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       requestBody:
         required: true
         content:
@@ -2564,14 +2570,15 @@ paths:
       summary: Refresh access token
       operationId: refreshToken
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${refreshTokenFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${refreshTokenFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       security:
         - CognitoAuth: []
       parameters:
@@ -2643,14 +2650,15 @@ paths:
       description: Send password reset code to user's email
       operationId: forgotPassword
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${forgotPasswordFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${forgotPasswordFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+       
       requestBody:
         required: true
         content:
@@ -2697,14 +2705,15 @@ paths:
       description: Verify account recovery using verification code
       operationId: verifyAccountRecovery
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyAccountRecoveryFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyAccountRecoveryFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       requestBody:
         required: true
         content:
@@ -2757,14 +2766,15 @@ paths:
       description: Reset password using verification code
       operationId: confirmForgotPassword
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmForgotPasswordFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmForgotPasswordFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       requestBody:
         required: true
         content:
@@ -2811,14 +2821,15 @@ paths:
       description: Retrieve all attributes for the authenticated user
       operationId: getUserAttributes
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserAttributesFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUserAttributesFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       security:
         - CognitoAuth: []
       parameters:
@@ -2876,14 +2887,15 @@ paths:
       description: Update one or more attributes for the authenticated user
       operationId: updateUserAttributes
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateUserAttributesFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateUserAttributesFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       security:
         - CognitoAuth: []
       parameters:
@@ -2949,14 +2961,15 @@ paths:
       description: Start phone verification process by sending verification code
       operationId: initiatePhoneVerification
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${initiatePhoneVerificationFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${initiatePhoneVerificationFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       x-amazon-apigateway-throttling:
         rateLimit: 2
         burstLimit: 3
@@ -3031,14 +3044,15 @@ paths:
       description: Verify phone number using verification code
       operationId: verifyPhoneNumber
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyPhoneNumberFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+           #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyPhoneNumberFunctionArn}/invocations"
+        #httpMethod: POST
+        #connectionType: INTERNET
         #type: aws_proxy
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
@@ -3119,14 +3133,15 @@ paths:
       description: Check the current status of phone verification
       operationId: getVerificationStatus
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getVerificationStatusFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getVerificationStatusFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       security:
         - CognitoAuth: []
       parameters:
@@ -3198,14 +3213,15 @@ paths:
       description: Resend verification code to phone number
       operationId: resendVerificationCode
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendVerificationCodeFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${resendVerificationCodeFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
+        #connectionType: INTERNET
         type: 'mock'
         payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+        
       x-amazon-apigateway-throttling:
         rateLimit: 1
         burstLimit: 2
