@@ -1,6 +1,6 @@
 openapi: "3.0.3"
 info:
-  title: CSF Portal Authentication & Authorization API
+  title: CTF Portal Authentication & Authorization API
   version: 1.0.0
   description: |
     This is a Comprehensive API for user authentication and authorization. 
@@ -13,7 +13,7 @@ info:
     It is designed to be scalable and secure, with a focus on user data protection and privacy.
     The API is designed to be used by a web application or other services that require user authentication and authorization.
 
-    This is ***The Cometbid Software Foundation, CSF, Portal API*** documentation based on the OpenAPI 3.0 specification. You can test run the apis
+    This is ***The Cometbid Technology Foundation, CTF, Portal API*** documentation based on the OpenAPI 3.0 specification. You can test run the apis
     against our live server with a pre-defined request, and get instant feedback on whether there was an error in the request, or the server could not process the request for some other reasons.
 
     You can also test our APIs in the sandbox environment, where you can make changes and test the APIs with a more robust data without affecting the production environment.
@@ -33,16 +33,16 @@ info:
     We are looking forward to hearing from you.
 
     Thank you for your support!  
-    **The CSF Team**  
-    [The Cometbid Software Foundation Inc.](www.cometbid.org)
+    **The CTF Team**  
+    [The Cometbid Technology Foundation Inc.](www.cometbid.org)
 
     Some useful links:
-    - [The CSF's Portal Backend API repository](https://github.com/cometbid-sfi/csf-portal-backend)  
-    - [The source API definition for the CSF's Portal Backend appliation](https://github.com/cometbid-sfi/csf-portal-backend/blob/master/src/openapi.yaml)
+    - [The CTF's Portal Backend API repository](https://github.com/cometbid-sfi/csf-portal-backend)  
+    - [The source API definition for the CTF's Portal Backend appliation](https://github.com/cometbid-sfi/csf-portal-backend/blob/master/src/openapi.yaml)
 
   termsOfService: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE
   contact:
-    name: The Cometbid Software Foundation Inc.
+    name: The Cometbid Technology Foundation Inc.
     url: http://www.cometbid.org/support
     email: support@cometbid.org
   license:
@@ -136,17 +136,11 @@ paths:
       summary: Get rate limit status
       description: Retrieve current rate limit status and remaining requests
       operationId: getRateLimitStatus
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getRateLimitStatusFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       security:
         - CognitoAuth: []
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
       parameters:
         - in: header
           name: SecurityScheme
@@ -164,6 +158,86 @@ paths:
             type: string
             default: "en-US"
             pattern: "^[a-z]{2}-[A-Z]{2}$"
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getRateLimitStatusFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($authHeader = $input.params().header.get('Authorization'))
+            {
+              #if(!$authHeader || !$authHeader.startsWith("Bearer "))
+                "statusCode": 401,
+                "message": "Missing or invalid authorization token"
+              #else
+                "statusCode": 200,
+                "accountId": "acc-${context.requestId.substring(0,8)}",
+                "tier": "standard"
+              #end
+            }
+        responses:
+          "401":
+            statusCode: 401
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Unauthorized",
+                  "error": "$input.path('$.message')"
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                #set($accountId = $input.path('$.accountId'))
+                #set($tier = $input.path('$.tier'))
+                #set($limits = {
+                  "standard": {
+                    "requests_per_second": 10,
+                    "burst_limit": 20,
+                    "daily_quota": 100000
+                  },
+                  "premium": {
+                    "requests_per_second": 50,
+                    "burst_limit": 100,
+                    "daily_quota": 1000000
+                  }
+                })
+                {
+                  "accountId": "$accountId",
+                  "tier": "$tier",
+                  "currentUsage": {
+                    "daily_requests": #random(1000, 50000),
+                    "current_rate": #random(1, 10)
+                  },
+                  "limits": {
+                    #if($tier == "premium")
+                      "requests_per_second": $limits.premium.requests_per_second,
+                      "burst_limit": $limits.premium.burst_limit,
+                      "daily_quota": $limits.premium.daily_quota
+                    #else
+                      "requests_per_second": $limits.standard.requests_per_second,
+                      "burst_limit": $limits.standard.burst_limit,
+                      "daily_quota": $limits.standard.daily_quota
+                    #end
+                  },
+                  "resetTime": "$util.time.nowFormatted()",
+                  "nextResetTime": "$util.time.nowPlus(24 * 60 * 60 * 1000).format('yyyy-MM-dd HH:mm:ss')",
+                  "throttling": {
+                    "enabled": true,
+                    "soft_limit": true,
+                    "hard_limit": false
+                  },
+                  "metadata": {
+                    "region": "$context.identity.sourceIp",
+                    "lastUpdated": "$context.requestTime",
+                    "requestId": "$context.requestId"
+                  }
+                }
       responses:
         "200":
           description: Rate limit status retrieved successfully
@@ -187,22 +261,72 @@ paths:
   /account/username/recover:
     post:
       tags:
-        - Username Recovery
+        - Account Recovery
       summary: Initiate username recovery
       description: Start username recovery process using personal information
       operationId: recoverUsername
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${recoverUsernameFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${recoverUsernameFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($body = $input.json('$'))
+            {
+              #if(!$body.brandName || !$body.firstName || !$body.lastName)
+                "statusCode": 400,
+                "message": "Missing required fields"
+              #else
+                "statusCode": 201,
+                "data": {
+                  "maskedEmail": "user-${context.requestId.substring(0,8)}@example.com",
+                }"
+                "message": "Your email(username) is."
+              #end
+            }
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "Username recovery initiated successfully",
+                  "email": "$input.path('$.message') $input.path('$.data.maskedEmail')",
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
       requestBody:
         required: true
         content:
@@ -340,29 +464,121 @@ paths:
                 $ref: "#/components/schemas/ServiceUnavailable"
 
   /auth/confirm-signup:
-    post:
+    get:
       tags:
         - Authentication
       summary: Confirm user registration.
       operationId: confirmSignUp
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
       x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmSignUpFunctionArn}/invocations"
-        httpMethod: POST
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${confirmSignUpFunctionArn}/invocations"
+        #httpMethod: POST
         #type: aws_proxy
         type: 'mock'
         payloadFormatVersion: "2.0"
         connectionType: INTERNET
-      x-amazon-apigateway-throttling:
-        rateLimit: 3
-        burstLimit: 5
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ConfirmSignUpRequest"
+        requestTemplates:
+          application/json: |
+            #set($body = $input.json('$'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$body.session)
+                "statusCode": 400,
+                "message": "Verification code required",
+                "success": false
+              #else
+                #set($validCode = "123456")
+                #if($body.session == $validCode)
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "email": "$body.email",
+                    "verified": true,
+                    "verificationTimestamp": "$util.time.nowFormatted()",
+                    "requestId": "$context.requestId"
+                  }
+                #else
+                  "statusCode": 400,
+                  "success": false,
+                  "message": "Invalid verification code",
+                  "remainingAttempts": 2
+                #end
+              #end
+            }
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')",
+                    #if($input.path('$.remainingAttempts'))
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                    #end
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "429":
+            statusCode: 429
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "Too many verification attempts",
+                  "error": {
+                    "code": "RATE_LIMIT_EXCEEDED",
+                    "details": "Please try again later",
+                    "cooldownPeriod": 300
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "Email verified successfully",
+                  "data": {
+                    "email": "$input.path('$.data.email')",
+                    "verified": $input.path('$.data.verified'),
+                    "verificationTimestamp": "$input.path('$.data.verificationTimestamp')",
+                    "requestId": "$input.path('$.data.requestId')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+      parameters:
+        - name: session
+          in: query
+          description: Session id for the confirm signup flow
+          required: true
+          schema:
+            type: string
+        
       responses:
         "200":
           description: Email verification successful
@@ -397,29 +613,121 @@ paths:
                 $ref: "#/components/schemas/ServiceUnavailable"
 
   /auth/verify-email:
-    post:
+    get:
       tags:
-        - User Management
+        - Authentication
       summary: Verify email address
       operationId: verifyEmail
-      x-amazon-apigateway-integration:
-        uri: 
-          Fn::Sub: 
-            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyEmailFunctionArn}/invocations"
-        httpMethod: POST
-        #type: aws_proxy
-        type: 'mock'
-        payloadFormatVersion: "2.0"
-        connectionType: INTERNET
+      description: Verify user's email address using verification code
       x-amazon-apigateway-throttling:
         rateLimit: 3
         burstLimit: 5
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/EmailVerificationRequest"
+      x-amazon-apigateway-integration:
+        #uri: 
+          #Fn::Sub: 
+            #- "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${verifyEmailFunctionArn}/invocations"
+        #httpMethod: POST
+        #type: aws_proxy
+        #connectionType: INTERNET
+        type: 'mock'
+        payloadFormatVersion: "2.0"
+        requestTemplates:
+          application/json: |
+            #set($body = $input.json('$'))
+            #set($context.responseOverride.header.Content-Type = "application/json")
+            {
+              #if(!$body.session)
+                "statusCode": 400,
+                "message": "Verification code required",
+                "success": false
+              #else
+                #set($validCode = "123456")
+                #if($body.session == $validCode)
+                  "statusCode": 200,
+                  "success": true,
+                  "data": {
+                    "email": "$body.email",
+                    "verified": true,
+                    "verificationTimestamp": "$util.time.nowFormatted()",
+                    "requestId": "$context.requestId"
+                  }
+                #else
+                  "statusCode": 400,
+                  "success": false,
+                  "message": "Invalid verification code",
+                  "remainingAttempts": 2
+                #end
+              #end
+            }
+        responses:
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "$input.path('$.message')",
+                  "error": {
+                    "code": "VALIDATION_ERROR",
+                    "details": "$input.path('$.message')",
+                    #if($input.path('$.remainingAttempts'))
+                    "remainingAttempts": $input.path('$.remainingAttempts')
+                    #end
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          "429":
+            statusCode: 429
+            responseTemplates:
+              application/json: |
+                {
+                  "success": false,
+                  "message": "Too many verification attempts",
+                  "error": {
+                    "code": "RATE_LIMIT_EXCEEDED",
+                    "details": "Please try again later",
+                    "cooldownPeriod": 300
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "requestId": "$context.requestId",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                {
+                  "success": true,
+                  "message": "Email verified successfully",
+                  "data": {
+                    "email": "$input.path('$.data.email')",
+                    "verified": $input.path('$.data.verified'),
+                    "verificationTimestamp": "$input.path('$.data.verificationTimestamp')",
+                    "requestId": "$input.path('$.data.requestId')"
+                  },
+                  "metadata": {
+                    "timestamp": "$context.requestTime",
+                    "region": "$context.identity.sourceIp",
+                    "userAgent": "$context.identity.userAgent",
+                    "path": "$context.resourcePath",
+                    "httpMethod": "$context.httpMethod"
+                  }
+                }
+      parameters:
+        - name: session
+          in: query
+          description: Session id for the email verification flow
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Email verification successful
@@ -2232,23 +2540,11 @@ components:
       type: object
       description: Request body for confirming a user's sign-up
       required:
-        - email
-        - code
         - session
       properties:
-        email:
-          type: string
-          format: email
-          description: Email address of the user
-        code:
-          type: string
-          description: verification code sent to the user's email as part of the link to click on
         session:
           type: string
-          description: Session ID for the Signup verification
-        expiresIn:
-          type: integer
-          description: Number of seconds until the verification code expires
+          description: Session ID for the Signup verification (code, sessionId, email and timestamp)
 
     ConfirmSignUpResponse:
       description: Response body for confirming a user's sign-up
@@ -2313,17 +2609,8 @@ components:
       description: Request body for verifying a user's email address
       type: object
       required:
-        - email
         - code
       properties:
-        email:
-          type: string
-          format: email
-          description: Email address of the user
-        code:
-          type: string
-          pattern: '^\d{6}$'
-          description: 6-digit verification code sent to the user's email
         session:
           type: string
           description: Session ID for the MFA verification
@@ -2381,9 +2668,6 @@ components:
           minLength: 1
           maxLength: 100
           description: User's membership name(brand name)
-        recaptchaToken:
-          type: string
-          description: Google reCAPTCHA token for verification
 
     UsernameRecoveryResponse:
       type: object
@@ -2398,33 +2682,52 @@ components:
         rateLimitInfo:
           $ref: "#/components/schemas/RateLimitInfo"
 
-    RateLimitInfo:
+    RateLimitsResponse:
       type: object
       properties:
-        message:
+        accountId:
           type: string
-          description: Error message
-        limit:
-          type: integer
-          description: Maximum requests allowed in the time window
-        remaining:
-          type: integer
-          description: Remaining requests in the current window
-        reset:
+        tier:
           type: string
-          format: date-time
-          description: Time when the rate limit resets
-        retryAfter:
-          type: integer
-          description: Seconds until next request is allowed (when limited)
-        window:
-          type: integer
-          description: Time window in seconds
+          enum: [standard, premium]
+        currentUsage:
+          type: object
+          properties:
+            daily_requests:
+              type: integer
+            current_rate:
+              type: number
+        limits:
+          type: object
+          properties:
+            requests_per_second:
+              type: integer
+            burst_limit:
+              type: integer
+            daily_quota:
+              type: integer
         resetTime:
           type: string
-          format: date-time
-          description: Time when the rate limit will be reset
-          example: "2023-04-01T00:00:00Z"
+        nextResetTime:
+          type: string
+        throttling:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            soft_limit:
+              type: boolean
+            hard_limit:
+              type: boolean
+        metadata:
+          type: object
+          properties:
+            region:
+              type: string
+            lastUpdated:
+              type: string
+            requestId:
+              type: string
 
     SignOutResponse:
       description: Response body for user sign-out
@@ -3178,7 +3481,7 @@ components:
         rateLimitInfo:
           $ref: "#/components/schemas/RateLimitInfo"
 
-    RateLimitStatus:
+    RateLimitsResponse:
       description: Rate limit status response body
       properties:
         schema:
