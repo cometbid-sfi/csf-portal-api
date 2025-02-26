@@ -33,23 +33,33 @@ info:
     We are looking forward to hearing from you.
 
     Thank you for your support!  
+
     **The CTF Team**  
+
     [The Cometbid Technology Foundation Inc.](www.cometbid.org)
 
     Some useful links:
-    - [The CTF's Portal Backend API repository](https://github.com/cometbid-sfi/csf-portal-backend)  
+    - [The CTF's Portal Backend API repository](https://github.com/cometbid-sfi/csf-portal-backend) 
+     
     - [The source API definition for the CTF's Portal Backend appliation](https://github.com/cometbid-sfi/csf-portal-backend/blob/master/src/openapi.yaml)
 
   termsOfService: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE
+
   contact:
     name: The Cometbid Technology Foundation Inc.
-    url: http://www.cometbid.org/support
+
+    url: http://www.cometbid.org/support   
+
     email: support@cometbid.org
+
   license:
     name: MIT License
-    url: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE
-externalDocs:
-  description: Visit our FAQ for any enquiries or get answers to common questions.
+
+    url: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE  
+
+externalDocs: 
+  description: Visit our FAQ page for any enquiries and get answers to common questions.  
+
   url: http://www.cometbid.org/faq
 
 servers:
