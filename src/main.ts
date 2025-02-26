@@ -4,10 +4,10 @@ import "swagger-ui/dist/swagger-ui.css";
 
 SwaggerUI({
   urls: [
-    { url: "./specs/auth-openapi.yaml", name: "Authentication - API" },
+    { url: "./specs/auth-openapi.yaml", name: "Authentication - Mock API" },
     {
       url: "./specs/member-openapi.yaml",
-      name: "Membership - API",
+      name: "Membership - Mock API",
     },
   ],
   dom_id: "#app",
