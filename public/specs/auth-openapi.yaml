@@ -375,6 +375,9 @@ paths:
         - Authentication
       summary: Register a new user
       operationId: signUp
+      x-amazon-apigateway-throttling:
+        rateLimit: 3
+        burstLimit: 5
       x-amazon-apigateway-integration:
         #uri: 
           #Fn::Sub: 
@@ -404,31 +407,28 @@ paths:
               #end
             }
         responses:
-        "400":
-          statusCode: 400
-          responseTemplates:
-            application/json: |
-              {
-                "message": "Validation Error",
-                "error": "$input.path('$.message')"
-              }
-        default:
-          statusCode: 201
-          responseTemplates:
-            application/json: |
-              {
-                "message": "Congrat! You have been successfully registered. $input.path('$.message')",
-                "verificationRequired": "true",
-              }
-      x-amazon-apigateway-throttling:
-        rateLimit: 3
-        burstLimit: 5
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SignUpRequest"
+          "400":
+            statusCode: 400
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Validation Error",
+                  "error": "$input.path('$.message')"
+                }
+          default:
+            statusCode: 201
+            responseTemplates:
+              application/json: |
+                {
+                  "message": "Congrat! You have been successfully registered. $input.path('$.message')",
+                  "verificationRequired": "true",
+                }
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUpRequest"
       responses:
         "201":
           description: User successfully registered
