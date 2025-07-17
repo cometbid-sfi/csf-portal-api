@@ -159,7 +159,7 @@ async function convertMarkdownFiles() {
     
     .top-banner h1 {
       margin: 0;
-      font-size: clamp(16px, 4vw, 20px); /* Smaller font size */
+      font-size: clamp(18px, 5vw, 24px); /* Increased from 16px-20px to 18px-24px */
       font-weight: 600;
       letter-spacing: -0.5px;
       color: white;
@@ -168,7 +168,7 @@ async function convertMarkdownFiles() {
       line-height: 1.2; /* Tighter line height for wrapped text */
       max-width: 100%; /* Ensure text doesn't overflow its container */
     }
-    
+
     .back-to-docs {
       background-color: rgba(255, 255, 255, 0.2);
       color: white;
