@@ -272,5 +272,35 @@
         loadSpec(specUrl);
       };
     </script>
+    <script>
+      // Fix broken links in the OpenAPI spec
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait for Swagger UI to load
+        setTimeout(function () {
+          // Find all links in the description
+          const links = document.querySelectorAll(".swagger-ui .info a");
+
+          // Determine if we're in production (GitHub Pages) or local development
+          const isProduction = window.location.hostname.includes("github.io");
+          const basePath = isProduction ? "/csf-portal-api" : "";
+
+          links.forEach((link) => {
+            // Check if it's a documentation link
+            if (link.href.includes("/docs/") && link.href.includes(".html")) {
+              // Get the current href
+              const href = link.getAttribute("href");
+
+              // Only modify relative links
+              if ((href && href.startsWith("./")) || href.startsWith("/")) {
+                // For production, add the base path
+                // For local development, keep as is
+                const newHref = isProduction ? `${basePath}${href}` : href;
+                link.setAttribute("href", newHref);
+              }
+            }
+          });
+        }, 1500); // Wait 1.5 seconds for Swagger UI to render
+      });
+    </script>
   </body>
 </html>
