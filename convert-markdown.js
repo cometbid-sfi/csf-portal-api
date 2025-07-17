@@ -140,6 +140,7 @@ async function convertMarkdownFiles() {
       align-items: center;
       flex: 1;
       min-width: 200px;
+      max-width: 60%; /* Add this to limit width */
     }
     
     .logo-placeholder {
@@ -158,12 +159,14 @@ async function convertMarkdownFiles() {
     
     .top-banner h1 {
       margin: 0;
-      font-size: clamp(18px, 5vw, 24px);
+      font-size: clamp(16px, 4vw, 20px); /* Smaller font size */
       font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      letter-spacing: -0.5px;
       color: white;
+      white-space: normal; /* Allow text to wrap */
+      overflow: visible; /* Don't hide overflow */
+      line-height: 1.2; /* Tighter line height for wrapped text */
+      max-width: 100%; /* Ensure text doesn't overflow its container */
     }
     
     .back-to-docs {
