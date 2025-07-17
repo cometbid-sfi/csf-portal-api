@@ -66,6 +66,7 @@ async function convertMarkdownFiles() {
     const htmlContent = md.render(enhancedContent);
 
     // Create HTML wrapper with matching style to index.html
+    // Update the CSS section in the fullHtml template
     const fullHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -105,12 +106,13 @@ async function convertMarkdownFiles() {
       font-size: 16px;
     }
     
-    /* Sticky header */
+    /* Sticky header with responsive design */
     .top-banner {
       background-color: var(--banner-bg);
       color: var(--banner-text);
-      padding: 16px 20px;
+      padding: 15px;
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       position: sticky;
@@ -125,6 +127,7 @@ async function convertMarkdownFiles() {
       color: white;
       text-decoration: none;
       transition: opacity 0.2s;
+      max-width: 100%;
     }
     
     .logo-link:hover {
@@ -135,10 +138,12 @@ async function convertMarkdownFiles() {
     .banner-left {
       display: flex;
       align-items: center;
+      flex: 1;
+      min-width: 200px;
     }
     
     .logo-placeholder {
-      width: 40px;
+      min-width: 40px;
       height: 40px;
       background-color: rgba(255, 255, 255, 0.2);
       border-radius: 8px;
@@ -148,12 +153,17 @@ async function convertMarkdownFiles() {
       justify-content: center;
       font-weight: bold;
       font-size: 20px;
+      flex-shrink: 0;
     }
     
     .top-banner h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: clamp(18px, 5vw, 24px);
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: white;
     }
     
     .back-to-docs {
@@ -169,6 +179,8 @@ async function convertMarkdownFiles() {
       transition: background-color 0.2s;
       text-decoration: none;
       display: inline-block;
+      white-space: nowrap;
+      margin-left: 10px;
     }
     
     .back-to-docs:hover {
@@ -181,23 +193,26 @@ async function convertMarkdownFiles() {
       max-width: 900px;
       margin: 0 auto;
       padding: 30px 20px;
+      width: 100%;
+      overflow-x: hidden;
     }
     
-    /* Typography */
+    /* Typography with responsive sizes */
     .markdown-body {
-      font-size: 16px;
+      font-size: clamp(14px, 3vw, 16px);
     }
     
     .markdown-body h1 {
-      font-size: 2.2em;
+      font-size: clamp(1.8em, 5vw, 2.2em);
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 0.3em;
       margin-top: 1.5em;
       margin-bottom: 0.8em;
+      word-break: break-word;
     }
     
     .markdown-body h2 {
-      font-size: 1.8em;
+      font-size: clamp(1.5em, 4vw, 1.8em);
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 0.3em;
       margin-top: 1.5em;
@@ -205,138 +220,99 @@ async function convertMarkdownFiles() {
       background-color: var(--section-bg);
       padding: 8px 16px;
       border-radius: 6px;
+      word-break: break-word;
     }
     
     .markdown-body h3 {
-      font-size: 1.4em;
+      font-size: clamp(1.2em, 3vw, 1.4em);
       margin-top: 1.3em;
       margin-bottom: 0.6em;
     }
     
     .markdown-body h4 {
-      font-size: 1.2em;
+      font-size: clamp(1.1em, 2vw, 1.2em);
       margin-top: 1.3em;
       margin-bottom: 0.6em;
     }
     
-    .markdown-body p, .markdown-body ul, .markdown-body ol {
-      margin-bottom: 1.2em;
-      font-size: 16px;
-    }
-    
-    /* Code blocks */
+    /* Code blocks with responsive design */
     .markdown-body pre {
       background-color: var(--code-bg);
       border-radius: 8px;
       padding: 16px;
-      overflow: auto;
+      overflow-x: auto;
       margin: 1.2em 0;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
     
-    .markdown-body code {
-      font-family: var(--code-font);
-      font-size: 90%;
-      padding: 0.2em 0.4em;
-      border-radius: 3px;
-      background-color: var(--code-bg);
-    }
-    
-    .markdown-body pre code {
-      padding: 0;
-      background-color: transparent;
-    }
-    
-    /* Links */
-    .markdown-body a {
-      color: var(--link-color);
-      text-decoration: none;
-    }
-    
-    .markdown-body a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Tables */
+    /* Tables with responsive design */
     .markdown-body table {
-      border-collapse: collapse;
+      display: block;
       width: 100%;
+      overflow-x: auto;
       margin-bottom: 1.5em;
       border-radius: 6px;
-      overflow: hidden;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
     
-    .markdown-body table th {
-      background-color: var(--section-bg);
-      font-weight: 600;
+    /* Media queries for better responsiveness */
+    @media (max-width: 768px) {
+      .top-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+      }
+      
+      .banner-left {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+      
+      .back-to-docs {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+      
+      .content-container {
+        padding: 20px 15px;
+      }
+      
+      .markdown-body pre {
+        padding: 12px;
+      }
+      
+      .markdown-body table th, 
+      .markdown-body table td {
+        padding: 8px 12px;
+      }
     }
     
-    .markdown-body table th, .markdown-body table td {
-      padding: 10px 16px;
-      border: 1px solid var(--border-color);
+    @media (max-width: 480px) {
+      .top-banner h1 {
+        font-size: 16px;
+      }
+      
+      .logo-placeholder {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      
+      .back-to-docs {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
     }
     
-    .markdown-body table tr:nth-child(2n) {
-      background-color: var(--code-bg);
-    }
-    
-    /* Images */
-    .markdown-body img {
-      max-width: 100%;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Blockquotes */
-    .markdown-body blockquote {
-      padding: 0.8em 1em;
-      color: var(--blockquote-color);
-      border-left: 0.25em solid var(--callout-border);
-      background-color: var(--callout-bg);
-      margin: 1.2em 0;
-      border-radius: 0 6px 6px 0;
-    }
-    
-    .markdown-body blockquote p:last-child {
-      margin-bottom: 0;
-    }
-    
-    /* Lists */
-    .markdown-body ul, .markdown-body ol {
-      padding-left: 2em;
-    }
-    
-    .markdown-body li {
-      margin-bottom: 0.5em;
-    }
-    
-    /* Feature sections */
-    .markdown-body strong:contains("✨ Features:"),
-    .markdown-body strong:contains("🔒 Security:"),
-    .markdown-body strong:contains("🔍 Usage Examples:"),
-    .markdown-body strong:contains("📚 Reference:") {
-      display: block;
-      margin-top: 1.5em;
-      margin-bottom: 0.8em;
-      font-size: 1.1em;
-    }
-    
-    /* Callout boxes */
-    .markdown-body p:has(strong:first-child) {
-      background-color: var(--callout-bg);
-      border-left: 4px solid var(--callout-border);
-      padding: 12px 16px;
-      border-radius: 0 6px 6px 0;
-      margin: 1.2em 0;
-    }
+    /* Keep the rest of your existing styles */
   </style>
 </head>
 <body>
   <!-- Sticky header that matches the main page -->
   <div class="top-banner">
     <div class="banner-left">
-      <a href="/" class="logo-link">
+      <a href="/csf-portal-api/" class="logo-link">
         <div class="logo-placeholder">TCT</div>
         <h1>TCT Foundation API Documentation</h1>
       </a>
