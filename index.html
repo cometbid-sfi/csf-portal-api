@@ -113,11 +113,7 @@
 
       .top-banner h1 {
         margin: 0;
-        font-size: clamp(
-          18px,
-          5vw,
-          24px
-        ); /* Increased from 16px-20px to 18px-24px */
+        font-size: clamp(18px, 5vw, 24px);
         font-weight: 600;
         letter-spacing: -0.5px;
         color: white;
@@ -285,8 +281,11 @@
     <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
     <script>
       // Add this function to get the base URL
+      // In index.html
       function getBaseUrl() {
-        return "/csf-portal-api";
+        // Check if we're in production (GitHub Pages)
+        const isProduction = window.location.hostname.includes("github.io");
+        return isProduction ? "/csf-portal-api" : "";
       }
 
       // Initialize with the first spec

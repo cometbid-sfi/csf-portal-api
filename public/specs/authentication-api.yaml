@@ -42,7 +42,6 @@ info:
     - <a href="/public/specs/docs/usage-email-verification.html" target="_blank">Email Verification Guide</a>
     - <a href="/public/specs/docs/usage-toggle-user-status.html" target="_blank">Admin Functions Guide</a>
 
-
     ## API Documentation and Testing
     You can test our APIs in this sandbox environment.
     You can make changes and test the APIs with a more robust data without affecting the production environment.
