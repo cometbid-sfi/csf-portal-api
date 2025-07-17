@@ -253,6 +253,64 @@
           width: 100%;
         }
       }
+
+      /* Media queries for very small screens */
+      @media (max-width: 480px) {
+        .top-banner {
+          padding: 10px;
+        }
+
+        .top-banner h1 {
+          font-size: 16px;
+        }
+
+        .logo-placeholder {
+          width: 32px;
+          height: 32px;
+          font-size: 16px;
+          margin-right: 10px;
+        }
+
+        .api-selector label {
+          font-size: 14px;
+        }
+
+        .api-selector select {
+          padding: 6px 10px;
+          font-size: 14px;
+        }
+
+        /* Improve Swagger UI on very small screens */
+        .swagger-ui .info .title {
+          font-size: clamp(20px, 5vw, 24px);
+        }
+
+        .swagger-ui .opblock-tag {
+          font-size: clamp(16px, 4vw, 18px);
+        }
+
+        .swagger-ui .opblock-summary-method {
+          padding: 6px 8px;
+          min-width: 60px;
+          font-size: 12px;
+        }
+
+        /* Make buttons more touch-friendly */
+        .swagger-ui .btn {
+          padding: 6px 10px;
+          font-size: 12px;
+        }
+
+        /* Adjust spacing */
+        .swagger-ui .opblock {
+          margin: 0 0 10px;
+        }
+
+        /* Improve table display on tiny screens */
+        .swagger-ui table {
+          font-size: 12px;
+        }
+      }
     </style>
   </head>
   <body>
