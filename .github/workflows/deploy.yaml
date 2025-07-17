@@ -26,6 +26,19 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Copy API specs and docs
+        run: |
+          # Ensure public directory exists in dist
+          mkdir -p dist/public/specs/docs
+          
+          # Copy OpenAPI specs
+          cp -r public/specs/*.yaml dist/public/specs/
+          
+          # Copy docs if they exist
+          if [ -d "public/specs/docs" ]; then
+            cp -r public/specs/docs/* dist/public/specs/docs/
+          fi
+
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v4
         with:
@@ -59,6 +72,12 @@ jobs:
           # Navigate to dist folder and prepare for deployment
           cd ./dist
           touch .nojekyll
+          
+          # Debug - list files to verify content
+          echo "Contents of dist directory:"
+          ls -la
+          echo "Contents of public/specs directory (if exists):"
+          ls -la public/specs || echo "Directory not found"
           
           # Initialize git with main as default branch
           git init -b main

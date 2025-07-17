@@ -341,7 +341,7 @@ async function convertMarkdownFiles() {
         <h1>TCT Foundation API Documentation</h1>
       </a>
     </div>
-    <a href="/" class="back-to-docs">Back to API Explorer</a>
+    <a href="/csf-portal-api/" class="back-to-docs">Back to API Explorer</a>
   </div>
   
   <div class="content-container">
