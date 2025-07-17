@@ -1,0 +1,948 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>authentication-doc - API Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --banner-bg: #3A7BC8;
+      --banner-text: #ffffff;
+      --main-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --code-font: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --text-color: #333333;
+      --link-color: #0366d6;
+      --border-color: #e1e4e8;
+      --code-bg: #f6f8fa;
+      --blockquote-color: #6a737d;
+      --section-bg: #f8f9fa;
+      --callout-bg: #e8f4fd;
+      --callout-border: #79b8ff;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--main-font);
+      line-height: 1.6;
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+    }
+    
+    /* Sticky header */
+    .top-banner {
+      background-color: var(--banner-bg);
+      color: var(--banner-text);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    
+    .logo-link:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    
+    .banner-left {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-placeholder {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    
+    .top-banner h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .back-to-docs {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: var(--main-font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .back-to-docs:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      text-decoration: none;
+    }
+    
+    /* Content container */
+    .content-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+    
+    /* Typography */
+    .markdown-body {
+      font-size: 16px;
+    }
+    
+    .markdown-body h1 {
+      font-size: 2.2em;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+    }
+    
+    .markdown-body h2 {
+      font-size: 1.8em;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      background-color: var(--section-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+    }
+    
+    .markdown-body h3 {
+      font-size: 1.4em;
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    .markdown-body h4 {
+      font-size: 1.2em;
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    .markdown-body p, .markdown-body ul, .markdown-body ol {
+      margin-bottom: 1.2em;
+      font-size: 16px;
+    }
+    
+    /* Code blocks */
+    .markdown-body pre {
+      background-color: var(--code-bg);
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+      margin: 1.2em 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .markdown-body code {
+      font-family: var(--code-font);
+      font-size: 90%;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      background-color: var(--code-bg);
+    }
+    
+    .markdown-body pre code {
+      padding: 0;
+      background-color: transparent;
+    }
+    
+    /* Links */
+    .markdown-body a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+    
+    .markdown-body a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Tables */
+    .markdown-body table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 1.5em;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .markdown-body table th {
+      background-color: var(--section-bg);
+      font-weight: 600;
+    }
+    
+    .markdown-body table th, .markdown-body table td {
+      padding: 10px 16px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .markdown-body table tr:nth-child(2n) {
+      background-color: var(--code-bg);
+    }
+    
+    /* Images */
+    .markdown-body img {
+      max-width: 100%;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Blockquotes */
+    .markdown-body blockquote {
+      padding: 0.8em 1em;
+      color: var(--blockquote-color);
+      border-left: 0.25em solid var(--callout-border);
+      background-color: var(--callout-bg);
+      margin: 1.2em 0;
+      border-radius: 0 6px 6px 0;
+    }
+    
+    .markdown-body blockquote p:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Lists */
+    .markdown-body ul, .markdown-body ol {
+      padding-left: 2em;
+    }
+    
+    .markdown-body li {
+      margin-bottom: 0.5em;
+    }
+    
+    /* Feature sections */
+    .markdown-body strong:contains("✨ Features:"),
+    .markdown-body strong:contains("🔒 Security:"),
+    .markdown-body strong:contains("🔍 Usage Examples:"),
+    .markdown-body strong:contains("📚 Reference:") {
+      display: block;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      font-size: 1.1em;
+    }
+    
+    /* Callout boxes */
+    .markdown-body p:has(strong:first-child) {
+      background-color: var(--callout-bg);
+      border-left: 4px solid var(--callout-border);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 1.2em 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sticky header that matches the main page -->
+  <div class="top-banner">
+    <div class="banner-left">
+      <a href="/" class="logo-link">
+        <div class="logo-placeholder">TCT</div>
+        <h1>TCT Foundation API Documentation</h1>
+      </a>
+    </div>
+    <a href="/" class="back-to-docs">Back to API Explorer</a>
+  </div>
+  
+  <div class="content-container">
+    <div class="markdown-body">
+      <h1>📄 Authentication API Documentation</h1>
+<h2>📌 Overview</h2>
+<p>This documentation covers the core authentication endpoints for user sign-in, sign-out, and token refresh operations. All endpoints implement comprehensive security measures including rate limiting, idempotency, and consistent timing protection.</p>
+<h2>📌 Base URL</h2>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #24292e">https://api.yourapp.com/v1/auth</span></span>
+<span class="line"><span style="color: #24292e"></span></span></code></pre>
+<h2>📌 Common Headers</h2>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #22863A">Content-Type</span><span style="color: #D73A49">:</span><span style="color: #24292E"> </span><span style="color: #032F62">application/json</span></span>
+<span class="line"><span style="color: #22863A">Accept</span><span style="color: #D73A49">:</span><span style="color: #24292E"> </span><span style="color: #032F62">application/json</span></span>
+<span class="line"><span style="color: #22863A">User-Agent</span><span style="color: #D73A49">:</span><span style="color: #24292E"> </span><span style="color: #032F62">YourApp/1.0</span></span>
+<span class="line"><span style="color: #22863A">X-Correlation-ID</span><span style="color: #D73A49">:</span><span style="color: #24292E"> </span><span style="color: #032F62">&lt;optional-correlation-id&gt;</span></span>
+<span class="line"></span></code></pre>
+<hr>
+<h2>📌 1. Sign In</h2>
+<p>Authenticate users with email and password credentials.</p>
+<h3>🔹 Endpoint</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #D73A49">POST</span><span style="color: #24292E"> /sign-in</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Authentication</h3>
+<p><strong>Not Required</strong> - This is the authentication endpoint</p>
+<h3>🔹 Request Body</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;password&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SecurePassword123!&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;staySignedIn&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Request Examples</h3>
+<p><strong>Basic Sign-In (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-in&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;User-Agent: WebApp/1.0&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;SecurePassword123!&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;staySignedIn&quot;: false</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Stay Signed In (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-in&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-Correlation-ID: req-12345&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;SecurePassword123!&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;staySignedIn&quot;: true</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Postman Setup:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #24292e">Method: POST</span></span>
+<span class="line"><span style="color: #24292e">URL: https://api.yourapp.com/v1/auth/sign-in</span></span>
+<span class="line"><span style="color: #24292e">Headers:</span></span>
+<span class="line"><span style="color: #24292e">  - Content-Type: application/json</span></span>
+<span class="line"><span style="color: #24292e">  - User-Agent: Postman/10.0</span></span>
+<span class="line"><span style="color: #24292e">  - X-Correlation-ID: req-12345</span></span>
+<span class="line"><span style="color: #24292e"></span></span>
+<span class="line"><span style="color: #24292e">Body (raw/JSON):</span></span>
+<span class="line"><span style="color: #24292e">{</span></span>
+<span class="line"><span style="color: #24292e">  &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #24292e">  &quot;password&quot;: &quot;SecurePassword123!&quot;,</span></span>
+<span class="line"><span style="color: #24292e">  &quot;staySignedIn&quot;: false</span></span>
+<span class="line"><span style="color: #24292e">}</span></span>
+<span class="line"><span style="color: #24292e"></span></span></code></pre>
+<h3>🔹 Response Examples</h3>
+<p><strong>Success (200) - Complete Authentication:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SIGNIN_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Sign-in successful&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;sess_abc123&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;tokens&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;accessToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;refreshToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;idToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;tokenType&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Bearer&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;expiresIn&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">3600</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;user&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;u***@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;emailVerified&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">true</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;mfaEnabled&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Success (200) - MFA Required:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MFA_REQUIRED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MFA verification required&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;mfaSession&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;sessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;mfa_sess_456&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;expiresAt&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;2024-01-01T13:00:00Z&quot;</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Error (401) - Invalid Credentials:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid email or password&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_CREDENTIALS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;remainingAttempts&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">4</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Error (423) - Account Locked:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Account is locked due to too many failed attempts. Please try again after 2024-01-01T14:00:00Z.&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ACCOUNT_LOCKED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;cooldownEndTime&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;1704117600000&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;remainingAttempts&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;0&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Error (403) - Email Not Verified:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Email address not verified&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;EMAIL_NOT_VERIFIED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<hr>
+<h2>📌 2. Sign Out</h2>
+<p>Sign out users and invalidate their tokens.</p>
+<h3>🔹 Endpoint</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #D73A49">POST</span><span style="color: #24292E"> /sign-out</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Authentication</h3>
+<p><strong>Optional</strong> - Access token can be provided for additional security</p>
+<h3>🔹 Query Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>globalSignout</code></td>
+<td>boolean</td>
+<td>No</td>
+<td>Sign out from all devices</td>
+</tr>
+<tr>
+<td><code>user-session-id</code></td>
+<td>string</td>
+<td>No</td>
+<td>User session identifier</td>
+</tr>
+</tbody>
+</table>
+<h3>🔹 Request Body</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;refreshToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;globalSignout&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Request Examples</h3>
+<p><strong>Basic Sign-Out (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-out&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;refreshToken&quot;: &quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Global Sign-Out (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-out?globalSignout=true&amp;user-session-id=sess_abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;refreshToken&quot;: &quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;globalSignout&quot;: true</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Sign-Out with Cookie (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-out&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Cookie: refreshToken=eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Postman Setup:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #24292e">Method: POST</span></span>
+<span class="line"><span style="color: #24292e">URL: https://api.yourapp.com/v1/auth/sign-out?globalSignout=false&amp;user-session-id=sess_abc123</span></span>
+<span class="line"><span style="color: #24292e">Headers:</span></span>
+<span class="line"><span style="color: #24292e">  - Content-Type: application/json</span></span>
+<span class="line"><span style="color: #24292e">  - Authorization: Bearer eyJhbGciOiJSUzI1NiIs...</span></span>
+<span class="line"><span style="color: #24292e">  - User-Agent: Postman/10.0</span></span>
+<span class="line"><span style="color: #24292e">Body (raw/JSON):</span></span>
+<span class="line"><span style="color: #24292e">{</span></span>
+<span class="line"><span style="color: #24292e">  &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #24292e">  &quot;refreshToken&quot;: &quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;,</span></span>
+<span class="line"><span style="color: #24292e">  &quot;globalSignout&quot;: false</span></span>
+<span class="line"><span style="color: #24292e">}</span></span>
+<span class="line"><span style="color: #24292e"></span></span></code></pre>
+<h3>🔹 Response Examples</h3>
+<p><strong>Success (200) - Local Sign-Out:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SIGNOUT_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Sign-out successful&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;globalSignout&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;sess_abc123&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Success (200) - Global Sign-Out:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SIGNOUT_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Sign-out successful&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;globalSignout&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">true</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;sess_abc123&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Error (400) - Invalid Refresh Token:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid refresh token format&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_REFRESH_TOKEN&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<hr>
+<h2>📌 3. Refresh Token</h2>
+<p>Refresh access tokens using a valid refresh token.</p>
+<h3>🔹 Endpoint</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #D73A49">POST</span><span style="color: #24292E"> /refresh-token</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Authentication</h3>
+<p><strong>Not Required</strong> - Uses refresh token for authentication</p>
+<h3>🔹 Query Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user-session-id</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>User session identifier</td>
+</tr>
+</tbody>
+</table>
+<h3>🔹 Request Body</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;refreshToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Request Examples</h3>
+<p><strong>Basic Token Refresh (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/refresh-token?user-session-id=sess_abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;User-Agent: WebApp/1.0&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;refreshToken&quot;: &quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Token Refresh with Cookie (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/refresh-token?user-session-id=sess_abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Cookie: refreshToken=eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Token Refresh with Header (cURL):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/refresh-token?user-session-id=sess_abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-Refresh-Token: eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Postman Setup:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #24292e">Method: POST</span></span>
+<span class="line"><span style="color: #24292e">URL: https://api.yourapp.com/v1/auth/refresh-token?user-session-id=sess_abc123</span></span>
+<span class="line"><span style="color: #24292e">Headers:</span></span>
+<span class="line"><span style="color: #24292e">  - Content-Type: application/json</span></span>
+<span class="line"><span style="color: #24292e">  - User-Agent: Postman/10.0</span></span>
+<span class="line"><span style="color: #24292e">  - X-Correlation-ID: req-12345</span></span>
+<span class="line"><span style="color: #24292e">Body (raw/JSON):</span></span>
+<span class="line"><span style="color: #24292e">{</span></span>
+<span class="line"><span style="color: #24292e">  &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #24292e">  &quot;refreshToken&quot;: &quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span></span>
+<span class="line"><span style="color: #24292e">}</span></span>
+<span class="line"><span style="color: #24292e"></span></span></code></pre>
+<h3>🔹 Response Examples</h3>
+<p><strong>Success (200):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;REFRESH_TOKEN_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Token refreshed successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;sess_abc123&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;tokens&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;accessToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;refreshToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;idToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;tokenType&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Bearer&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;expiresIn&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">3600</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Error (401) - Invalid Refresh Token:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid or expired refresh token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_REFRESH_TOKEN&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Error (403) - Token Ownership Mismatch:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Refresh token does not belong to this user&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;TOKEN_OWNERSHIP_MISMATCH&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;req-12345&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<hr>
+<h2>📌 Authentication Flow Examples</h2>
+<h3>🔹 Complete Authentication Flow</h3>
+<p><strong>1. Initial Sign-In:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Step 1: Sign in with credentials</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-in&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;SecurePassword123!&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;staySignedIn&quot;: true</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Response: Tokens + userSessionId</span></span>
+<span class="line"></span></code></pre>
+<p><strong>2. Using Access Token:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Step 2: Use access token for API calls</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/user/profile&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-User-Session-ID: sess_abc123&quot;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>3. Token Refresh:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Step 3: Refresh tokens when access token expires</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/refresh-token?user-session-id=sess_abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;refreshToken&quot;: &quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>4. Sign Out:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Step 4: Sign out when done</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-out&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJSUzI1NiIs...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;refreshToken&quot;: &quot;eyJjdHkiOiJKV1QiLCJlbmMi...&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 MFA Authentication Flow</h3>
+<p><strong>1. Initial Sign-In (MFA Required):</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-in&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;SecurePassword123!&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;staySignedIn&quot;: false</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Response: MFA_REQUIRED with sessionId</span></span>
+<span class="line"></span></code></pre>
+<p><strong>2. Complete MFA Verification:</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/mfa/verify-totp-code?sessionId=mfa_sess_456&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;totpCode&quot;: &quot;123456&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;SecurePassword123!&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;staySignedIn&quot;: false</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Response: Complete authentication with tokens</span></span>
+<span class="line"></span></code></pre>
+<hr>
+<h2>📌 Security Features</h2>
+<h3>🔹 Rate Limiting</h3>
+<p>All endpoints implement rate limiting:</p>
+<ul>
+<li><strong>Sign-In</strong>: 10 attempts per 5 minutes per IP</li>
+<li><strong>Sign-Out</strong>: 20 requests per minute per user</li>
+<li><strong>Refresh Token</strong>: 30 requests per minute per user</li>
+</ul>
+<h3>🔹 Idempotency</h3>
+<p>All endpoints support idempotency:</p>
+<ul>
+<li><strong>Sign-In</strong>: 2-minute window</li>
+<li><strong>Sign-Out</strong>: 5-minute window</li>
+<li><strong>Refresh Token</strong>: 5-minute window</li>
+</ul>
+<h3>🔹 Token Security</h3>
+<ul>
+<li><strong>Access Token</strong>: Short-lived (1 hour), used for API authentication</li>
+<li><strong>Refresh Token</strong>: Long-lived (30 days), used for token renewal</li>
+<li><strong>ID Token</strong>: Contains user identity information</li>
+<li><strong>Secure Storage</strong>: Tokens can be stored in HTTP-only cookies</li>
+</ul>
+<h3>🔹 Account Protection</h3>
+<ul>
+<li><strong>Account Lockout</strong>: After 5 failed sign-in attempts</li>
+<li><strong>Email Verification</strong>: Required before sign-in</li>
+<li><strong>Session Validation</strong>: User sessions are validated and tracked</li>
+<li><strong>Device Tracking</strong>: Device information captured for security</li>
+</ul>
+<hr>
+<h2>📌 Error Codes Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+<th>HTTP Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SIGNIN_SUCCESS</code></td>
+<td>Sign-in completed successfully</td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>MFA_REQUIRED</code></td>
+<td>MFA verification required</td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>SIGNOUT_SUCCESS</code></td>
+<td>Sign-out completed successfully</td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>REFRESH_TOKEN_SUCCESS</code></td>
+<td>Token refresh successful</td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>INVALID_CREDENTIALS</code></td>
+<td>Invalid email or password</td>
+<td>401</td>
+</tr>
+<tr>
+<td><code>ACCOUNT_LOCKED</code></td>
+<td>Account locked due to failed attempts</td>
+<td>423</td>
+</tr>
+<tr>
+<td><code>EMAIL_NOT_VERIFIED</code></td>
+<td>Email address not verified</td>
+<td>403</td>
+</tr>
+<tr>
+<td><code>ACCOUNT_DISABLED</code></td>
+<td>User account is disabled</td>
+<td>403</td>
+</tr>
+<tr>
+<td><code>INVALID_REFRESH_TOKEN</code></td>
+<td>Invalid or expired refresh token</td>
+<td>401</td>
+</tr>
+<tr>
+<td><code>MISSING_REFRESH_TOKEN</code></td>
+<td>Refresh token not provided</td>
+<td>400</td>
+</tr>
+<tr>
+<td><code>TOKEN_OWNERSHIP_MISMATCH</code></td>
+<td>Token doesn’t belong to user</td>
+<td>403</td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_EXCEEDED</code></td>
+<td>Too many requests</td>
+<td>429</td>
+</tr>
+<tr>
+<td><code>VALIDATION_ERROR</code></td>
+<td>Request validation failed</td>
+<td>400</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>📌 Testing Scenarios</h2>
+<h3>🔹 Successful Authentication Test</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Test complete authentication flow</span></span>
+<span class="line"><span style="color: #24292E">EMAIL</span><span style="color: #D73A49">=</span><span style="color: #032F62">&quot;test@example.com&quot;</span></span>
+<span class="line"><span style="color: #24292E">PASSWORD</span><span style="color: #D73A49">=</span><span style="color: #032F62">&quot;TestPassword123!&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 1. Sign in</span></span>
+<span class="line"><span style="color: #24292E">SIGNIN_RESPONSE</span><span style="color: #D73A49">=</span><span style="color: #032F62">$(</span><span style="color: #6F42C1">curl</span><span style="color: #032F62"> </span><span style="color: #005CC5">-s</span><span style="color: #032F62"> </span><span style="color: #005CC5">-X</span><span style="color: #032F62"> POST &quot;https://api.yourapp.com/v1/auth/sign-in&quot; </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #032F62">  </span><span style="color: #005CC5">-H</span><span style="color: #032F62"> &quot;Content-Type: application/json&quot; </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #032F62">  </span><span style="color: #005CC5">-d</span><span style="color: #032F62"> &quot;{</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">email</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">:</span><span style="color: #005CC5">\&quot;</span><span style="color: #24292E">$EMAIL</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">,</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">password</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">:</span><span style="color: #005CC5">\&quot;</span><span style="color: #24292E">$PASSWORD</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">,</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">staySignedIn</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">:true}&quot;)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Extract tokens and session ID</span></span>
+<span class="line"><span style="color: #24292E">ACCESS_TOKEN</span><span style="color: #D73A49">=</span><span style="color: #032F62">$(</span><span style="color: #005CC5">echo</span><span style="color: #032F62"> </span><span style="color: #24292E">$SIGNIN_RESPONSE</span><span style="color: #032F62"> </span><span style="color: #D73A49">|</span><span style="color: #032F62"> </span><span style="color: #6F42C1">jq</span><span style="color: #032F62"> </span><span style="color: #005CC5">-r</span><span style="color: #032F62"> &#39;.tokens.accessToken&#39;)</span></span>
+<span class="line"><span style="color: #24292E">REFRESH_TOKEN</span><span style="color: #D73A49">=</span><span style="color: #032F62">$(</span><span style="color: #005CC5">echo</span><span style="color: #032F62"> </span><span style="color: #24292E">$SIGNIN_RESPONSE</span><span style="color: #032F62"> </span><span style="color: #D73A49">|</span><span style="color: #032F62"> </span><span style="color: #6F42C1">jq</span><span style="color: #032F62"> </span><span style="color: #005CC5">-r</span><span style="color: #032F62"> &#39;.tokens.refreshToken&#39;)</span></span>
+<span class="line"><span style="color: #24292E">USER_SESSION_ID</span><span style="color: #D73A49">=</span><span style="color: #032F62">$(</span><span style="color: #005CC5">echo</span><span style="color: #032F62"> </span><span style="color: #24292E">$SIGNIN_RESPONSE</span><span style="color: #032F62"> </span><span style="color: #D73A49">|</span><span style="color: #032F62"> </span><span style="color: #6F42C1">jq</span><span style="color: #032F62"> </span><span style="color: #005CC5">-r</span><span style="color: #032F62"> &#39;.userSessionId&#39;)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 2. Test API call with access token</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/user/profile&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer </span><span style="color: #24292E">$ACCESS_TOKEN</span><span style="color: #032F62">&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-User-Session-ID: </span><span style="color: #24292E">$USER_SESSION_ID</span><span style="color: #032F62">&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 3. Refresh tokens</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/refresh-token?user-session-id=</span><span style="color: #24292E">$USER_SESSION_ID</span><span style="color: #032F62">&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;{</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">email</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">:</span><span style="color: #005CC5">\&quot;</span><span style="color: #24292E">$EMAIL</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">,</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">refreshToken</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">:</span><span style="color: #005CC5">\&quot;</span><span style="color: #24292E">$REFRESH_TOKEN</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">}&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 4. Sign out</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-out&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer </span><span style="color: #24292E">$ACCESS_TOKEN</span><span style="color: #032F62">&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;{</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">email</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">:</span><span style="color: #005CC5">\&quot;</span><span style="color: #24292E">$EMAIL</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">,</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">refreshToken</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">:</span><span style="color: #005CC5">\&quot;</span><span style="color: #24292E">$REFRESH_TOKEN</span><span style="color: #005CC5">\&quot;</span><span style="color: #032F62">}&quot;</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Error Handling Test</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Test invalid credentials</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-in&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;test@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;WrongPassword&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Test invalid refresh token</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/refresh-token?user-session-id=invalid&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;test@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;refreshToken&quot;: &quot;invalid_token&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Rate Limiting Test</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Test rate limiting (should fail after multiple attempts)</span></span>
+<span class="line"><span style="color: #D73A49">for</span><span style="color: #24292E"> i </span><span style="color: #D73A49">in</span><span style="color: #24292E"> {</span><span style="color: #6F42C1">1..15}</span><span style="color: #24292E">; </span><span style="color: #D73A49">do</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.yourapp.com/v1/auth/sign-in&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">      &quot;email&quot;: &quot;test@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">      &quot;password&quot;: &quot;WrongPassword&quot;</span></span>
+<span class="line"><span style="color: #032F62">    }&#39;</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">echo</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Attempt </span><span style="color: #24292E">$i</span><span style="color: #032F62"> completed&quot;</span></span>
+<span class="line"><span style="color: #D73A49">done</span></span>
+<span class="line"></span></code></pre>
+<hr>
+<h2>📌 Best Practices</h2>
+<h3>🔹 Client Implementation</h3>
+<ol>
+<li><strong>Store tokens securely</strong> - Use HTTP-only cookies or secure storage</li>
+<li><strong>Handle token expiration</strong> - Implement automatic token refresh</li>
+<li><strong>Implement proper error handling</strong> - Handle all error scenarios</li>
+<li><strong>Use HTTPS only</strong> - Never send credentials over HTTP</li>
+<li><strong>Implement logout</strong> - Always provide sign-out functionality</li>
+</ol>
+<h3>🔹 Security Considerations</h3>
+<ol>
+<li><strong>Validate all inputs</strong> - Client-side and server-side validation</li>
+<li><strong>Monitor failed attempts</strong> - Track and alert on suspicious activity</li>
+<li><strong>Use strong passwords</strong> - Enforce password complexity requirements</li>
+<li><strong>Enable MFA</strong> - Require multi-factor authentication for sensitive accounts</li>
+<li><strong>Regular token rotation</strong> - Refresh tokens regularly</li>
+</ol>
+<h3>🔹 Performance Optimization</h3>
+<ol>
+<li><strong>Cache tokens appropriately</strong> - Balance security and performance</li>
+<li><strong>Implement connection pooling</strong> - Reuse HTTP connections</li>
+<li><strong>Use compression</strong> - Enable gzip compression for responses</li>
+<li><strong>Monitor metrics</strong> - Track authentication performance and errors</li>
+</ol>
+
+    </div>
+  </div>
+  
+  <script>
+    // Add copy button to code blocks
+    document.querySelectorAll('pre').forEach(block => {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copy';
+      button.style.position = 'absolute';
+      button.style.top = '5px';
+      button.style.right = '5px';
+      button.style.padding = '4px 8px';
+      button.style.fontSize = '12px';
+      button.style.fontFamily = 'var(--main-font)';
+      button.style.border = 'none';
+      button.style.borderRadius = '4px';
+      button.style.backgroundColor = 'rgba(0,0,0,0.1)';
+      button.style.cursor = 'pointer';
+      
+      block.style.position = 'relative';
+      
+      button.addEventListener('click', () => {
+        const code = block.querySelector('code').innerText;
+        navigator.clipboard.writeText(code);
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = 'Copy';
+        }, 2000);
+      });
+      
+      block.appendChild(button);
+    });
+  </script>
+</body>
+</html>
+    

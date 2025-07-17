@@ -4,15 +4,29 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node convert-markdown.js",
     "dev": "vite",
+    "prebuild": "node convert-markdown.js",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
+    "fs-extra": "^11.2.0",
+    "gh-pages": "^6.1.1",
+    "glob": "^10.3.10",
+    "markdown-it": "^14.0.0",
+    "shiki": "^0.14.7",
     "typescript": "~5.7.2",
     "vite": "^6.1.0"
   },
   "dependencies": {
-    "swagger-ui": "5.19.0"
+    "express": "5.1.0",
+    "highlight.js": "11.11.1",
+    "marked": "16.0.0",
+    "swagger-ui": "5.19.0",
+    "swagger-ui-express": "5.0.1",
+    "yaml": "2.8.0"
   }
 }

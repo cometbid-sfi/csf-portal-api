@@ -1,0 +1,1093 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>usage-user-profile - API Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --banner-bg: #3A7BC8;
+      --banner-text: #ffffff;
+      --main-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --code-font: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --text-color: #333333;
+      --link-color: #0366d6;
+      --border-color: #e1e4e8;
+      --code-bg: #f6f8fa;
+      --blockquote-color: #6a737d;
+      --section-bg: #f8f9fa;
+      --callout-bg: #e8f4fd;
+      --callout-border: #79b8ff;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--main-font);
+      line-height: 1.6;
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+    }
+    
+    /* Sticky header */
+    .top-banner {
+      background-color: var(--banner-bg);
+      color: var(--banner-text);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    
+    .logo-link:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    
+    .banner-left {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-placeholder {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    
+    .top-banner h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .back-to-docs {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: var(--main-font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .back-to-docs:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      text-decoration: none;
+    }
+    
+    /* Content container */
+    .content-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+    
+    /* Typography */
+    .markdown-body {
+      font-size: 16px;
+    }
+    
+    .markdown-body h1 {
+      font-size: 2.2em;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+    }
+    
+    .markdown-body h2 {
+      font-size: 1.8em;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      background-color: var(--section-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+    }
+    
+    .markdown-body h3 {
+      font-size: 1.4em;
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    .markdown-body h4 {
+      font-size: 1.2em;
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    .markdown-body p, .markdown-body ul, .markdown-body ol {
+      margin-bottom: 1.2em;
+      font-size: 16px;
+    }
+    
+    /* Code blocks */
+    .markdown-body pre {
+      background-color: var(--code-bg);
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+      margin: 1.2em 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .markdown-body code {
+      font-family: var(--code-font);
+      font-size: 90%;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      background-color: var(--code-bg);
+    }
+    
+    .markdown-body pre code {
+      padding: 0;
+      background-color: transparent;
+    }
+    
+    /* Links */
+    .markdown-body a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+    
+    .markdown-body a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Tables */
+    .markdown-body table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 1.5em;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .markdown-body table th {
+      background-color: var(--section-bg);
+      font-weight: 600;
+    }
+    
+    .markdown-body table th, .markdown-body table td {
+      padding: 10px 16px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .markdown-body table tr:nth-child(2n) {
+      background-color: var(--code-bg);
+    }
+    
+    /* Images */
+    .markdown-body img {
+      max-width: 100%;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Blockquotes */
+    .markdown-body blockquote {
+      padding: 0.8em 1em;
+      color: var(--blockquote-color);
+      border-left: 0.25em solid var(--callout-border);
+      background-color: var(--callout-bg);
+      margin: 1.2em 0;
+      border-radius: 0 6px 6px 0;
+    }
+    
+    .markdown-body blockquote p:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Lists */
+    .markdown-body ul, .markdown-body ol {
+      padding-left: 2em;
+    }
+    
+    .markdown-body li {
+      margin-bottom: 0.5em;
+    }
+    
+    /* Feature sections */
+    .markdown-body strong:contains("✨ Features:"),
+    .markdown-body strong:contains("🔒 Security:"),
+    .markdown-body strong:contains("🔍 Usage Examples:"),
+    .markdown-body strong:contains("📚 Reference:") {
+      display: block;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      font-size: 1.1em;
+    }
+    
+    /* Callout boxes */
+    .markdown-body p:has(strong:first-child) {
+      background-color: var(--callout-bg);
+      border-left: 4px solid var(--callout-border);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 1.2em 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sticky header that matches the main page -->
+  <div class="top-banner">
+    <div class="banner-left">
+      <a href="/" class="logo-link">
+        <div class="logo-placeholder">TCT</div>
+        <h1>TCT Foundation API Documentation</h1>
+      </a>
+    </div>
+    <a href="/" class="back-to-docs">Back to API Explorer</a>
+  </div>
+  
+  <div class="content-container">
+    <div class="markdown-body">
+      <h1>📄 User Management API Documentation</h1>
+<p>This document provides detailed examples of how to use the User Management APIs, including searching for users, retrieving user profiles, and updating user profiles.</p>
+<h3>🔹 Base URL</h3>
+<p><code>https://api.example.com/v1/users</code></p>
+<h3>🔹 Authentication</h3>
+<p>Bearer Token Authentication required</p>
+<h3>🔹 Query Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userSessionId</td>
+<td>Yes</td>
+<td>Session identifier for tracking user activity</td>
+</tr>
+<tr>
+<td>includeFullProfile</td>
+<td>No</td>
+<td>Set to “true” to return the complete updated profile in the response</td>
+</tr>
+<tr>
+<td>requestedCategories</td>
+<td>No</td>
+<td>Comma-separated list of categories to include in the response (e.g., “basic,professional”)</td>
+</tr>
+<tr>
+<td>noLinks</td>
+<td>No</td>
+<td>Set to “true” to exclude HATEOAS links from the response</td>
+</tr>
+</tbody>
+</table>
+<h3>🔹 Request Body Fields</h3>
+<p>The request body can include any of the following fields that you want to update:</p>
+<h4>Basic Information</h4>
+<ul>
+<li><code>firstName</code>: User’s first name</li>
+<li><code>lastName</code>: User’s last name</li>
+<li><code>gender</code>: User’s gender (e.g., “male”, “female”, “other”, “prefer_not_to_say”)</li>
+<li><code>dateOfBirth</code>: Object with day, month, and year</li>
+<li><code>profileImageUrl</code>: URL to user’s profile image</li>
+<li><code>phoneNumber</code>: User’s phone number</li>
+</ul>
+<h4>Professional Information</h4>
+<ul>
+<li><code>jobTitle</code>: User’s job title</li>
+<li><code>companyName</code>: User’s company name</li>
+<li><code>selfEmployed</code>: Boolean indicating if user is self-employed</li>
+<li><code>yearsOfExperience</code>: Number of years of professional experience</li>
+<li><code>professionalBio</code>: Professional biography text</li>
+</ul>
+<h4>Location Information</h4>
+<ul>
+<li><code>streetAddress</code>: User’s street address</li>
+<li><code>city</code>: User’s city</li>
+<li><code>state</code>: User’s state or province</li>
+<li><code>country</code>: User’s country</li>
+<li><code>postalCode</code>: User’s postal code</li>
+</ul>
+<h4>Preferences</h4>
+<ul>
+<li><code>preferredLanguage</code>: User’s preferred language code</li>
+<li><code>theme</code>: User interface theme preference (e.g., “light”, “dark”, “system”)</li>
+<li><code>timezone</code>: User’s timezone</li>
+<li><code>skills</code>: Array of professional skills</li>
+<li><code>interests</code>: Array of personal/professional interests</li>
+</ul>
+<h4>Social Profiles</h4>
+<ul>
+<li><code>socialProfiles</code>: Object containing social media profile URLs</li>
+</ul>
+<h2>📌 Table of Contents</h2>
+<ol>
+<li>
+<p><a href="#search-users-api">Search Users API</a></p>
+<ul>
+<li><a href="#search-users-endpoint">Endpoint</a></li>
+<li><a href="#search-users-query-parameters">Query Parameters</a></li>
+<li><a href="#search-users-curl-example">cURL Example</a></li>
+<li><a href="#search-users-postman-example">Postman Example</a></li>
+<li><a href="#search-users-response">Response</a></li>
+<li><a href="#search-users-error-responses">Error Responses</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#get-user-profile-api">Get User Profile API</a></p>
+<ul>
+<li><a href="#get-user-profile-endpoint">Endpoint</a></li>
+<li><a href="#get-user-profile-query-parameters">Query Parameters</a></li>
+<li><a href="#get-user-profile-curl-example">cURL Example</a></li>
+<li><a href="#get-user-profile-postman-example">Postman Example</a></li>
+<li><a href="#get-user-profile-response">Response</a></li>
+<li><a href="#get-user-profile-error-responses">Error Responses</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#update-user-profile-api">Update User Profile API</a></p>
+<ul>
+<li><a href="#update-user-profile-endpoint">Endpoint</a></li>
+<li><a href="#update-user-profile-request-body">Request Body</a></li>
+<li><a href="#update-user-profile-query-parameters">Query Parameters</a></li>
+<li><a href="#update-user-profile-curl-example">cURL Example</a></li>
+<li><a href="#update-user-profile-postman-example">Postman Example</a></li>
+<li><a href="#update-user-profile-response">Response</a></li>
+<li><a href="#update-user-profile-error-responses">Error Responses</a></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>📌 1. Search Users API</h2>
+<p>The Search Users API allows you to search for users based on various criteria with pagination support.</p>
+<h3>🔹 Search Users Endpoint</h3>
+<p>GET /users/search</p>
+<h3>🔹 Search Users Query Parameters</h3>
+<h4>Search Criteria:</h4>
+<ul>
+<li><code>email</code>: Filter by email address</li>
+<li><code>membershipName</code>: Filter by membership name</li>
+<li><code>role</code>: Filter by user role (e.g., “MEMBER”, “ADMIN”)</li>
+<li><code>status</code>: Filter by user status (e.g., “ACTIVE”, “INACTIVE”)</li>
+<li><code>membershipPlan</code>: Filter by membership plan (e.g., “INDIVIDUAL”, “GROUP”, “ORGANIZATION”)</li>
+<li><code>membershipTier</code>: Filter by membership tier</li>
+<li><code>city</code>: Filter by city</li>
+<li><code>state</code>: Filter by state/province</li>
+<li><code>country</code>: Filter by country</li>
+</ul>
+<h4>Pagination:</h4>
+<ul>
+<li><code>page</code>: Page number (default: 1)</li>
+<li><code>pageSize</code>: Number of results per page (default: 20, max: 50)</li>
+<li><code>sortBy</code>: Field to sort by (default: “createdAt”)</li>
+<li><code>sortOrder</code>: Sort direction, “asc” or “desc” (default: “desc”)</li>
+<li><code>nextPageToken</code>: Token for retrieving the next page (alternative to page number)</li>
+</ul>
+<h4>Response Customization:</h4>
+<ul>
+<li><code>categories</code>: Comma-separated list of profile categories to include (default: “basic”)</li>
+</ul>
+<h3>🔹 Search Users cURL Example</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Basic search with default pagination</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users/search&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Search with criteria and pagination</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users/search?membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;page=2&amp;pageSize=10&amp;sortBy=lastName&amp;sortOrder=asc&amp;categories=basic,membership&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Search using next page token</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users/search?nextPageToken=eyJsYXN0RXZhbHVhdGVkS2V5Ijp7fX0=&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p><strong>Search Users Postman Example</strong></p>
+<ol>
+<li>
+<p>Create a new GET request to <a href="https://api.example.com/v1/users/search">https://api.example.com/v1/users/search</a></p>
+</li>
+<li>
+<p>Add header: Authorization: Bearer YOUR_ACCESS_TOKEN</p>
+</li>
+<li>
+<p>Add query parameters:</p>
+<ul>
+<li>membershipPlan: “INDIVIDUAL”</li>
+<li>status: “ACTIVE”</li>
+<li>page: 2</li>
+<li>pageSize: 10</li>
+<li>sortBy: “lastName”</li>
+<li>sortOrder: “asc”</li>
+<li>categories: “basic,membership”</li>
+</ul>
+</li>
+<li>
+<p>Click “Send”</p>
+</li>
+</ol>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Users found successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SEARCH_USERS_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;users&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">    {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;basic&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;userId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;j***e@e***e.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;firstName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;John&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;lastName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Doe&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;johndoe123&quot;</span></span>
+<span class="line"><span style="color: #24292E">      },</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;membership&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipPlan&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INDIVIDUAL&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipStatus&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ACTIVE&quot;</span></span>
+<span class="line"><span style="color: #24292E">      }</span></span>
+<span class="line"><span style="color: #24292E">    },</span></span>
+<span class="line"><span style="color: #24292E">    {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;basic&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;userId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;67890&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;j***h@e***e.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;firstName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Jane&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;lastName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Smith&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;janesmith456&quot;</span></span>
+<span class="line"><span style="color: #24292E">      },</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;membership&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipPlan&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INDIVIDUAL&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipStatus&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ACTIVE&quot;</span></span>
+<span class="line"><span style="color: #24292E">      }</span></span>
+<span class="line"><span style="color: #24292E">    }</span></span>
+<span class="line"><span style="color: #24292E">  ],</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;pagination&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;page&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">2</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;pageSize&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">10</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;totalItems&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">45</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;totalPages&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">5</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;nextPageToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJsYXN0RXZhbHVhdGVkS2V5Ijp7fX0=&quot;</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;_links&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;first&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users/search?page=1&amp;pageSize=10&amp;sortBy=lastName&amp;sortOrder=asc&amp;membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;categories=basic,membership&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;last&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users/search?page=5&amp;pageSize=10&amp;sortBy=lastName&amp;sortOrder=asc&amp;membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;categories=basic,membership&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;next&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users/search?page=3&amp;pageSize=10&amp;sortBy=lastName&amp;sortOrder=asc&amp;membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;categories=basic,membership&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;prev&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users/search?page=1&amp;pageSize=10&amp;sortBy=lastName&amp;sortOrder=asc&amp;membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;categories=basic,membership&quot;</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Search Users Error Responses:</p>
+<p>Rate Limiting (429 Too Many Requests)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Too many requests. Please try again later.&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;RATE_LIMIT_EXCEEDED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Authentication Error (401 Unauthorized)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid or expired access token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;AUTHENTICATION_ERROR&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Server Error (500 Internal Server Error)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;An error occurred while searching for users&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SEARCH_USERS_ERROR&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Pagination with nextPageToken</h3>
+<p>The Search Users API supports two pagination methods:</p>
+<ol>
+<li>Page-based pagination using <code>page</code> and <code>pageSize</code> parameters</li>
+<li>Token-based pagination using <code>nextPageToken</code> parameter</li>
+</ol>
+<p>Token-based pagination is recommended for large result sets as it provides better performance and consistency.</p>
+<h4>Example: Multi-page Search Flow</h4>
+<p><strong>Step 1: Initial Search Request</strong></p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6A737D"># 📄 Initial search request</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users/search?membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;pageSize=10&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span></code></pre>
+<p>Response:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Users found successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SEARCH_USERS_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;users&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">    {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;basic&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;userId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;a***e@e***e.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;firstName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Alice&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;lastName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Anderson&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;aliceanderson&quot;</span></span>
+<span class="line"><span style="color: #24292E">      },</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;membership&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipPlan&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INDIVIDUAL&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #005CC5">&quot;membershipStatus&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ACTIVE&quot;</span></span>
+<span class="line"><span style="color: #24292E">      }</span></span>
+<span class="line"><span style="color: #24292E">    },</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #6A737D">// ... 9 more users</span></span>
+<span class="line"><span style="color: #24292E">  ],</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;pagination&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;page&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;pageSize&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">10</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;totalItems&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">45</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;totalPages&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">5</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;nextPageToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJsYXN0RXZhbHVhdGVkS2V5Ijp7InBrIjoiTUVNQkVSI2JvYkBleGFtcGxlLmNvbSJ9fQ==&quot;</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;_links&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;first&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users/search?membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;pageSize=10&amp;page=1&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;last&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users/search?membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;pageSize=10&amp;page=5&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;next&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users/search?membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;pageSize=10&amp;nextPageToken=eyJsYXN0RXZhbHVhdGVkS2V5Ijp7InBrIjoiTUVNQkVSI2JvYkBleGFtcGxlLmNvbSJ9fQ==&quot;</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Step 2: Get Next Page Using nextPageToken</p>
+<h1>📄 Use the nextPageToken from the previous response</h1>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users/search?membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;pageSize=10&amp;nextPageToken=eyJsYXN0RXZhbHVhdGVkS2V5Ijp7InBrIjoiTUVNQkVSI2JvYkBleGFtcGxlLmNvbSJ9fQ==&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span></code></pre>
+<p>Step 3: Continue Pagination</p>
+<p>Continue using the nextPageToken from each response to fetch subsequent pages until you reach the end of the results (when nextPageToken is no longer provided).</p>
+<p>Postman Example for Token-based Pagination</p>
+<ol>
+<li>
+<p>Create a new GET request to <a href="https://api.example.com/v1/users/search">https://api.example.com/v1/users/search</a></p>
+</li>
+<li>
+<p>Add header: Authorization: Bearer YOUR_ACCESS_TOKEN</p>
+</li>
+<li>
+<p>Add query parameters:</p>
+<ul>
+<li>membershipPlan: “INDIVIDUAL”</li>
+<li>status: “ACTIVE”</li>
+<li>pageSize: 10</li>
+</ul>
+</li>
+<li>
+<p>Click “Send”</p>
+</li>
+<li>
+<p>From the response, copy the nextPageToken value</p>
+</li>
+<li>
+<p>Create a new request or modify the existing one:</p>
+<ul>
+<li>Add the nextPageToken parameter with the copied value</li>
+<li>Remove any page parameter if present</li>
+</ul>
+</li>
+<li>
+<p>Click “Send” to get the next page of results</p>
+</li>
+</ol>
+<p>Notes on Token-based Pagination</p>
+<ul>
+<li>The nextPageToken is a base64-encoded string that contains information about the last evaluated item</li>
+<li>When using nextPageToken, do not include the page parameter in your request</li>
+<li>Token-based pagination is more efficient for large datasets and provides consistent results even when data changes between requests</li>
+<li>The token is typically valid for a limited time (usually 15 minutes)</li>
+</ul>
+<h3>🔹 Token Expiration and Renewal</h3>
+<p>When using token-based pagination, it’s important to understand how token expiration works:</p>
+<ul>
+<li>Pagination tokens typically expire after 15 minutes of inactivity</li>
+<li>If a token expires, you’ll receive an error response when attempting to use it:</li>
+</ul>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid or expired pagination token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_PAGINATION_TOKEN&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>How to Handle Expired Tokens</p>
+<p>When a pagination token expires, you need to restart your pagination from the beginning:</p>
+<ol>
+<li>Make a new initial request without the nextPageToken parameter</li>
+<li>Use page-based pagination to navigate to approximately where you left off:</li>
+</ol>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users/search?membershipPlan=INDIVIDUAL&amp;status=ACTIVE&amp;pageSize=10&amp;page=3&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span></code></pre>
+<ol start="3">
+<li>Resume token-based pagination with the new token from this response</li>
+</ol>
+<p>Best Practices for Handling Pagination Tokens</p>
+<ol>
+<li>Process pages promptly: Try to process all pages within the token expiration window</li>
+<li>Save your position: Keep track of which items you’ve processed so you can resume if needed</li>
+<li>Handle errors gracefully: Implement retry logic that falls back to page-based pagination</li>
+<li>Use consistent parameters: Keep all search criteria parameters identical between requests</li>
+<li>Consider smaller page sizes: Smaller page sizes reduce the risk of token expiration during processing</li>
+</ol>
+<p>Example: Handling an Expired Token</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #D73A49">async</span><span style="color: #24292E"> </span><span style="color: #D73A49">function</span><span style="color: #24292E"> </span><span style="color: #6F42C1">fetchAllUsers</span><span style="color: #24292E">() {</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #D73A49">let</span><span style="color: #24292E"> allUsers </span><span style="color: #D73A49">=</span><span style="color: #24292E"> [];</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #D73A49">let</span><span style="color: #24292E"> nextPageToken </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #005CC5">null</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #D73A49">let</span><span style="color: #24292E"> currentPage </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #005CC5">1</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #D73A49">const</span><span style="color: #24292E"> </span><span style="color: #005CC5">pageSize</span><span style="color: #24292E"> </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #005CC5">10</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">  </span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #D73A49">try</span><span style="color: #24292E"> {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #D73A49">do</span><span style="color: #24292E"> {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #6A737D">// Construct URL based on whether we have a token or need to use page number</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #D73A49">let</span><span style="color: #24292E"> url </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users/search?pageSize=&quot;</span><span style="color: #24292E"> </span><span style="color: #D73A49">+</span><span style="color: #24292E"> pageSize;</span></span>
+<span class="line"><span style="color: #24292E">      </span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #D73A49">if</span><span style="color: #24292E"> (nextPageToken) {</span></span>
+<span class="line"><span style="color: #24292E">        url </span><span style="color: #D73A49">+=</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;&amp;nextPageToken=&quot;</span><span style="color: #24292E"> </span><span style="color: #D73A49">+</span><span style="color: #24292E"> nextPageToken;</span></span>
+<span class="line"><span style="color: #24292E">      } </span><span style="color: #D73A49">else</span><span style="color: #24292E"> {</span></span>
+<span class="line"><span style="color: #24292E">        url </span><span style="color: #D73A49">+=</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;&amp;page=&quot;</span><span style="color: #24292E"> </span><span style="color: #D73A49">+</span><span style="color: #24292E"> currentPage;</span></span>
+<span class="line"><span style="color: #24292E">      }</span></span>
+<span class="line"><span style="color: #24292E">      </span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #D73A49">const</span><span style="color: #24292E"> </span><span style="color: #005CC5">response</span><span style="color: #24292E"> </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #D73A49">await</span><span style="color: #24292E"> </span><span style="color: #6F42C1">fetch</span><span style="color: #24292E">(url, {</span></span>
+<span class="line"><span style="color: #24292E">        headers: { </span><span style="color: #032F62">&quot;Authorization&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Bearer YOUR_ACCESS_TOKEN&quot;</span><span style="color: #24292E"> }</span></span>
+<span class="line"><span style="color: #24292E">      });</span></span>
+<span class="line"><span style="color: #24292E">      </span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #D73A49">if</span><span style="color: #24292E"> (</span><span style="color: #D73A49">!</span><span style="color: #24292E">response.ok) {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #D73A49">const</span><span style="color: #24292E"> </span><span style="color: #005CC5">errorData</span><span style="color: #24292E"> </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #D73A49">await</span><span style="color: #24292E"> response.</span><span style="color: #6F42C1">json</span><span style="color: #24292E">();</span></span>
+<span class="line"><span style="color: #24292E">        </span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #6A737D">// Handle expired token specifically</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #D73A49">if</span><span style="color: #24292E"> (errorData.code </span><span style="color: #D73A49">===</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;INVALID_PAGINATION_TOKEN&quot;</span><span style="color: #24292E">) {</span></span>
+<span class="line"><span style="color: #24292E">          console.</span><span style="color: #6F42C1">log</span><span style="color: #24292E">(</span><span style="color: #032F62">&quot;Token expired, falling back to page-based pagination&quot;</span><span style="color: #24292E">);</span></span>
+<span class="line"><span style="color: #24292E">          nextPageToken </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #005CC5">null</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">          </span><span style="color: #6A737D">// Increment page to avoid fetching the same data</span></span>
+<span class="line"><span style="color: #24292E">          currentPage</span><span style="color: #D73A49">++</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">          </span><span style="color: #D73A49">continue</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">        }</span></span>
+<span class="line"><span style="color: #24292E">        </span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #D73A49">throw</span><span style="color: #24292E"> </span><span style="color: #D73A49">new</span><span style="color: #24292E"> </span><span style="color: #6F42C1">Error</span><span style="color: #24292E">(</span><span style="color: #032F62">`API error: ${</span><span style="color: #24292E">errorData</span><span style="color: #032F62">.</span><span style="color: #24292E">message</span><span style="color: #032F62">}`</span><span style="color: #24292E">);</span></span>
+<span class="line"><span style="color: #24292E">      }</span></span>
+<span class="line"><span style="color: #24292E">      </span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #D73A49">const</span><span style="color: #24292E"> </span><span style="color: #005CC5">data</span><span style="color: #24292E"> </span><span style="color: #D73A49">=</span><span style="color: #24292E"> </span><span style="color: #D73A49">await</span><span style="color: #24292E"> response.</span><span style="color: #6F42C1">json</span><span style="color: #24292E">();</span></span>
+<span class="line"><span style="color: #24292E">      allUsers </span><span style="color: #D73A49">=</span><span style="color: #24292E"> allUsers.</span><span style="color: #6F42C1">concat</span><span style="color: #24292E">(data.users);</span></span>
+<span class="line"><span style="color: #24292E">      </span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #6A737D">// Update for next iteration</span></span>
+<span class="line"><span style="color: #24292E">      nextPageToken </span><span style="color: #D73A49">=</span><span style="color: #24292E"> data.pagination.nextPageToken;</span></span>
+<span class="line"><span style="color: #24292E">      currentPage </span><span style="color: #D73A49">=</span><span style="color: #24292E"> data.pagination.page </span><span style="color: #D73A49">+</span><span style="color: #24292E"> </span><span style="color: #005CC5">1</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">      </span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #6A737D">// Exit when we&#39;ve reached the end</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #D73A49">if</span><span style="color: #24292E"> (</span><span style="color: #D73A49">!</span><span style="color: #24292E">nextPageToken </span><span style="color: #D73A49">&amp;&amp;</span><span style="color: #24292E"> currentPage </span><span style="color: #D73A49">&gt;</span><span style="color: #24292E"> data.pagination.totalPages) {</span></span>
+<span class="line"><span style="color: #24292E">        </span><span style="color: #D73A49">break</span><span style="color: #24292E">;</span></span>
+<span class="line"><span style="color: #24292E">      }</span></span>
+<span class="line"><span style="color: #24292E">      </span></span>
+<span class="line"><span style="color: #24292E">    } </span><span style="color: #D73A49">while</span><span style="color: #24292E"> (</span><span style="color: #005CC5">true</span><span style="color: #24292E">);</span></span>
+<span class="line"><span style="color: #24292E">    </span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #D73A49">return</span><span style="color: #24292E"> allUsers;</span></span>
+<span class="line"><span style="color: #24292E">  } </span><span style="color: #D73A49">catch</span><span style="color: #24292E"> (error) {</span></span>
+<span class="line"><span style="color: #24292E">    console.</span><span style="color: #6F42C1">error</span><span style="color: #24292E">(</span><span style="color: #032F62">&quot;Error fetching users:&quot;</span><span style="color: #24292E">, error);</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #D73A49">throw</span><span style="color: #24292E"> error;</span></span>
+<span class="line"><span style="color: #24292E">  }</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>This approach ensures that your pagination process can recover gracefully from token expiration without losing progress.</p>
+<h2>📌 2. Get User Profile API</h2>
+<p>The Get User Profile API allows users to retrieve their own profile information.</p>
+<p><strong>Get User Profile Endpoint</strong></p>
+<h3>🔹 GET /users</h3>
+<p><strong>Get User Profile Query Parameters</strong></p>
+<ul>
+<li>userSessionId: User session ID for authentication context</li>
+<li>schema: Set to “true” to get the profile schema instead of profile data</li>
+<li>categories: Comma-separated list of profile categories to include (e.g., “basic,membership,professional”)</li>
+<li>includeFullProfile: Set to “true” to include all profile data</li>
+<li>fields: Comma-separated list of specific fields to include</li>
+<li>noLinks: Set to “true” to exclude HATEOAS links</li>
+<li>fullLinks: Set to “true” to include full HATEOAS links instead of simplified links</li>
+</ul>
+<p>Get User Profile cURL Example</p>
+<h1>📄 Get basic profile</h1>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users?userSessionId=SESSION_ID&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Get specific categories</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users?userSessionId=SESSION_ID&amp;categories=basic,professional,location&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Get full profile</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users?userSessionId=SESSION_ID&amp;includeFullProfile=true&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #6A737D"># 📄 Get profile schema</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users?schema=true&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Get User Profile Postman Example</p>
+<ol>
+<li>Create a new GET request to <a href="https://api.example.com/users?userSessionId=SESSION_ID&amp;categories=basic,professional,location">https://api.example.com/users?userSessionId=SESSION_ID&amp;categories=basic,professional,location</a></li>
+<li>Add header: Authorization: Bearer YOUR_ACCESS_TOKEN</li>
+<li>Click “Send”</li>
+</ol>
+<p>Get User Profile Response</p>
+<p>Successful Response (200 OK)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User profile retrieved successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;GET_USER_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;user&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;basic&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;userId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;j***e@e***e.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;firstName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;John&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;lastName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Doe&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;membershipName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;johndoe123&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;profileImageUrl&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;https://example.com/profile.jpg&quot;</span></span>
+<span class="line"><span style="color: #24292E">    },</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;professional&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;jobTitle&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Software Engineer&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;companyName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Tech Company&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;selfEmployed&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;yearsOfExperience&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">5</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;professionalBio&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Experienced software engineer with a focus on cloud technologies.&quot;</span></span>
+<span class="line"><span style="color: #24292E">    },</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;location&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;city&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;San Francisco&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;state&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;CA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;country&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USA&quot;</span></span>
+<span class="line"><span style="color: #24292E">    }</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;_links&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;self&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;updateProfile&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;default&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;withBasic&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;requestedCategories=basic&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;withProfessional&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;requestedCategories=professional&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;withLocation&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;requestedCategories=location&quot;</span></span>
+<span class="line"><span style="color: #24292E">    },</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;getFullProfile&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;includeFullProfile=true&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;getByCategories&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;all&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;categories=basic,membership,professional,location,profileStatus,preferences,securityInfo,social&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;basic&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;categories=basic&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;professional&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;categories=professional&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;location&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;categories=location&quot;</span></span>
+<span class="line"><span style="color: #24292E">    }</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SESSION_ID&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Schema Response (200 OK)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Schema available&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;schema&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;basic&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">      { </span><span style="color: #005CC5">&quot;name&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;firstName&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;description&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User&#39;s first name&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;isComposite&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E"> },</span></span>
+<span class="line"><span style="color: #24292E">      { </span><span style="color: #005CC5">&quot;name&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;lastName&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;description&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User&#39;s last name&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;isComposite&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E"> },</span></span>
+<span class="line"><span style="color: #24292E">      { </span><span style="color: #005CC5">&quot;name&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;email&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;description&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User&#39;s email address&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;isComposite&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E"> }</span></span>
+<span class="line"><span style="color: #24292E">    ],</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;professional&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">      { </span><span style="color: #005CC5">&quot;name&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jobTitle&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;description&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User&#39;s job title&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;isComposite&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E"> },</span></span>
+<span class="line"><span style="color: #24292E">      { </span><span style="color: #005CC5">&quot;name&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;companyName&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;description&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User&#39;s company name&quot;</span><span style="color: #24292E">, </span><span style="color: #005CC5">&quot;isComposite&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E"> }</span></span>
+<span class="line"><span style="color: #24292E">    ]</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;availableCategories&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;basic&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;membership&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;professional&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;location&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;profileStatus&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;preferences&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;securityInfo&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;social&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;metadata&quot;</span></span>
+<span class="line"><span style="color: #24292E">  ],</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;_links&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;self&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&quot;</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Get User Profile Error Responses</p>
+<p>Authentication Error (401 Unauthorized)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid or expired access token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_ACCESS_TOKEN&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>User Not Found (404 Not Found)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User profile not found&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USER_PROFILE_NOT_FOUND&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Server Error (500 Internal Server Error)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;An error occurred while retrieving user profile&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;GET_USER_PROFILE_ERROR&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h2>📌 3. Update User Profile API</h2>
+<p>The Update User Profile API allows users to update their profile information.</p>
+<p>Update User Profile Endpoint</p>
+<p>PUT /users</p>
+<p>Update User Profile Request Body</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;firstName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;John&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;lastName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Smith&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;jobTitle&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Senior Software Engineer&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;phoneNumber&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;+1234567890&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;city&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Seattle&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;state&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;WA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;country&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;preferredLanguage&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;en&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;socialProfiles&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;linkedinUrl&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;https://linkedin.com/in/johnsmith&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;githubUrl&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;https://github.com/johnsmith&quot;</span></span>
+<span class="line"><span style="color: #24292E">  }</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>You can update any combination of fields across different categories.</p>
+<p>Update User Profile Query Parameters</p>
+<ul>
+<li>userSessionId: User session ID for authentication context (required)</li>
+<li>categories: Comma-separated list of categories to include in the response</li>
+<li>includeFullProfile: Set to “true” to include the full updated profile in the response</li>
+<li>noLinks: Set to “true” to exclude HATEOAS links</li>
+<li>fullLinks: Set to “true” to include full HATEOAS links instead of simplified links</li>
+</ul>
+<p>Update User Profile cURL Example:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">PUT</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/users?userSessionId=SESSION_ID&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">        &quot;firstName&quot;: &quot;John&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;lastName&quot;: &quot;Smith&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;jobTitle&quot;: &quot;Senior Software Engineer&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;phoneNumber&quot;: &quot;+1234567890&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;city&quot;: &quot;Seattle&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;state&quot;: &quot;WA&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;country&quot;: &quot;USA&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;preferredLanguage&quot;: &quot;en&quot;,</span></span>
+<span class="line"><span style="color: #032F62">        &quot;socialProfiles&quot;: {</span></span>
+<span class="line"><span style="color: #032F62">            &quot;linkedinUrl&quot;: &quot;https://linkedin.com/in/johnsmith&quot;,</span></span>
+<span class="line"><span style="color: #032F62">            &quot;githubUrl&quot;: &quot;https://github.com/johnsmith&quot;</span></span>
+<span class="line"><span style="color: #032F62">        }</span></span>
+<span class="line"><span style="color: #032F62">    }&#39;</span></span>
+<span class="line"></span></code></pre>
+<h2>📌 Update User Profile Postman Example</h2>
+<ol>
+<li>Create a new PUT request to <a href="https://api.example.com/users?userSessionId=SESSION_ID">https://api.example.com/users?userSessionId=SESSION_ID</a></li>
+<li>Add header: Authorization: Bearer YOUR_ACCESS_TOKEN</li>
+<li>Set body type to “raw” and format to “JSON”</li>
+<li>Add the following JSON body:</li>
+</ol>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;firstName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;John&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;lastName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Smith&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;jobTitle&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Senior Software Engineer&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;phoneNumber&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;+1234567890&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;city&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Seattle&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;state&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;WA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;country&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;preferredLanguage&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;en&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;socialProfiles&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;linkedinUrl&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;https://linkedin.com/in/johnsmith&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;githubUrl&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;https://github.com/johnsmith&quot;</span></span>
+<span class="line"><span style="color: #24292E">  }</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<ol start="5">
+<li>Click “Send”</li>
+</ol>
+<h2>📌 Update User Profile Response</h2>
+<p>Successful Response (200 OK)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User profile updated successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;UPDATE_USER_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;updates&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;updatedFields&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;firstName&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;lastName&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;jobTitle&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;phoneNumber&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;city&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;state&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;country&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;preferredLanguage&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;socialProfiles&quot;</span></span>
+<span class="line"><span style="color: #24292E">    ],</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;updatedCategories&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;basic&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;professional&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;location&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;preferences&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #032F62">&quot;social&quot;</span></span>
+<span class="line"><span style="color: #24292E">    ],</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;sensitiveFieldsUpdated&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;_links&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;self&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;getFullProfile&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;includeFullProfile=true&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;getByCategories&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;updatedOnly&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;/users?userSessionId=SESSION_ID&amp;categories=basic,professional,location,preferences,social&quot;</span></span>
+<span class="line"><span style="color: #24292E">    }</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SESSION_ID&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Update User Profile Error Responses</p>
+<p>Authentication Error (401 Unauthorized)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid or expired access token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_ACCESS_TOKEN&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Invalid Session (401 Unauthorized)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid user session&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_USER_SESSION&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Validation Error (400 Bad Request)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid request parameters: phoneNumber must be a valid phone number&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;VALIDATION_ERROR&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Account Disabled (403 Forbidden)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Account is disabled or deactivated&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ACCOUNT_DISABLED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Server Error (500 Internal Server Error)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;An error occurred while updating user profile&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;UPDATE_USER_PROFILE_ERROR&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Notes</p>
+<ol>
+<li>The userSessionId query parameter is required for all update operations</li>
+<li>By default, the response includes only update information without the profile data</li>
+<li>Use includeFullProfile=true to get the complete updated profile in the response</li>
+<li>Use requestedCategories to get specific sections of the profile in the response</li>
+<li>The response includes HATEOAS links for related operations</li>
+<li>Use noLinks=true to reduce response size by excluding HATEOAS links</li>
+<li>The updates object in the response shows which fields and categories were updated</li>
+<li>Sensitive field updates are flagged in the response</li>
+</ol>
+
+    </div>
+  </div>
+  
+  <script>
+    // Add copy button to code blocks
+    document.querySelectorAll('pre').forEach(block => {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copy';
+      button.style.position = 'absolute';
+      button.style.top = '5px';
+      button.style.right = '5px';
+      button.style.padding = '4px 8px';
+      button.style.fontSize = '12px';
+      button.style.fontFamily = 'var(--main-font)';
+      button.style.border = 'none';
+      button.style.borderRadius = '4px';
+      button.style.backgroundColor = 'rgba(0,0,0,0.1)';
+      button.style.cursor = 'pointer';
+      
+      block.style.position = 'relative';
+      
+      button.addEventListener('click', () => {
+        const code = block.querySelector('code').innerText;
+        navigator.clipboard.writeText(code);
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = 'Copy';
+        }, 2000);
+      });
+      
+      block.appendChild(button);
+    });
+  </script>
+</body>
+</html>
+    

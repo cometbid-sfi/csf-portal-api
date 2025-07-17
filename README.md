@@ -1,6 +1,5 @@
-# CSF Open API Specification
- A sample CSF api built on OAS(Open-api Specification 3.0) using the API-design first approach
-
+# TCTF Open API Specification
+ A sample TCTF api built on OAS(Open-api Specification 3.0) using the API-design first approach
 
 
 ## multi-spec-openapi
