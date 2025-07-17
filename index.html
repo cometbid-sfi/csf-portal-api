@@ -62,8 +62,9 @@
       .top-banner {
         background-color: #3a7bc8; /* Darker sky blue color */
         color: white;
-        padding: 20px;
+        padding: 15px;
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -76,11 +77,14 @@
       .banner-left {
         display: flex;
         align-items: center;
+        flex: 1;
+        min-width: 200px;
+        margin-bottom: 10px;
       }
 
       /* Logo placeholder */
       .logo-placeholder {
-        width: 40px;
+        min-width: 40px;
         height: 40px;
         background-color: rgba(255, 255, 255, 0.2);
         border-radius: 8px;
@@ -90,6 +94,7 @@
         justify-content: center;
         font-weight: bold;
         font-size: 20px;
+        flex-shrink: 0;
       }
 
       .logo-link {
@@ -98,6 +103,7 @@
         color: white;
         text-decoration: none;
         transition: opacity 0.2s;
+        max-width: 100%;
       }
 
       .logo-link:hover {
@@ -107,35 +113,42 @@
 
       .top-banner h1 {
         margin: 0;
-        font-size: 26px; /* Increased font size */
+        font-size: clamp(18px, 5vw, 26px); /* Responsive font size */
         font-weight: 600;
         letter-spacing: -0.5px;
         color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .api-selector {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        margin-top: 10px;
       }
 
       .api-selector label {
         margin-right: 10px;
         font-weight: 500;
-        font-size: 16px; /* Increased font size */
+        font-size: 16px;
         color: white;
+        white-space: nowrap;
       }
 
       .api-selector select {
-        padding: 10px 14px; /* Larger padding */
+        padding: 8px 12px;
         border-radius: 6px;
         border: 1px solid rgba(255, 255, 255, 0.3);
         background-color: rgba(255, 255, 255, 0.2);
         color: white;
-        font-size: 16px; /* Increased font size */
+        font-size: 15px;
         font-family: "Inter", sans-serif;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
+        max-width: 100%;
       }
 
       .api-selector select:hover {
@@ -155,36 +168,89 @@
       /* Improve readability of Swagger UI */
       .swagger-ui .info .title {
         font-weight: 600;
-        font-size: 32px; /* Increased font size */
+        font-size: clamp(24px, 5vw, 32px); /* Responsive font size */
       }
 
       .swagger-ui .opblock-tag {
-        font-size: 22px; /* Increased font size */
+        font-size: clamp(18px, 4vw, 22px); /* Responsive font size */
         font-weight: 600;
       }
 
       .swagger-ui .opblock .opblock-summary-operation-id,
       .swagger-ui .opblock .opblock-summary-path,
       .swagger-ui .opblock .opblock-summary-path__deprecated {
-        font-size: 16px; /* Increased font size */
+        font-size: clamp(14px, 3vw, 16px); /* Responsive font size */
       }
 
       /* Increase font size for description text */
       .swagger-ui .opblock-description-wrapper p,
       .swagger-ui .info p,
       .swagger-ui .info li {
-        font-size: 16px; /* Increased font size */
+        font-size: clamp(14px, 3vw, 16px); /* Responsive font size */
       }
 
       /* Increase font size for parameter descriptions */
       .swagger-ui .parameters-col_description p {
-        font-size: 15px; /* Increased font size */
+        font-size: clamp(13px, 3vw, 15px); /* Responsive font size */
       }
 
       /* Increase font size for response descriptions */
       .swagger-ui .responses-inner h4,
       .swagger-ui .responses-inner h5 {
-        font-size: 16px; /* Increased font size */
+        font-size: clamp(14px, 3vw, 16px); /* Responsive font size */
+      }
+
+      /* Media queries for better responsiveness */
+      @media (max-width: 768px) {
+        .top-banner {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 15px 10px;
+        }
+
+        .banner-left {
+          margin-bottom: 15px;
+          width: 100%;
+        }
+
+        .api-selector {
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        .api-selector select {
+          width: 100%;
+          margin-top: 5px;
+        }
+
+        .api-selector label {
+          width: 100%;
+          margin-bottom: 5px;
+        }
+      }
+
+      /* Improve Swagger UI responsiveness */
+      @media (max-width: 768px) {
+        .swagger-ui .opblock-summary {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .swagger-ui .opblock-summary-method {
+          margin-bottom: 5px;
+        }
+
+        .swagger-ui .opblock-summary-path {
+          word-break: break-all;
+        }
+
+        .swagger-ui .parameters-container .parameters-col_description {
+          width: 100%;
+        }
+
+        .swagger-ui .parameters-container .parameters-col_name {
+          width: 100%;
+        }
       }
     </style>
   </head>
