@@ -1,0 +1,1043 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mfa-usage-doc - API Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --banner-bg: #3A7BC8;
+      --banner-text: #ffffff;
+      --main-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --code-font: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --text-color: #333333;
+      --link-color: #0366d6;
+      --border-color: #e1e4e8;
+      --code-bg: #f6f8fa;
+      --blockquote-color: #6a737d;
+      --section-bg: #f8f9fa;
+      --callout-bg: #e8f4fd;
+      --callout-border: #79b8ff;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--main-font);
+      line-height: 1.6;
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+    }
+    
+    /* Sticky header with responsive design */
+    .top-banner {
+      background-color: var(--banner-bg);
+      color: var(--banner-text);
+      padding: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      max-width: 100%;
+    }
+    
+    .logo-link:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    
+    .banner-left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 200px;
+      max-width: 60%; /* Add this to limit width */
+    }
+    
+    .logo-placeholder {
+      min-width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    
+    .top-banner h1 {
+      margin: 0;
+      font-size: clamp(18px, 5vw, 24px); /* Increased from 16px-20px to 18px-24px */
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: white;
+      white-space: normal; /* Allow text to wrap */
+      overflow: visible; /* Don't hide overflow */
+      line-height: 1.2; /* Tighter line height for wrapped text */
+      max-width: 100%; /* Ensure text doesn't overflow its container */
+    }
+
+    .back-to-docs {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: var(--main-font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+      margin-left: 10px;
+    }
+    
+    .back-to-docs:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      text-decoration: none;
+    }
+    
+    /* Content container */
+    .content-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      width: 100%;
+      overflow-x: hidden;
+    }
+    
+    /* Typography with responsive sizes */
+    .markdown-body {
+      font-size: clamp(14px, 3vw, 16px);
+    }
+    
+    .markdown-body h1 {
+      font-size: clamp(1.8em, 5vw, 2.2em);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      word-break: break-word;
+    }
+    
+    .markdown-body h2 {
+      font-size: clamp(1.5em, 4vw, 1.8em);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      background-color: var(--section-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+      word-break: break-word;
+    }
+    
+    .markdown-body h3 {
+      font-size: clamp(1.2em, 3vw, 1.4em);
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    .markdown-body h4 {
+      font-size: clamp(1.1em, 2vw, 1.2em);
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    /* Code blocks with responsive design */
+    .markdown-body pre {
+      background-color: var(--code-bg);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 1.2em 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Tables with responsive design */
+    .markdown-body table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 1.5em;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Media queries for better responsiveness */
+    @media (max-width: 768px) {
+      .top-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+      }
+      
+      .banner-left {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+      
+      .back-to-docs {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+      
+      .content-container {
+        padding: 20px 15px;
+      }
+      
+      .markdown-body pre {
+        padding: 12px;
+      }
+      
+      .markdown-body table th, 
+      .markdown-body table td {
+        padding: 8px 12px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .top-banner h1 {
+        font-size: 16px;
+      }
+      
+      .logo-placeholder {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      
+      .back-to-docs {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
+    
+    /* Keep the rest of your existing styles */
+  </style>
+</head>
+<body>
+  <!-- Sticky header that matches the main page -->
+  <div class="top-banner">
+    <div class="banner-left">
+      <a href="/csf-portal-api/" class="logo-link">
+        <div class="logo-placeholder">TCT</div>
+        <h1>TCT Foundation API Documentation</h1>
+      </a>
+    </div>
+    <a href="/csf-portal-api/" class="back-to-docs">Back to API Explorer</a>
+  </div>
+  
+  <div class="content-container">
+    <div class="markdown-body">
+      <h1>📄 MFA Lambda Functions Usage Documentation</h1>
+<h2>📌 Overview</h2>
+<p>This documentation covers the usage of seven MFA-related Lambda functions that handle multi-factor authentication operations in the system.</p>
+<h2>📌 Table of Contents</h2>
+<ol>
+<li><a href="#generate-temporary-backup-code">Generate Temporary Backup Code</a></li>
+<li><a href="#verify-temporary-backup-code">Verify Temporary Backup Code</a></li>
+<li><a href="#reset-backup-codes">Reset Backup Codes</a></li>
+<li><a href="#verify-backup-code">Verify Backup Code</a></li>
+<li><a href="#verify-totp-code">Verify TOTP Code</a></li>
+<li><a href="#get-mfa-status">Get MFA Status</a></li>
+<li><a href="#mfa-toggle">MFA Toggle</a></li>
+<li><a href="#common-features">Common Features</a>
+<ul>
+<li><a href="#rate-limiting">Rate Limiting</a></li>
+<li><a href="#idempotency">Idempotency</a></li>
+<li><a href="#security-features">Security Features</a></li>
+<li><a href="#error-handling">Error Handling</a></li>
+<li><a href="#monitoring-and-metrics">Monitoring and Metrics</a></li>
+</ul>
+</li>
+</ol>
+<h2>📌 1. Generate Temporary Backup Code</h2>
+<p>Endpoint: POST /v1/auth/mfa/generate-temp-backup-code</p>
+<p><strong>Purpose</strong></p>
+<p>Generates a temporary backup code for users who have lost access to their primary MFA device.</p>
+<p><strong>Request Format</strong></p>
+<p>Query Parameters:</p>
+<pre><code>- sessionId (required): Valid MFA session ID
+</code></pre>
+<p>Headers:</p>
+<pre><code>- Content-Type: application/json
+- X-Request-ID: [optional] Client-generated request identifier
+- User-Agent: Client application identifier
+</code></pre>
+<p>Body: None required</p>
+<p><strong>Response Format</strong></p>
+<p>Success (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Temporary backup code generated successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;TEMP_BACKUP_CODE_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;sessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;session-id&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;expiresAt&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;2024-01-01T12:00:00Z&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Headers:</p>
+<p>X-Correlation-ID: correlation-id
+X-Session-ID: session-id
+Content-Type: application/json</p>
+<p>Error Responses:</p>
+<ul>
+<li>401: Invalid MFA session</li>
+<li>403: Account locked</li>
+<li>400: MFA not enabled or temp backup code already exists</li>
+<li>409: Concurrent modification</li>
+<li>429: Rate limit exceeded</li>
+<li>500: Service error</li>
+</ul>
+<p>Use Cases</p>
+<ol>
+<li>Emergency Access: User loses primary MFA device</li>
+<li>Device Replacement: Temporary access while setting up new device</li>
+<li>Travel Scenarios: Backup access when primary device unavailable</li>
+</ol>
+<p>Example Usage</p>
+<p>cURL:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/generate-temp-backup-code?sessionId=abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span></span>
+<span class="line"></span></code></pre>
+<p>Postman:</p>
+<p>Method: POST
+URL: <a href="https://api.example.com/v1/auth/mfa/generate-temp-backup-code?sessionId=abc123">https://api.example.com/v1/auth/mfa/generate-temp-backup-code?sessionId=abc123</a>
+Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0</li>
+</ul>
+<h2>📌 2. Verify Temporary Backup Code</h2>
+<p>Endpoint: POST /v1/auth/mfa/verify-temp-backup-code</p>
+<p><strong>Purpose</strong></p>
+<p>Verifies a temporary backup code and completes user authentication.</p>
+<p><strong>Request Format</strong></p>
+<p>Query Parameters:</p>
+<ul>
+<li>sessionId (required): Valid MFA session ID</li>
+</ul>
+<p>Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>X-Request-ID: [optional] Client-generated request identifier</li>
+<li>User-Agent: Client application identifier</li>
+</ul>
+<p>Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;tempBackupCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;123456&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;password&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user-password&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;staySignedIn&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Format</p>
+<p>Success (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Sign-in successful&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;accessToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-access-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;refreshToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-refresh-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;idToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-id-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Headers:</p>
+<p>X-Correlation-ID: correlation-id
+X-Session-ID: session-id
+Content-Type: application/json</p>
+<p>Error Responses:</p>
+<ul>
+<li>400: Invalid backup code, expired code, or validation error</li>
+<li>401: Invalid credentials or session</li>
+<li>429: Rate limit exceeded</li>
+<li>500: Service error</li>
+</ul>
+<p>Use Cases</p>
+<ol>
+<li>Emergency Authentication: Complete login with temporary code</li>
+<li>Account Recovery: Regain access after device loss</li>
+<li>One-time Access: Single-use authentication for critical operations</li>
+</ol>
+<p>Example Usage</p>
+<p>cURL:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">curl -X POST </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/verify-temp-backup-code?sessionId=abc123&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -H </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -H </span><span style="color: #032F62">&quot;X-Request-ID: req-12345&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -H </span><span style="color: #032F62">&quot;User-Agent: MobileApp/1.0&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -d &#39;{</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;tempBackupCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;123456&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;password&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;userpassword&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;staySignedIn&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p>Postman:</p>
+<p>Method: POST
+URL: <a href="https://api.example.com/v1/auth/mfa/verify-temp-backup-code?sessionId=abc123">https://api.example.com/v1/auth/mfa/verify-temp-backup-code?sessionId=abc123</a>
+Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0
+Body (raw/JSON):
+{
+“email”: “<a href="mailto:user@example.com">user@example.com</a>”,
+“tempBackupCode”: “123456”,
+“password”: “userpassword”,
+“staySignedIn”: false
+}</li>
+</ul>
+<h2>📌 3. Reset Backup Codes</h2>
+<p>Endpoint: POST /v1/auth/mfa/reset-backup-codes</p>
+<p><strong>Purpose</strong></p>
+<p>Generates a new set of backup codes, invalidating all previous ones.</p>
+<p><strong>Request Format</strong></p>
+<p>Query Parameters:</p>
+<ul>
+<li>userSessionId (required): Valid user session ID</li>
+</ul>
+<p>Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>Authorization: Bearer {access-token}</li>
+<li>X-Request-ID: [optional] Client-generated request identifier</li>
+<li>User-Agent: Client application identifier</li>
+</ul>
+<p>Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Format</p>
+<p>Success (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Backup codes reset successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;backupCodes&quot;</span><span style="color: #24292E">: [</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;12345678&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;87654321&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;11223344&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;44332211&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #032F62">&quot;55667788&quot;</span></span>
+<span class="line"><span style="color: #24292E">  ],</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;session-id&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Headers:</p>
+<p>X-Correlation-ID: correlation-id
+X-User-Session-ID: user-session-id
+Content-Type: application/json</p>
+<p><strong>Error Responses:</strong></p>
+<ul>
+<li>400: MFA not enabled or validation error</li>
+<li>401: Invalid access token</li>
+<li>403: Account locked or email mismatch</li>
+<li>429: Rate limit exceeded</li>
+<li>500: Service error</li>
+</ul>
+<p><strong>Use Cases</strong></p>
+<ol>
+<li>Security Compromise: Reset codes after suspected breach</li>
+<li>Periodic Rotation: Regular security maintenance</li>
+<li>Code Exhaustion: Generate new codes when running low</li>
+<li>Device Migration: Fresh codes for new device setup</li>
+</ol>
+<p>Example Usage</p>
+<p>cURL:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span><span style="color: #24292E"> </span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/reset-backup-codes?userSessionId=xyz789&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-Request-ID: req-12345&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;User-Agent: WebApp/2.0&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{&quot;email&quot;: &quot;user@example.com&quot;}&#39;</span></span>
+<span class="line"></span></code></pre>
+<p>Postman:</p>
+<p>Method: POST
+URL: <a href="https://api.example.com/v1/auth/mfa/reset-backup-codes?userSessionId=xyz789">https://api.example.com/v1/auth/mfa/reset-backup-codes?userSessionId=xyz789</a>
+Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0
+Body (raw/JSON):
+{
+“email”: “<a href="mailto:user@example.com">user@example.com</a>”
+}</li>
+</ul>
+<h2>📌 4. Verify Backup Code</h2>
+<p>Endpoint: POST /v1/auth/mfa/verify-backup-code</p>
+<p><strong>Purpose</strong></p>
+<p>Verifies a standard backup code and completes user authentication.</p>
+<p><strong>Request Format</strong></p>
+<p>Query Parameters:</p>
+<ul>
+<li>sessionId (required): Valid MFA session ID</li>
+</ul>
+<p>Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>X-Request-ID: [optional] Client-generated request identifier</li>
+<li>User-Agent: Client application identifier</li>
+</ul>
+<p>Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;backupCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;123456&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;password&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user-password&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;staySignedIn&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Format</p>
+<p>Success (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Sign-in successful&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;accessToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-access-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;refreshToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-refresh-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;idToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-id-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Headers:</p>
+<p>X-Correlation-ID: correlation-id
+X-Session-ID: session-id
+Content-Type: application/json
+Cache-Control: no-store, private</p>
+<p>Error Responses:</p>
+<ul>
+<li>400: Invalid backup code or validation error</li>
+<li>401: Invalid credentials or session</li>
+<li>429: Rate limit exceeded</li>
+<li>500: Service error</li>
+</ul>
+<p>Use Cases</p>
+<ol>
+<li>Primary MFA Unavailable: Use when TOTP device is inaccessible</li>
+<li>Device Malfunction: Backup authentication method</li>
+<li>Travel Authentication: Use saved backup codes while traveling</li>
+<li>Emergency Access: Critical system access when primary MFA fails</li>
+</ol>
+<p>Example Usage</p>
+<p>cURL:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/verify-backup-code?sessionId=abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;backupCode&quot;: &quot;12345678&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;userpassword&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;staySignedIn&quot;: false</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p>Postman:</p>
+<p>Method: POST
+URL: <a href="https://api.example.com/v1/auth/mfa/verify-backup-code?sessionId=abc123">https://api.example.com/v1/auth/mfa/verify-backup-code?sessionId=abc123</a>
+Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0
+Body (raw/JSON):
+{
+“email”: “<a href="mailto:user@example.com">user@example.com</a>”,
+“backupCode”: “12345678”,
+“password”: “userpassword”,
+“staySignedIn”: false
+}</li>
+</ul>
+<h2>📌 5. Verify TOTP Code</h2>
+<p>Endpoint: POST /v1/auth/mfa/verify-totp-code</p>
+<p><strong>Purpose</strong></p>
+<p>Verifies a Time-based One-Time Password (TOTP) and completes user authentication.</p>
+<p><strong>Request Format</strong></p>
+<p>Query Parameters:</p>
+<ul>
+<li>sessionId (required): Valid MFA session ID</li>
+</ul>
+<p>Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>X-Request-ID: [optional] Client-generated request identifier</li>
+<li>User-Agent: Client application identifier</li>
+</ul>
+<p>Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;totpCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;123456&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;password&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user-password&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;staySignedIn&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Response Format</strong></p>
+<p>Success (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Sign-in successful&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;accessToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-access-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;refreshToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-refresh-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;idToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;jwt-id-token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Headers:</p>
+<p>X-Correlation-ID: correlation-id
+X-Session-ID: session-id
+Content-Type: application/json
+Cache-Control: no-store, private</p>
+<p>Error Responses:</p>
+<ul>
+<li>400: Invalid TOTP code, expired code, or validation error</li>
+<li>401: Invalid credentials or session</li>
+<li>429: Rate limit exceeded</li>
+<li>500: Service error</li>
+</ul>
+<p><strong>Use Cases</strong></p>
+<ol>
+<li>Standard MFA Login: Primary authentication method</li>
+<li>Secure Transactions: Additional verification for sensitive operations</li>
+<li>Administrative Access: Enhanced security for admin functions</li>
+<li>API Authentication: Programmatic access with MFA</li>
+</ol>
+<p>Example Usage</p>
+<p>cURL:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/verify-totp-code?sessionId=abc123&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-Request-ID: req-12345&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;User-Agent: MobileApp/1.0&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;totpCode&quot;: &quot;123456&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;password&quot;: &quot;userpassword&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;staySignedIn&quot;: false</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Postman:</p>
+<p>Method: POST
+URL: <a href="https://api.example.com/v1/auth/mfa/verify-totp-code?sessionId=abc123">https://api.example.com/v1/auth/mfa/verify-totp-code?sessionId=abc123</a>
+Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0
+Body (raw/JSON):
+{
+“email”: “<a href="mailto:user@example.com">user@example.com</a>”,
+“totpCode”: “123456”,
+“password”: “userpassword”,
+“staySignedIn”: false
+}</li>
+</ul>
+<h2>📌 6. Get MFA Status</h2>
+<p>Endpoint: GET /v1/auth/mfa/status</p>
+<p><strong>Purpose</strong></p>
+<p>Retrieves the current MFA configuration and status for a user.</p>
+<p><strong>Request Format</strong></p>
+<p>Query Parameters:</p>
+<ul>
+<li>sessionId (required): Valid user session ID</li>
+</ul>
+<p>Headers:</p>
+<ul>
+<li>Authorization: Bearer {access-token}</li>
+<li>X-Request-ID: [optional] Client-generated request identifier</li>
+<li>User-Agent: Client application identifier</li>
+</ul>
+<p><strong>Response Format</strong></p>
+<p>Success (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MFA status retrieved successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;session-id&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;mfaStatus&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;mfaEnabled&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">true</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;preferredMfaSetting&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SMS_MFA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;userMfaSettingList&quot;</span><span style="color: #24292E">: [</span><span style="color: #032F62">&quot;SMS_MFA&quot;</span><span style="color: #24292E">, </span><span style="color: #032F62">&quot;SOFTWARE_TOKEN_MFA&quot;</span><span style="color: #24292E">],</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;tempBackupCode&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;enabled&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">false</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">      </span><span style="color: #005CC5">&quot;expiresAt&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">null</span></span>
+<span class="line"><span style="color: #24292E">    }</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;deviceInfo&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;type&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;desktop&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;lastAccess&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Headers:</p>
+<p>X-Correlation-ID: correlation-id
+X-User-Session-ID: user-session-id
+Content-Type: application/json</p>
+<p>Error Responses:</p>
+<ul>
+<li>401: Invalid access token or session</li>
+<li>404: User not found</li>
+<li>429: Rate limit exceeded</li>
+<li>500: Service error</li>
+</ul>
+<p>Use Cases</p>
+<ol>
+<li>Dashboard Display: Show MFA status in user settings</li>
+<li>Security Audit: Check MFA configuration compliance</li>
+<li>Conditional Logic: Determine required authentication steps</li>
+<li>User Onboarding: Guide users through MFA setup process</li>
+</ol>
+<p>Example Usage</p>
+<p>cURL:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/status?sessionId=xyz789&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJIUzI1NiIs...&quot;</span></span>
+<span class="line"></span></code></pre>
+<p>Postman:</p>
+<p>Method: GET
+URL: <a href="https://api.example.com/v1/auth/mfa/status?sessionId=xyz789">https://api.example.com/v1/auth/mfa/status?sessionId=xyz789</a>
+Headers:</p>
+<ul>
+<li>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0</li>
+</ul>
+<h2>📌 7. MFA Toggle</h2>
+<p>Endpoint: POST /v1/auth/mfa/toggle</p>
+<p><strong>Purpose</strong></p>
+<p>Enables or disables MFA for a user account.</p>
+<p><strong>Request Format</strong></p>
+<p>Query Parameters:</p>
+<ul>
+<li>userSessionId (required): Valid user session ID</li>
+</ul>
+<p>Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>Authorization: Bearer {access-token}</li>
+<li>X-Request-ID: [optional] Client-generated request identifier</li>
+<li>User-Agent: Client application identifier</li>
+</ul>
+<p>Body for Enable:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ENABLE&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;mfaType&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SOFTWARE_TOKEN_MFA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;deviceName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;My Authenticator App&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Body for Disable:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;DISABLE&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;mfaCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;123456&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Response Format</strong></p>
+<p>Success - Enable (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MFA enabled successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;detailMessage&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MFA has been enabled for your account&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;mfaResponse&quot;</span><span style="color: #24292E">: {</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;secretCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;base32-secret&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;qrCodeUrl&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;otpauth://totp/...&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;backupCodes&quot;</span><span style="color: #24292E">: [</span><span style="color: #032F62">&quot;12345678&quot;</span><span style="color: #24292E">, </span><span style="color: #032F62">&quot;87654321&quot;</span><span style="color: #24292E">]</span></span>
+<span class="line"><span style="color: #24292E">  },</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Success - Disable (200):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MFA disabled successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;detailMessage&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MFA has been disabled for your account&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;userSessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;session-id&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Response Headers:</p>
+<p>X-Correlation-ID: correlation-id
+X-User-Session-ID: user-session-id
+Content-Type: application/json</p>
+<p>Error Responses:</p>
+<ul>
+<li>400: Invalid action, MFA code, or validation error</li>
+<li>401: Invalid access token</li>
+<li>403: Email mismatch or insufficient permissions</li>
+<li>429: Rate limit exceeded</li>
+<li>500: Service error</li>
+</ul>
+<p>Use Cases</p>
+<ol>
+<li>Initial Setup: Enable MFA for new users</li>
+<li>Security Enhancement: Upgrade account security</li>
+<li>Compliance Requirements: Meet organizational security policies</li>
+<li>Account Recovery: Disable MFA during account recovery process</li>
+<li>Device Migration: Disable/re-enable during device changes</li>
+</ol>
+<p>Example Usage</p>
+<p>Enable MFA (cURL):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">curl -X POST </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/toggle?userSessionId=xyz789&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -H </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -H </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -H </span><span style="color: #032F62">&quot;X-Request-ID: req-12345&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -H </span><span style="color: #032F62">&quot;User-Agent: WebApp/2.0&quot;</span><span style="color: #24292E"> \</span></span>
+<span class="line"><span style="color: #24292E">  -d &#39;{</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ENABLE&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;mfaType&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;SOFTWARE_TOKEN_MFA&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">    </span><span style="color: #005CC5">&quot;deviceName&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;My Phone&quot;</span></span>
+<span class="line"><span style="color: #24292E">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Enable MFA (Postman):</p>
+<p>Method: POST
+URL: <a href="https://api.example.com/v1/auth/mfa/toggle?userSessionId=xyz789">https://api.example.com/v1/auth/mfa/toggle?userSessionId=xyz789</a>
+Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0</li>
+</ul>
+<p>Body (raw/JSON):
+{
+“email”: “<a href="mailto:user@example.com">user@example.com</a>”,
+“action”: “ENABLE”,
+“mfaType”: “SOFTWARE_TOKEN_MFA”,
+“deviceName”: “My Phone”
+}</p>
+<p>Disable MFA (cURL):</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/toggle?userSessionId=xyz789&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">curl </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/auth/mfa/toggle?userSessionId=xyz789&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-Request-ID: req-12345&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;User-Agent: WebApp/2.0&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;action&quot;: &quot;DISABLE&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;mfaCode&quot;: &quot;123456&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Disable MFA (Postman):</p>
+<p>Method: POST
+URL: <a href="https://api.example.com/v1/auth/mfa/toggle?userSessionId=xyz789">https://api.example.com/v1/auth/mfa/toggle?userSessionId=xyz789</a>
+Headers:</p>
+<ul>
+<li>Content-Type: application/json</li>
+<li>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</li>
+<li>X-Request-ID: req-12345</li>
+<li>User-Agent: Postman/10.0
+Body (raw/JSON):
+{
+“email”: “<a href="mailto:user@example.com">user@example.com</a>”,
+“action”: “DISABLE”,
+“mfaCode”: “123456”
+}</li>
+</ul>
+<h2>📌 Common Features</h2>
+<p><strong>Rate Limiting</strong></p>
+<p>All endpoints implement rate limiting to prevent abuse:</p>
+<ul>
+<li>Generate Temp Backup Code: 5 requests per 15 minutes</li>
+<li>Verify Operations: 10 attempts per 5 minutes</li>
+<li>Reset Operations: 3 requests per hour</li>
+<li>Status Check: 60 requests per minute</li>
+<li>Toggle Operations: 5 requests per hour</li>
+</ul>
+<p>When rate limit is exceeded, the API returns a 429 status code with a Retry-After header indicating when the client can retry.</p>
+<p>Example rate limit exceeded response:</p>
+<p>HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+Retry-After: 300
+X-Correlation-ID: correlation-id</p>
+<p>{
+“message”: “Rate limit exceeded”,
+“code”: “RATE_LIMIT_EXCEEDED”,
+“timestamp”: 1704110400000,
+“correlationId”: “correlation-id”,
+“retryAfter”: 300
+}</p>
+<p><strong>Idempotency</strong></p>
+<p>Most endpoints support idempotency to prevent duplicate operations:</p>
+<ul>
+<li>Idempotency keys are generated server-side</li>
+<li>Results are cached for specified time windows</li>
+<li>Duplicate requests return cached responses</li>
+</ul>
+<p>Example idempotent request/response:</p>
+<h1>📄 First request</h1>
+<p>POST /v1/auth/mfa/reset-backup-codes?userSessionId=xyz789
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs…
+Content-Type: application/json</p>
+<p>{“email”: “<a href="mailto:user@example.com">user@example.com</a>”}</p>
+<h1>📄 Response (200 OK)</h1>
+<p>{
+“message”: “Backup codes reset successfully”,
+“backupCodes”: [“12345678”, “87654321”, …],
+“timestamp”: 1704110400000
+}</p>
+<h1>📄 Duplicate request within time window</h1>
+<p>POST /v1/auth/mfa/reset-backup-codes?userSessionId=xyz789
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs…
+Content-Type: application/json</p>
+<p>{“email”: “<a href="mailto:user@example.com">user@example.com</a>”}</p>
+<h1>📄 Response (200 OK) - Same as first request</h1>
+<p>{
+“message”: “Backup codes reset successfully”,
+“backupCodes”: [“12345678”, “87654321”, …],
+“timestamp”: 1704110400000
+}</p>
+<p><strong>Security Features</strong></p>
+<ul>
+<li>Session Validation: All operations validate user sessions</li>
+<li>Token Verification: Access tokens are verified for authenticity</li>
+<li>Account Locking: Accounts are locked after repeated failures</li>
+<li>Audit Logging: All operations are logged for security monitoring</li>
+<li>Device Tracking: Device information is captured for security analysis</li>
+</ul>
+<p>Example security headers in responses:</p>
+<p>Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Content-Security-Policy: default-src ‘self’
+Cache-Control: no-store, private</p>
+<p><strong>Error Handling</strong></p>
+<p>Consistent error response format across all endpoints:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Human-readable error message&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;ERROR_CODE&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1704110400000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;correlation-id&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;details&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Additional error context (optional)&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Example error responses:</p>
+<p>Invalid session:</p>
+<p>HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+X-Correlation-ID: correlation-id</p>
+<p>{
+“message”: “Invalid or expired session”,
+“code”: “INVALID_SESSION”,
+“timestamp”: 1704110400000,
+“correlationId”: “correlation-id”
+}</p>
+<p>Validation error:</p>
+<p>HTTP/1.1 400 Bad Request
+Content-Type: application/json
+X-Correlation-ID: correlation-id</p>
+<p>{
+“message”: “Invalid request parameters”,
+“code”: “VALIDATION_ERROR”,
+“timestamp”: 1704110400000,
+“correlationId”: “correlation-id”,
+“details”: “Email format is invalid”
+}</p>
+<h2>📌 Monitoring and Metrics</h2>
+<p>All endpoints emit CloudWatch metrics for:</p>
+<ul>
+<li>Success/failure rates</li>
+<li>Response times</li>
+<li>Error types</li>
+<li>Usage patterns</li>
+<li>Performance thresholds</li>
+</ul>
+<p>Example metrics:</p>
+<ul>
+<li><em>MFA.TempBackupCode.Generated</em>: Count of temporary backup codes generated</li>
+<li><em>MFA.BackupCode.Verified</em>: Count of successful backup code verifications</li>
+<li><em>MFA.TOTP.VerificationFailure</em>: Count of failed TOTP verifications</li>
+<li><em>MFA.Toggle.Enable.Latency</em>: Time taken to enable MFA</li>
+<li><em>MFA.Status.RequestCount</em>: Number of status check requests</li>
+</ul>
+
+    </div>
+  </div>
+  
+  <script>
+    // Add copy button to code blocks
+    document.querySelectorAll('pre').forEach(block => {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copy';
+      button.style.position = 'absolute';
+      button.style.top = '5px';
+      button.style.right = '5px';
+      button.style.padding = '4px 8px';
+      button.style.fontSize = '12px';
+      button.style.fontFamily = 'var(--main-font)';
+      button.style.border = 'none';
+      button.style.borderRadius = '4px';
+      button.style.backgroundColor = 'rgba(0,0,0,0.1)';
+      button.style.cursor = 'pointer';
+      
+      block.style.position = 'relative';
+      
+      button.addEventListener('click', () => {
+        const code = block.querySelector('code').innerText;
+        navigator.clipboard.writeText(code);
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = 'Copy';
+        }, 2000);
+      });
+      
+      block.appendChild(button);
+    });
+  </script>
+</body>
+</html>
+    

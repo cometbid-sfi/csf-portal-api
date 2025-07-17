@@ -1,0 +1,724 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>usage-email-verification - API Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --banner-bg: #3A7BC8;
+      --banner-text: #ffffff;
+      --main-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --code-font: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --text-color: #333333;
+      --link-color: #0366d6;
+      --border-color: #e1e4e8;
+      --code-bg: #f6f8fa;
+      --blockquote-color: #6a737d;
+      --section-bg: #f8f9fa;
+      --callout-bg: #e8f4fd;
+      --callout-border: #79b8ff;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--main-font);
+      line-height: 1.6;
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+    }
+    
+    /* Sticky header with responsive design */
+    .top-banner {
+      background-color: var(--banner-bg);
+      color: var(--banner-text);
+      padding: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      max-width: 100%;
+    }
+    
+    .logo-link:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    
+    .banner-left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 200px;
+      max-width: 60%; /* Add this to limit width */
+    }
+    
+    .logo-placeholder {
+      min-width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    
+    .top-banner h1 {
+      margin: 0;
+      font-size: clamp(18px, 5vw, 24px); /* Increased from 16px-20px to 18px-24px */
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: white;
+      white-space: normal; /* Allow text to wrap */
+      overflow: visible; /* Don't hide overflow */
+      line-height: 1.2; /* Tighter line height for wrapped text */
+      max-width: 100%; /* Ensure text doesn't overflow its container */
+    }
+
+    .back-to-docs {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: var(--main-font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+      margin-left: 10px;
+    }
+    
+    .back-to-docs:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      text-decoration: none;
+    }
+    
+    /* Content container */
+    .content-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      width: 100%;
+      overflow-x: hidden;
+    }
+    
+    /* Typography with responsive sizes */
+    .markdown-body {
+      font-size: clamp(14px, 3vw, 16px);
+    }
+    
+    .markdown-body h1 {
+      font-size: clamp(1.8em, 5vw, 2.2em);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      word-break: break-word;
+    }
+    
+    .markdown-body h2 {
+      font-size: clamp(1.5em, 4vw, 1.8em);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      background-color: var(--section-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+      word-break: break-word;
+    }
+    
+    .markdown-body h3 {
+      font-size: clamp(1.2em, 3vw, 1.4em);
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    .markdown-body h4 {
+      font-size: clamp(1.1em, 2vw, 1.2em);
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    /* Code blocks with responsive design */
+    .markdown-body pre {
+      background-color: var(--code-bg);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 1.2em 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Tables with responsive design */
+    .markdown-body table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 1.5em;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Media queries for better responsiveness */
+    @media (max-width: 768px) {
+      .top-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+      }
+      
+      .banner-left {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+      
+      .back-to-docs {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+      
+      .content-container {
+        padding: 20px 15px;
+      }
+      
+      .markdown-body pre {
+        padding: 12px;
+      }
+      
+      .markdown-body table th, 
+      .markdown-body table td {
+        padding: 8px 12px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .top-banner h1 {
+        font-size: 16px;
+      }
+      
+      .logo-placeholder {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      
+      .back-to-docs {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
+    
+    /* Keep the rest of your existing styles */
+  </style>
+</head>
+<body>
+  <!-- Sticky header that matches the main page -->
+  <div class="top-banner">
+    <div class="banner-left">
+      <a href="/csf-portal-api/" class="logo-link">
+        <div class="logo-placeholder">TCT</div>
+        <h1>TCT Foundation API Documentation</h1>
+      </a>
+    </div>
+    <a href="/csf-portal-api/" class="back-to-docs">Back to API Explorer</a>
+  </div>
+  
+  <div class="content-container">
+    <div class="markdown-body">
+      <h1>📄 Email Verification API Documentation</h1>
+<p>This document provides detailed examples of how to use the Email Verification APIs, including requesting verification emails and verifying email addresses.</p>
+<h2>📌 Table of Contents</h2>
+<ol>
+<li>
+<p><a href="#request-email-verification-api">Request Email Verification API</a></p>
+<ul>
+<li><a href="#request-email-verification-endpoint">Endpoint</a></li>
+<li><a href="#request-email-verification-request-body">Request Body</a></li>
+<li><a href="#request-email-verification-query-parameters">Query Parameters</a></li>
+<li><a href="#request-email-verification-curl-example">cURL Example</a></li>
+<li><a href="#request-email-verification-postman-example">Postman Example</a></li>
+<li><a href="#request-email-verification-response">Response</a></li>
+<li><a href="#request-email-verification-error-responses">Error Responses</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#verify-email-api">Verify Email API</a></p>
+<ul>
+<li><a href="#verify-email-endpoint">Endpoint</a></li>
+<li><a href="#verification-methods">Verification Methods</a></li>
+<li><a href="#code-verification">Code Verification</a></li>
+<li><a href="#link-verification">Link Verification</a></li>
+<li><a href="#verify-email-curl-examples">cURL Examples</a></li>
+<li><a href="#verify-email-postman-examples">Postman Examples</a></li>
+<li><a href="#verify-email-response">Response</a></li>
+<li><a href="#verify-email-error-responses">Error Responses</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#csrf-protection">CSRF Protection</a></p>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#csrf-implementation">Implementation</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#complete-email-verification-flow">Complete Email Verification Flow</a></p>
+<ul>
+<li><a href="#step-by-step-guide">Step-by-Step Guide</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>📌 Request Email Verification API</h2>
+<p>The Request Email Verification API allows users to request a verification email containing either a verification code or a verification link.</p>
+<h3>🔹 Request Email Verification Endpoint</h3>
+<p>POST /email-verification</p>
+<h3>🔹 Request Email Verification Request Body</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;vMode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;CODE&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;csrfToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span><span style="color: #24292E"> </span><span style="color: #6A737D">// Optional, required if sessionId is provided</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Parameters:</p>
+<ul>
+<li>email (required): The email address to verify</li>
+<li>vMode (optional): Verification mode, either “CODE” or “LINK” (defaults to system setting)</li>
+<li>csrfToken (optional): CSRF token from previous requests, required if sessionId is provided</li>
+</ul>
+<p>Request Email Verification Query Parameters</p>
+<ul>
+<li>userSessionId: User session ID for authentication context (required)</li>
+</ul>
+<p>Request Email Verification cURL Example</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/email/verification?userSessionId=SESSION_ID&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;X-CSRF-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;vMode&quot;: &quot;CODE&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Request Email Verification Postman Example</p>
+<ol>
+<li>Create a new POST request to <a href="https://api.example.com/email/verification?userSessionId=SESSION_ID">https://api.example.com/email/verification?userSessionId=SESSION_ID</a></li>
+<li>Set body type to “raw” and format to “JSON”</li>
+<li>Add header: X-CSRF-Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…</li>
+<li>Add the following JSON body:</li>
+</ol>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;vMode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;CODE&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<ol start="4">
+<li>Click “Send”</li>
+</ol>
+<p>Request Email Verification Response:</p>
+<p>Successful Response (200 OK)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Verification code sent to your email address&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;sessionId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;abcdef-1234-5678-90ab-cdef12345678&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;u***r@e***e.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;csrfToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span><span style="color: #24292E"> </span><span style="color: #6A737D">// New field for CSRF protection</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Request Email Verification Error Responses:</p>
+<p>User Not Found (404 Not Found)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User not found&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USER_NOT_FOUND&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Missing Session ID (400 Bad Request)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Missing required parameter: userSessionId&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MISSING_SESSION_ID&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Invalid CSRF Token (400 Bad Request)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid verification link&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_VERIFICATION_LINK&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Rate Limiting (429 Too Many Requests)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Too many requests. Please try again later.&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;RATE_LIMIT_EXCEEDED&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Server Error (500 Internal Server Error)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;An error occurred while sending verification email&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;EMAIL_VERIFICATION_SEND_ERROR&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h2>📌 Verify Email API</h2>
+<p>The Verify Email API allows users to verify their email address using either a verification code or a verification link.</p>
+<p>Verify Email Endpoint</p>
+<p>POST /account/email/verify
+GET /account/email/verify (for link verification)</p>
+<h3>🔹 Verification Methods</h3>
+<p>The system supports two verification methods:</p>
+<ol>
+<li>Code Verification: User receives a numeric code via email and submits it through the API</li>
+<li>Link Verification: User receives a link via email and clicks it to verify their account</li>
+</ol>
+<p>Code Verification</p>
+<p>Request Body</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;verificationCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;123456&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;csrfToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span><span style="color: #24292E"> </span><span style="color: #6A737D">// Required CSRF token</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Query Parameters</p>
+<ul>
+<li>userSessionId: The session ID received during the email verification request (required)</li>
+</ul>
+<p>Link Verification</p>
+<p>Query Parameters</p>
+<ul>
+<li>token: The verification token from the email link</li>
+<li>userSessionId: The session ID received during the email verification request (required)</li>
+</ul>
+<p>Verify Email cURL Examples</p>
+<p>Code Verification</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/verify-email?userSessionId=SESSION_ID&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;verificationCode&quot;: &quot;123456&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;csrfToken&quot;: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Link Verification</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/verify-email?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&amp;userSessionId=SESSION_ID&quot;</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Verify Email Postman Examples</p>
+<p>Code Verification</p>
+<ol>
+<li>Create a new POST request to <a href="https://api.example.com/email/verify?userSessionId=SESSION_ID">https://api.example.com/email/verify?userSessionId=SESSION_ID</a></li>
+<li>Set body type to “raw” and format to “JSON”</li>
+<li>Add the following JSON body:</li>
+</ol>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;verificationCode&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;123456&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;csrfToken&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<ol start="4">
+<li>Click “Send”</li>
+</ol>
+<p>Link Verification</p>
+<ol>
+<li>
+<p>Create a new GET request to <a href="https://api.example.com/email/verify?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&amp;userSessionId=SESSION_ID">https://api.example.com/email/verify?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&amp;userSessionId=SESSION_ID</a></p>
+</li>
+<li>
+<p>Click “Send”</p>
+</li>
+</ol>
+<h3>🔹 Verify Email Response</h3>
+<p>Successful Response (200 OK)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Email verification completed successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Verify Email Error Responses</p>
+<p>Invalid Verification Code (400 Bad Request)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid verification code&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;NOT_AUTHORIZED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Invalid CSRF Token (400 Bad Request)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid verification code&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_VERIFICATION_CODE&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Invalid Verification Link (405 Method Not Allowed)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid verification link&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;EMAIL_VERIFICATION_FAILED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Already Verified (200 OK)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Email address is already verified&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;EMAIL_ALREADY_VERIFIED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<p>Missing Session ID (400 Bad Request)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Missing required parameter: userSessionId&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;MISSING_SESSION_ID&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Email Not Found or Expired (404 Not Found)</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Email verification failed&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;EMAIL_VERIFICATION_FAILED&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Compression Support</h3>
+<ol>
+<li>Client Indication: Clients can indicate support for compression by including the Accept-Encoding header:</li>
+</ol>
+<p>Accept-Encoding: gzip, deflate</p>
+<ol start="2">
+<li>
+<p>Server Response: When compression is supported, the server will:</p>
+<ul>
+<li>Compress the response body using gzip</li>
+<li>Set the response as base64-encoded</li>
+<li>Include appropriate headers</li>
+</ul>
+</li>
+</ol>
+<p><strong>Compressed Response Headers</strong></p>
+<p>When a response is compressed, these additional headers will be present:</p>
+<p>Content-Encoding: gzip
+Content-Type: text/html; charset=UTF-8  (for HTML responses)
+isBase64Encoded: true</p>
+<p><strong>HTML Response Compression</strong></p>
+<p>HTML responses for email verification links are automatically compressed when the client supports it:</p>
+<h2>📌 Example request with compression support</h2>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">GET</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;https://api.example.com/v1/account/email/verify?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Accept-Encoding: gzip&quot;</span></span>
+<span class="line"></span></code></pre>
+<p><strong>Client Implementation Notes</strong></p>
+<ol>
+<li>
+<p>Handling Compressed Responses: Clients should check for the Content-Encoding: gzip header and decompress accordingly</p>
+</li>
+<li>
+<p>Base64 Decoding: When isBase64Encoded is true, the response body should be base64-decoded before decompression</p>
+</li>
+<li>
+<p>Automatic Handling: Most HTTP client libraries handle decompression automatically when the appropriate headers are present</p>
+</li>
+</ol>
+<p><strong>Compression Benefits</strong></p>
+<ul>
+<li>Reduced Bandwidth: Compressed responses can be 70-90% smaller</li>
+<li>Faster Load Times: Especially beneficial for users on slower connections</li>
+<li>Lower Data Usage: Important for mobile users with limited data plans</li>
+</ul>
+<p>This compression is particularly useful for HTML responses in the confirmation flow, which may contain formatted content and styling information.</p>
+<h2>📌 CSRF Protection</h2>
+<h3>🔹 CSRF Overview</h3>
+<p>Cross-Site Request Forgery (CSRF) protection has been implemented to enhance security during the signup and verification process. This prevents attackers from forcing users to execute unwanted actions on a web application in which they’re authenticated.</p>
+<h3>🔹 CSRF Implementation</h3>
+<ol>
+<li>Token Generation: A CSRF token is generated during sign-up and included in the response</li>
+<li>Token Storage: The token is stored with the user’s session in the backend</li>
+<li>Token Validation: All confirmation requests must include the valid CSRF token</li>
+<li>Token Transmission Methods:
+<ul>
+<li>For code verification: Include the CSRF token in the request body or as an X-CSRF-Token header</li>
+<li>For link verification: The CSRF token is embedded in the verification link</li>
+</ul>
+</li>
+</ol>
+<p>Headers that may contain the CSRF token:</p>
+<ul>
+<li>X-CSRF-Token</li>
+<li>X-Session-ID</li>
+</ul>
+<h2>📌 Complete Email Verification Flow</h2>
+<p><strong>Step-by-Step Guide</strong></p>
+<ol>
+<li>Request Verification Email:</li>
+</ol>
+<ul>
+<li>Send a POST request to /email-verification with the user’s email</li>
+<li>Receive a 200 OK response with a sessionId</li>
+<li>User receives a verification code or link via email</li>
+</ul>
+<ol start="2">
+<li>Verify Email:</li>
+</ol>
+<ul>
+<li>Using Code: Send a POST request to /verify-email with the verification code and session ID</li>
+<li>Using Link: Click the verification link in the email or send a GET request with the token and session ID</li>
+<li>Receive a 200 OK response confirming successful verification</li>
+</ul>
+<ol start="3">
+<li>Confirmation:</li>
+</ol>
+<ul>
+<li>After successful verification, the user receives a confirmation email</li>
+<li>The user’s email is now marked as verified in the system</li>
+</ul>
+<p><strong>Troubleshooting</strong></p>
+<p>Common Issues</p>
+<ol>
+<li>CSRF Token Invalid or Missing:</li>
+</ol>
+<ul>
+<li>Ensure you’re including the exact CSRF token received during sign-up</li>
+<li>Check that the token is being sent in the correct format (body, header, or query parameter)</li>
+<li>CSRF tokens are tied to sessions and cannot be reused across different sessions</li>
+</ul>
+<ol start="2">
+<li>Verification Code Not Received:</li>
+</ol>
+<ul>
+<li>Check spam/junk folder</li>
+<li>Ensure the email address was entered correctly during sign-up</li>
+<li>Request a new verification code if needed</li>
+</ul>
+<ol start="3">
+<li>Invalid Verification Code:</li>
+</ol>
+<ul>
+<li>Ensure you’re using the most recent code sent</li>
+<li>Codes expire after a certain period (typically 15-30 minutes)</li>
+<li>Check for typos when entering the code</li>
+</ul>
+<ol start="4">
+<li>Account Already Exists:</li>
+</ol>
+<ul>
+<li>If you receive a 409 Conflict response, try logging in instead</li>
+<li>Use the password recovery feature if you’ve forgotten your password</li>
+</ul>
+<ol start="5">
+<li>Rate Limiting:</li>
+</ol>
+<ul>
+<li>If you receive a 429 Too Many Requests response, wait before trying again</li>
+<li>Multiple failed attempts may temporarily lock your account</li>
+</ul>
+<p><strong>Support</strong></p>
+<p>If you continue to experience issues, please contact support with your correlationId for faster assistance.</p>
+
+    </div>
+  </div>
+  
+  <script>
+    // Add copy button to code blocks
+    document.querySelectorAll('pre').forEach(block => {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copy';
+      button.style.position = 'absolute';
+      button.style.top = '5px';
+      button.style.right = '5px';
+      button.style.padding = '4px 8px';
+      button.style.fontSize = '12px';
+      button.style.fontFamily = 'var(--main-font)';
+      button.style.border = 'none';
+      button.style.borderRadius = '4px';
+      button.style.backgroundColor = 'rgba(0,0,0,0.1)';
+      button.style.cursor = 'pointer';
+      
+      block.style.position = 'relative';
+      
+      button.addEventListener('click', () => {
+        const code = block.querySelector('code').innerText;
+        navigator.clipboard.writeText(code);
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = 'Copy';
+        }, 2000);
+      });
+      
+      block.appendChild(button);
+    });
+  </script>
+</body>
+</html>
+    

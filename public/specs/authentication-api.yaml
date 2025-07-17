@@ -1,0 +1,5400 @@
+openapi: 3.0.3
+info:
+  title: TCT Foundation Portal Authentication & User Management API
+  x-api-versioning:
+    strategy: "/v1/resource"  # URL path versioning (/v1/resource)
+    deprecation-policy: |
+      APIs are supported for 12 months after deprecation notice.
+      Deprecated endpoints will return Warning headers.
+    supported-versions: ["v1"]
+    deprecated-versions: []
+  description: |
+    ***The Cometbid Technology Foundation, TCTF***, Authentication & User Management API documentation based on the OpenAPI 3.0 specification. You can test run the apis
+    against our live server with a pre-defined request, and get instant feedback on whether there was an error in the request, or the server could not process the request for some other reasons.
+
+    This comprehensive API provides authentication, user management, and multi-factor authentication services for the TCTF Portal application.
+
+    ## Features
+    - **Complete Authentication Flow**: Sign-in, sign-out, token refresh with MFA support
+    - **User Registration**: Account creation with email verification
+    - **Password Management**: Secure password reset and change functionality
+    - **Multi-Factor Authentication**: TOTP, backup codes, and temporary backup codes
+    - **User Profile Management**: Complete profile CRUD operations
+    - **Administrative Functions**: User management and status control
+    - **Security Features**: Rate limiting, idempotency, CSRF protection, and comprehensive audit logging
+
+    ## Security
+    All endpoints implement enterprise-grade security including:
+    - JWT-based authentication with refresh tokens
+    - Rate limiting and account lockout protection
+    - CSRF protection for state-changing operations
+    - Comprehensive input validation and sanitization
+    - Audit logging and monitoring
+
+    ## Documentation References
+    - <a href="/public/specs/docs/authentication-doc.html" target="_blank">Authentication Documentation</a>
+    - <a href="/public/specs/docs/mfa-setup-doc.html" target="_blank">MFA Setup Guide</a>
+    - <a href="/public/specs/docs/mfa-usage-doc.html" target="_blank">MFA Usage Guide</a>
+    - <a href="/public/specs/docs/password-usage-doc.html" target="_blank">Password Management Guide</a>
+    - <a href="/public/specs/docs/usage-create-profile.html" target="_blank">User Registration Guide</a>
+    - <a href="/public/specs/docs/usage-username-recovery.html" target="_blank">Username Recovery Guide</a>
+    - <a href="/public/specs/docs/usage-user-profile.html" target="_blank">User Profile Management</a>
+    - <a href="/public/specs/docs/usage-email-verification.html" target="_blank">Email Verification Guide</a>
+    - <a href="/public/specs/docs/usage-toggle-user-status.html" target="_blank">Admin Functions Guide</a>
+
+    ## API Documentation and Testing
+    You can test our APIs in this sandbox environment.
+    You can make changes and test the APIs with a more robust data without affecting the production environment.
+
+    We are constantly improving our APIs based on feedback from our users and will love to hear your feedbacks on how we can improve the API interface or format. 
+    We use the OpenAPI specification to follow a design first approach in the implementation of this project!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code:
+
+    That way:
+    - You can get access to the API first and offer your ideas for improvements to the API. 
+    - You have the benefit of using the API right away without waiting for the final release implementation.
+    - With time, we can improve the API in general based on your feedback, and expose some of the new features quicker.
+    
+    ## Support
+    - Help us improve the API Documentation by reporting typos, semantics or grammatical errors that will make it more readable and comprehensible.
+    - We value your feedback to improve the quality of the overall documentation.
+    - For technical support, please contact us by email: support@cometbid.org
+
+    **The TCT Foundation Team**  
+    [The Cometbid Technology Foundation Inc.](https://www.cometbid.org)
+
+  version: 1.0.0
+  contact:
+    name: TCTF Portal Team
+    email: support@cometbid.org
+    url: https://www.cometbid.org/support
+    
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT 
+
+servers:
+  - url: https://api.cometbid.org/v1
+    description: Production server
+  - url: https://staging-api.cometbid.org/v1
+    description: Staging server
+  - url: https://dev-api.cometbid.org/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Authentication Endpoints
+  /auth/signin:
+    post:
+      tags: [Authentication]
+      summary: User Authentication
+      description: |
+        Authenticate users with email and password credentials. Supports both regular authentication and MFA-enabled accounts.
+
+        **Features:**
+        - Secure credential validation
+        - Account lockout protection (5 failed attempts)
+        - MFA support with TOTP and Backup codes
+        - Session management with Refresh tokens
+        - Device tracking for security
+        - Rate limiting (10 attempts per 5 minutes)
+
+        **Flow:**
+        1. Submit credentials
+        2. If MFA enabled, complete MFA challenge
+        3. Receive Access/Refresh tokens
+
+        **Rate Limiting:** 10 attempts per 5 minutes per IP
+
+        **Idempotency:** 2-minute window to prevent duplicate requests
+
+        **Security Validations:**
+        - Email verification required
+        - Account must be enabled and active
+        - Password complexity validation
+        - Brute force protection
+
+        **Usage Examples:**
+        ```bash
+        # Basic sign-in
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/signin" \
+          -H "Content-Type: application/json" \
+          -d '{"email": "user@example.com", "password": "SecurePass123!", "staySignedIn": false}'
+
+        # Sign-in with stay signed in
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/signin" \
+          -H "Content-Type: application/json" \
+          -d '{"email": "user@example.com", "password": "SecurePass123!", "staySignedIn": true}'
+        ```
+
+        **Reference:** [Authentication Documentation](/public/specs/docs/authentication-doc.html#1-sign-in)
+      operationId: signIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInRequest"
+            examples:
+              basic_signin:
+                summary: Basic sign-in
+                description: Standard authentication request
+                value:
+                  email: "user@example.com"
+                  password: "SecurePassword123!"
+                  staySignedIn: false
+              stay_signed_in:
+                summary: Stay signed in
+                description: Authentication with extended session
+                value:
+                  email: "user@example.com"
+                  password: "SecurePassword123!"
+                  staySignedIn: true
+      responses:
+        "200":
+          description: Authentication successful or MFA required
+          headers:
+            X-User-Session-ID:
+              description: User Session ID (Signin was successful because Mfa is not required)
+              schema:
+                type: string
+            X-Session-ID:
+              description: Session ID (Mfa required)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SignInSuccessResponse"
+                  - $ref: "#/components/schemas/MFARequiredResponse"
+              examples:
+                success:
+                  summary: Complete authentication
+                  value:
+                    code: "SIGNIN_SUCCESS"
+                    message: "Sign-in successful"
+                    userSessionId: "sess_abc123"
+                    tokens:
+                      accessToken: "eyJhbGciOiJSUzI1NiIs..."
+                      refreshToken: "eyJjdHkiOiJKV1QiLCJlbmMi..."
+                      idToken: "eyJhbGciOiJSUzI1NiIs..."
+                      tokenType: "Bearer"
+                      expiresIn: 3600
+                    user:
+                      email: "u***@example.com"
+                      emailVerified: true
+                      mfaEnabled: false
+                    timestamp: 1704110400000
+                    correlationId: "req-12345"
+                mfa_required:
+                  summary: MFA verification required
+                  value:
+                    code: "MFA_REQUIRED"
+                    message: "MFA verification required"
+                    mfaSession:
+                      sessionId: "mfa_sess_456"
+                      expiresAt: "2024-01-01T13:00:00Z"
+                    timestamp: 1704110400000
+                    correlationId: "req-12345"
+        "401":
+          $ref: "#/components/responses/InvalidCredentialsError"
+        "403":
+          $ref: "#/components/responses/AccountDisabledError"
+        "423":
+          $ref: "#/components/responses/AccountLockedError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/signout:
+    post:
+      tags: [Authentication]
+      summary: User Sign-out
+      description: |
+        Sign out users and invalidate their tokens. Supports both local and global sign-out options.
+
+        **Features:**
+        - Token invalidation (access and refresh tokens)
+        - Session cleanup
+        - Global sign-out from all devices
+        - Cookie clearing
+        - Device tracking for security
+
+        **Token Sources:** Accepts refresh tokens from:
+        - Request body (refreshToken field)
+        - HTTP-only cookies (refreshToken cookie)
+        - Custom headers (X-Refresh-Token)
+
+        **Rate Limiting:** 20 requests per minute per user
+
+        **Idempotency:** 5-minute window
+
+        **Usage Examples:**
+        ```bash
+        # Basic sign-out
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/signout" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -d '{"email": "user@example.com", "refreshToken": "eyJjdHkiOiJKV1QiLCJlbmMi..."}'
+
+        # Global sign-out
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/signout?globalSignout=true" \
+          -H "Content-Type: application/json" \
+          -d '{"email": "user@example.com", "globalSignout": true}'
+        ```
+
+        **Reference:** [Authentication Documentation](/public/specs/docs/authentication-doc.html#2-sign-out)
+      operationId: signOut
+      security:
+        - BearerAuth: []
+        #- {} # Optional authentication
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session identifier for tracking(this can also be a query parameter - 'user-session-id')
+          required: false
+          schema:
+            type: string
+            example: "session_1234..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignOutRequest"
+            examples:
+              local_signout:
+                summary: Local sign-out
+                value:
+                  email: "user@example.com"
+                  refreshToken: "eyJjdHkiOiJKV1QiLCJlbmMi..."
+                  globalSignout: false
+              global_signout:
+                summary: Global sign-out
+                value:
+                  email: "user@example.com"
+                  refreshToken: "eyJjdHkiOiJKV1QiLCJlbmMi..."
+                  globalSignout: true
+      responses:
+        "200":
+          description: Sign-out successful
+          headers:
+            Set-Cookie:
+              description: Clears refresh token cookie
+              schema:
+                type: string
+                example: "refreshToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignOutResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /auth/refresh-token:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: |
+        Refresh expired access tokens using a valid Refresh token. Essential for maintaining user sessions.
+
+        **Features:**
+        - Access token renewal
+        - Refresh token rotation (new refresh token issued)
+        - Session validation
+        - Token ownership verification
+        - Automatic session updates
+        - Automatic retry with exponential backoff
+
+        **Token Sources:** Accepts refresh tokens from:
+        - Request body (refreshToken field)
+        - HTTP-only cookies (refreshToken cookie)
+        - Custom headers (X-Refresh-Token)
+
+        **Rate Limiting:** 30 requests per minute per user
+
+        **Idempotency:** 5-minute window
+
+        **Security Validations:**
+        - Token ownership verification
+        - Session validity checks
+        - User account status validation
+
+        **Usage Examples:**
+        ```bash
+        # Token refresh with body
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/refresh-token?user-session-id=sess_abc123" \
+          -H "Content-Type: application/json" \
+          -d '{"email": "user@example.com", "refreshToken": "eyJjdHkiOiJKV1QiLCJlbmMi..."}'
+
+        # Token refresh with cookie
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/refresh-token?user-session-id=sess_abc123" \
+          -H "Cookie: refreshToken=eyJjdHkiOiJKV1QiLCJlbmMi..." \
+          -d '{"email": "user@example.com"}'
+        ```
+
+        **Reference:** [Authentication Documentation](/public/specs/docs/authentication-doc.html#3-refresh-token)
+      operationId: refreshToken
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session identifier for tracking(this can also be a query parameter - 'user-session-id')
+          required: false
+          schema:
+            type: string
+            example: "session_1234..."
+        - name: Cookie
+          in: header
+          description: |
+            HTTP cookie containing refresh token.
+            **Format:** `refreshToken=<jwt_token>`
+            **Example:** `refreshToken=eyJjdHkiOiJKV1QiLCJlbmMi...`
+          required: false
+          schema:
+            type: string
+            example: "refreshToken=eyJjdHkiOiJKV1QiLCJlbmMi..."
+        - name: X-Refresh-Token
+          in: header
+          description: Custom header containing refresh token
+          required: false
+          schema:
+            type: string
+            example: "eyJjdHkiOiJKV1QiLCJlbmMi..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+            examples:
+              with_token_body:
+                summary: Refresh with token in body
+                description: Refresh token provided in request body
+                value:
+                  email: "user@example.com"
+                  refreshToken: "eyJjdHkiOiJKV1QiLCJlbmMi..."
+              cookie_based:
+                summary: Refresh with cookie token
+                description: |
+                  Refresh token provided via HTTP cookie.
+                  **Cookie Header:** `Cookie: refreshToken=eyJjdHkiOiJKV1QiLCJlbmMi...`
+                  **Request Body:** Only email required
+                value:
+                  email: "user@example.com"
+              header_based:
+                summary: Refresh with custom header
+                description: |
+                  Refresh token provided via custom header.
+                  **Header:** `X-Refresh-Token: eyJjdHkiOiJKV1QiLCJlbmMi...`
+                  **Request Body:** Only email required
+                value:
+                  email: "user@example.com"
+      responses:
+        "200":
+          description: Token refreshed successfully
+          headers:
+            Set-Cookie:
+              description: |
+                Updated refresh token cookie (if token rotation enabled).
+                **Format:** `refreshToken=<new_jwt>; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`
+              schema:
+                type: string
+                example: "refreshToken=eyJuZXciOiJKV1QiLCJlbmMi...; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenResponse"
+        "401":
+          $ref: "#/components/responses/InvalidRefreshTokenError"
+        "403":
+          $ref: "#/components/responses/TokenOwnershipError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  # User Registration Endpoints
+  /account/signup:
+    post:
+      tags: [User Registration]
+      summary: User Registration
+      description: |
+        Register a new user account with comprehensive validation and email verification.
+
+        **Registration Process:**
+        1. Submit registration details
+        2. System validates information and creates account
+        3. Verification email sent (code or link)
+        4. User must verify email to activate account
+
+        **Features:**
+        - Complete user profile creation
+        - Email uniqueness validation
+        - Password strength enforcement
+        - Membership name availability check
+        - Automatic email verification initiation
+        - CSRF token generation
+        - Rate limiting
+        - Idempotency protection
+
+        **Membership Plans:**
+        - `INDIVIDUAL`: Personal membership
+        - `GROUP`: Small team membership
+        - `ORGANIZATION`: Enterprise membership
+        
+        **Membership Tier(Optional):**
+        - `BASIC`: Basic Tier
+        - `PREMIUM`: Premium tier
+        - `ENTERPRISE`: Enterprise tier
+        
+        **Validation Rules:**
+        - Email: Valid format, not already registered
+        - Password: Minimum 8 characters, complexity requirements
+        - Membership Name: Unique, 2-50 characters
+        - Required fields: firstName, lastName, email, password, state, country, membership name and plan, jobTitle
+        - Default fields: selfEmployed
+
+        **Rate Limiting:** 5 registrations per hour per IP
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://dev-api.cometbid.org/v1/account/sign-up" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "password": "StrongP@ssw0rd",
+            "firstName": "John",
+            "lastName": "Doe",
+            "membershipName": "johndoe123",
+            "membershipPlan": "INDIVIDUAL",
+            "jobTitle": "Software Engineer",
+            "city": "San Francisco",
+            "state": "CA",
+            "country": "USA"
+          }'
+        ```
+
+        **Reference:** [User Registration Guide](/public/specs/docs/usage-create-profile.html#sign-up-api)
+      operationId: signUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+            examples:
+              individual_member:
+                summary: Individual membership
+                value:
+                  email: "john.doe@example.com"
+                  password: "StrongP@ssw0rd"
+                  firstName: "John"
+                  lastName: "Doe"
+                  membershipName: "johndoe123"
+                  membershipPlan: "INDIVIDUAL"
+                  membershipTier: "BASIC"
+                  jobTitle: "Software Engineer"
+                  companyName: "Tech Company"
+                  selfEmployed: false
+                  city: "San Francisco"
+                  state: "CA"
+                  country: "USA"
+              group_member:
+                summary: Group membership
+                value:
+                  email: "greg.bunley@example.com"
+                  password: "SecureP@ss123"
+                  firstName: "Greg"
+                  lastName: "Bunley"
+                  membershipName: "gregbunley_group"
+                  membershipPlan: "GROUP"
+                  membershipTier: "PREMIUM"
+                  jobTitle: "Software Architect"
+                  companyName: "StarLink Group"
+                  selfEmployed: false
+                  city: "Atlanta"
+                  state: "GA"
+                  country: "USA"
+              organization_member:
+                summary: Organization membership
+                value:
+                  email: "admin@company.com"
+                  password: "SecureP@ss123"
+                  firstName: "Jane"
+                  lastName: "Smith"
+                  membershipName: "janesmith_admin"
+                  membershipPlan: "ORGANIZATION"
+                  membershipTier: "ENTERPRISE"
+                  jobTitle: "CTO"
+                  companyName: "Enterprise Corp"
+                  selfEmployed: false
+                  city: "New York"
+                  state: "NY"
+                  country: "USA"
+      responses:
+        "201":
+          description: User registered successfully
+          headers:
+            X-Session-ID:
+              description: Session ID for verification process
+              schema:
+                type: string
+            X-CSRF-Token:
+              description: CSRF token for verification
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUpResponse"
+              examples:
+                success_response:
+                  summary: Successful registration
+                  value:
+                    correlationId: "12345678-1234-1234-1234-123456789012"
+                    message: "User registration successful"
+                    timestamp: 1623456789000
+                    detailMessage: "Please check your email for a verification code to complete your registration"
+                    email: "u***r@e***e.com"
+                    sessionId: "abcdef-1234-5678-90ab-cdef12345678"
+                    verificationRequired: true
+                    csrfToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "409":
+          description: Email or membership name already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "An account with this email already exists"
+                  code:
+                    type: string
+                    enum: [SIGNUP_USER_EXISTS, SIGNUP_MEMBER_EXISTS]
+                  correlationId:
+                    type: string
+                    example: "12345678-1234-1234-1234-123456789012"
+                  timestamp:
+                    type: integer
+                    format: int64
+                    example: 1623456789000
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request parameters: password must be at least 8 characters"
+                  code:
+                    type: string
+                    enum: [VALIDATION_ERROR]
+                  correlationId:
+                    type: string
+                    example: "12345678-1234-1234-1234-123456789012"
+                  timestamp:
+                    type: integer
+                    format: int64
+                    example: 1623456789000
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+          
+  /account/signup/confirm:
+    post:
+      tags: [User Registration]
+      summary: Confirm User Registration
+      description: |
+        Confirm user registration using verification code or link with CSRF protection.
+
+        **Verification Methods:**
+        1. **Code Verification**: Submit 6-digit code received via email
+        2. **Link Verification**: Click verification link in email (GET request)
+
+        **Features:**
+        - CSRF token validation
+        - Code expiration handling (15-30 minutes)
+        - Attempt limiting (5 attempts per session)
+        - Automatic account activation
+        - Welcome email sending
+
+        **Usage Examples:**
+
+        ```bash
+        # Code verification
+        curl -X POST "https://dev-api.cometbid.org/v1/account/signup/confirm?sessionId=sess_123" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "verificationCode": "123456",
+            "csrfToken": "eyJhbGciOiJIUzI1NiIs..."
+          }'
+        ```
+
+        **Reference:** [User Registration Guide](/public/specs/docs/usage-create-profile.html#confirm-sign-up-api)
+      operationId: postConfirmSignup
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: Session identifier for tracking(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "session_1234..."
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmSignupRequest"
+            examples:
+              code_verification:
+                summary: Code verification
+                value:
+                  email: "user@example.com"
+                  verificationCode: "123456"
+                  csrfToken: "eyJhbGciOiJIUzI1NiIs..."
+      responses:
+        "200":
+          description: Registration confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfirmSignupResponse"
+            text/html:
+              schema:
+                type: string
+                description: HTML confirmation page 
+              example: |
+                <!DOCTYPE html>
+                <html>
+                <head><title>Email Verified</title></head>
+                <body>
+                  <h1>Email Verification Successful</h1>
+                  <p>Your email has been verified successfully. You can now sign in to your account.</p>
+                  <a href="/login">Sign In</a>
+                </body>
+                </html>
+        "400":
+          $ref: "#/components/responses/InvalidVerificationCodeError"
+        "404":
+          $ref: "#/components/responses/SessionExpiredError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+    get:
+      tags: [User Registration]
+      summary: Verify email via link
+      description: |
+        Verify email address using verification link from email.
+
+        **Usage:**
+        - User clicks verification link in email
+        - System validates token and completes verification
+        - Returns HTML page with verification result
+
+        **Features:**
+        - Single-click verification
+        - CSRF protection embedded in token
+        - Automatic redirect options
+        - Mobile-friendly HTML response
+      operationId: getConfirmSignup
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Verification token from email
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Registration confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfirmSignupResponse"
+            text/html:
+              schema:
+                type: string
+                description: HTML confirmation page for link verification
+              example: |
+                <!DOCTYPE html>
+                <html>
+                <head><title>Email Verified</title></head>
+                <body>
+                  <h1>Email Verification Successful</h1>
+                  <p>Your email has been verified successfully. You can now sign in to your account.</p>
+                  <a href="/login">Sign In</a>
+                </body>
+                </html>
+            
+        "400":
+          $ref: "#/components/responses/InvalidVerificationLinkError"
+        "404":
+          $ref: "#/components/responses/SessionNotFoundError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  # Email Verification Endpoints
+  /account/email-verification:
+    post:
+      tags: [Email Verification]
+      summary: Request email verification
+      description: |
+        Request email verification for existing users.
+
+        **Use Cases:**
+        - Re-verify email after address change
+        - Resend verification for unverified accounts
+        - Periodic email verification for security
+
+        **Verification Modes:**
+        - `CODE`: Send 6-digit verification code
+        - `LINK`: Send clickable verification link
+
+        **Features:**
+        - Flexible verification methods
+        - Rate limiting (prevents spam)
+        - CSRF protection
+        - Session management
+
+        **Reference:** [Email Verification Documentation](/public/specs/docs/usage-email-verification.html#request-email-verification-api)
+      operationId: requestEmailVerification
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: session identifier(this can also be a query parameter)
+          required: false
+          schema:
+            type: string
+            example: "req_1234..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailVerificationRequest"
+            examples:
+              code_verification:
+                summary: Request verification code
+                value:
+                  email: "user@example.com"
+                  vMode: "CODE"
+                  csrfToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              link_verification:
+                summary: Request verification link
+                value:
+                  email: "user@example.com"
+                  vMode: "LINK"
+                  csrfToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+               
+      responses:
+        "200":
+          description: Verification email sent
+          headers:
+            X-Session-ID:
+              description: Verification session ID
+              schema:
+                type: string
+            X-CSRF-Token:
+              description: CSRF token for verification
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailVerificationResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User not found"
+                  code:
+                    type: string
+                    enum: [USER_NOT_FOUND]
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Too many requests. Please try again later."
+                  code:
+                    type: string
+                    enum: [RATE_LIMIT_EXCEEDED]
+        '500':
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /account/email-verification/confirm:
+    post:
+      tags: [Email Verification]
+      summary: Verify email with code
+      description: |
+        Verify email address using verification code.
+
+        **Process:**
+        1. User receives verification code via email
+        2. User submits code through this endpoint
+        3. System validates code and marks email as verified
+
+        **Security:**
+        - CSRF token validation
+        - Session validation
+        - Code expiration handling
+        - Rate limiting on attempts
+
+        **Reference:** [Email Verification Documentation](/public/specs/docs/usage-email-verification.html#verify-email-api)
+      operationId: verifyEmailCode
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: Session identifier for tracking(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "session_1234..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyEmailRequest"
+            examples:
+              verify_code: 
+                summary: Verify with code
+                value:
+                  email: "user@example.com"
+                  verificationCode: "123456"
+                  csrfToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyEmailResponse"
+        '400':
+          $ref: "#/components/responses/InvalidVerificationCodeError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/EmailAlreadyVerifiedError"
+        '404':
+          $ref: "#/components/responses/UserNotFoundError"
+        '429':
+          $ref: "#/components/responses/RateLimitError"
+        '500':
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+    get:
+      tags: [Email Verification]
+      summary: Verify email via link
+      description: |
+        Verify email address using verification link.
+
+        **Usage:**
+        - User clicks verification link in email
+        - System process verification automatically
+        - Returns HTML confirmation page or Json response depending on the Accept Header
+
+        **Features:**
+        - One-click verification
+        - Mobile-responsive HTML
+        - Automatic session handling
+        - Error page for invalid links
+      operationId: verifyEmailLink
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Verification token from email link
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                description: HTML verification result page
+                example: |
+                  <!DOCTYPE html>
+                  <html>
+                  <head><title>Email Verified</title></head>
+                  <body>
+                    <h1>Email Verification Successful</h1>
+                    <p>Your email has been verified successfully. You can now sign in to your account.</p>
+                    <a href="/login">Sign In</a>
+                  </body>
+                  </html>
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyEmailResponse"
+        '400':
+          $ref: "#/components/responses/InvalidVerificationLinkError"
+        '403':
+          $ref: "#/components/responses/EmailAlreadyVerifiedError"
+        '404':
+          $ref: "#/components/responses/SessionNotFoundError"
+        '429':
+          $ref: "#/components/responses/RateLimitError"
+        '500':
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  # Username Recovery Endpoint
+  /account/username:
+    post:
+      tags: [Account Recovery]
+      summary: Username recovery
+      description: |
+        Recover username/email using personal information.
+
+        **Recovery Process:**
+        1. User provides personal details (name, membership name)
+        2. System searches for matching account
+        3. If found, sends masked email to help user identify account
+        4. Recovery email sent with full username
+
+        **Security Features:**
+        - Rate limiting to prevent abuse
+        - Information masking for privacy
+        - Audit logging for security
+        - Cache support for performance
+
+        **Reference:** [Username Recovery Documentation](/public/specs/docs/usage-username-recovery.html)
+      operationId: usernameRecovery
+      parameters:
+        - name: bypassCache
+          in: query
+          description: Force fresh lookup bypassing cache
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsernameRecoveryRequest"
+            examples:
+              recovery_request:
+                summary: Username recovery request
+                value:
+                  firstName: "John"
+                  lastName: "Doe"
+                  membershipName: "johndoe123"
+      responses:
+        "200":
+          description: Username recovery email sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsernameRecoveryResponse"
+        "404":
+          description: No matching user found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No user found matching the provided information"
+                  code:
+                    type: string
+                    enum: [USERNAME_NOT_FOUND]
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  # Password Management Endpoints
+  /auth/forgot-password:
+    post:
+      tags: [Account Recovery, Password Management]
+      summary: Initiate Password Reset
+      description: |
+        Initiate password reset process by sending a reset code to user's email.
+
+        **Features:**
+        - Email validation and user verification
+        - Reset code generation (6-digit numeric)
+        - Email delivery with expiration (30 minutes)
+        - Session creation for reset flow
+        - Rate limiting protection
+
+        **Process:**
+        1. User provides email address
+        2. System validates email and account status
+        3. Reset code sent to email
+        4. Session created for reset process
+
+        **Security Validations:**
+        - Email must be verified
+        - Account must be enabled
+        - User must exist in system
+
+        **Rate Limiting:** 1 request per hour per email
+
+        **Idempotency:** 1-hour window to prevent spam
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/forgot-password" \
+          -H "Content-Type: application/json" \
+          -d '{"email": "user@example.com"}'
+        ```
+
+        **Reference:** [Password Management Guide](/public/specs/docs/password-usage-doc.html#2-forgot-password)
+      operationId: forgotPassword
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: Existing session ID if available for tracking(this can also be a query parameter - 'session-id')
+          required: false
+          schema:
+            type: string
+            example: "session_1234..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequest"
+      responses:
+        "200":
+          description: Password reset code sent successfully to your email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForgotPasswordResponse"
+        "403":
+          $ref: "#/components/responses/EmailNotVerifiedError"
+        "404":
+          $ref: "#/components/responses/UserNotFoundError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/forgot-password/verify-code:
+    post:
+      tags: [Account Recovery, Password Management]
+      summary: Verify Password Reset Code
+      description: |
+        Verify the password reset code received via email and authorize password reset.
+
+        **Features:**
+        - 6-digit numeric code verification
+        - Limited attempts (5 per session)
+        - Code expiration (typically 30 minutes)
+        - Code validation with expiration check
+        - Attempt limiting (5 attempts per session)
+        - Session verification and marking
+        - Security logging
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/forgot-password/verify-code?session-id=reset_sess_456" \
+          -H "Content-Type: application/json" \
+          -d '{"code": "123456"}'
+        ```
+
+        **Reference:** [Password Management Guide](/public/specs/docs/password-usage-doc.html#3-verify-reset-code)
+      operationId: verifyResetCode
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: Reset session ID if available for tracking(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "reset_sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyResetCodeRequest"
+      responses:
+        "200":
+          description: Reset code verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyResetCodeResponse"
+        "400":
+          $ref: "#/components/responses/InvalidVerificationCodeError"
+        "404":
+          $ref: "#/components/responses/SessionNotFoundError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/forgot-password/resend-code:
+    post:
+      tags: [Account Recovery, Password Management]
+      summary: Resend password reset code
+      description: |
+        Resend password reset code using existing session.
+
+        **Features:**
+        - Uses existing reset session
+        - Same rate limits as forgot-password
+        - Updates code expiration time
+        - Maintains session continuity
+
+        **Reference:** [Password Documentation](/public/specs/docs/password-usage-doc.html#4-resend-reset-code)
+      operationId: resendResetCode
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: Reset session ID for tracking(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "reset_sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+      responses:
+        "200":
+          description: Reset code resent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Reset code sent successfully"
+                  sessionId:
+                    type: string
+                  expiresIn:
+                    type: integer
+                    description: Code expiration in seconds
+                    example: 20
+                  remainingAttempts:
+                    type: integer
+                    description: Remaining attempts before lockout
+                    example: 4
+        "404":
+          $ref: "#/components/responses/SessionNotFoundError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/forgot-password/confirm:
+    post:
+      tags: [Account Recovery, Password Management]
+      summary: Complete Password Reset
+      description: |
+        Complete password reset process with new password after code verification.
+
+        **Features:**
+        - Password strength validation
+        - Session verification (must be verified)
+        - Email matching validation
+        - Password update in Cognito
+        - Session cleanup
+        - Confirmation email sending
+
+        **Password Requirements:**
+        - Minimum 8 characters
+        - At least one uppercase letter
+        - At least one lowercase letter
+        - At least one number
+        - At least one special character
+        - Cannot be same as current password
+
+        **Requirements:**
+        - Valid verified reset session
+        - New password meeting security requirements
+        - Email address confirmation
+
+        **Security:**
+        - Session must be verified first
+        - Rate limiting (3 attempts per session)
+        - Password strength validation
+        - Session invalidation after completion
+        - Audit logging for security
+
+        **Idempotency:** 1-hour window to prevent spam
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://api.cometbid.org/v1/auth/password/confirm-password-reset?session-id=reset_sess_456" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "newPassword": "NewSecurePassword789!"
+          }'
+        ```
+
+        **Reference:** [Password Management Guide](/public/specs/docs/password-usage-doc.html#5-confirm-password-reset)
+      operationId: confirmPasswordReset
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: Verified reset session ID for tracking(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "reset_sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPasswordResetRequest"
+      responses:
+        "200":
+          description: Password reset completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfirmPasswordResetResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/SessionNotFoundError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/change-password:
+    post:
+      tags: [Password Management]
+      summary: Change Password
+      description: |
+        Change user password with current password verification (requires authentication).
+
+        **Features:**
+        - Current password verification required
+        - Rate limiting (5 attempts per day per user)
+        - New password strength validation
+        - Account status verification
+        - Audit logging for security
+        - Session validation
+
+        **Password Requirements:**
+        - Minimum 8 characters
+        - At least one uppercase letter
+        - At least one lowercase letter
+        - At least one number
+        - At least one special character
+        - Cannot be same as current password
+
+        **Security Validations:**
+        - Valid access token required
+        - Current password must be correct
+        - New password must meet complexity requirements
+        - Cannot reuse current password
+
+        **Rate Limiting:** 5 attempts per day per user
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/change-password?user-session-id=sess_123" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "currentPassword": "CurrentPassword123!",
+            "newPassword": "NewSecurePassword456!"
+          }'
+        ```
+
+        **Reference:** [Password Management Guide](/public/specs/docs/password-usage-doc.html#1-change-password)
+      operationId: changePassword
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session ID for tracking(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+            examples:
+              change_password:
+                summary: Change password request
+                value:
+                  currentPassword: "CurrentPassword123!"
+                  newPassword: "NewSecurePassword456!"
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordChangeResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/InvalidPasswordError"
+        "403":
+          $ref: "#/components/responses/AccountStatusError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  # MFA Endpoints
+  /auth/mfa/setup:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Initialize MFA Setup
+      description: |
+        Initialize MFA setup for user account with QR code generation.
+
+        **Features:**
+        - TOTP secret generation
+        - QR code creation for authenticator apps
+        - Device name registration
+        - Setup session creation
+
+        **Supported MFA Types:**
+        - SOFTWARE_TOKEN_MFA (TOTP)
+        - SMS_MFA (future implementation)
+
+        **Supported Authenticators:**
+        - Google Authenticator
+        - Microsoft Authenticator
+        - Authy
+        - Any RFC 6238 compliant app
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/mfa/setup" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "mfaType": "SOFTWARE_TOKEN_MFA",
+            "email": "user@example.com",
+            "deviceName": "My iPhone"
+          }'
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html)
+      operationId: setupMFA
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session ID for tracking(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MFASetupRequest"
+      responses:
+        "200":
+          description: MFA setup initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MFASetupResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /auth/mfa/complete-setup:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Complete MFA Setup
+      description: |
+        Complete MFA setup by verifying two consecutive TOTP codes.
+
+        **Features:**
+        - Dual code verification for accuracy
+        - Backup codes generation
+        - MFA activation
+        - Setup session cleanup
+
+        **Verification Process:**
+        1. User scans QR code with authenticator app
+        2. User provides two consecutive TOTP codes
+        3. System verifies both codes
+        4. MFA is activated and backup codes generated
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/mfa/complete-setup" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "deviceName": "My iPhone",
+            "code1": "123456",
+            "code2": "789012"
+          }'
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html)
+      operationId: completeMFASetup
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session ID for tracking(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MFASetupVerifyRequest"
+      responses:
+        "200":
+          description: MFA setup completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MFASetupCompleteResponse"
+        "400":
+          $ref: "#/components/responses/InvalidVerificationCodeError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/mfa/toggle:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Enable/Disable MFA
+      description: |
+        Enable or disable MFA for user account with proper verification.
+
+        **Features:**
+        - MFA enable/disable functionality
+        - Current MFA code verification for disable
+        - Backup codes generation on enable
+        - Security audit logging
+
+        **Enable MFA Process:**
+        1. Provide MFA type and device name
+        2. System generates secret and QR code
+        3. User completes setup verification
+
+        **Disable MFA Process:**
+        1. Provide current MFA code
+        2. System verifies code
+        3. MFA is disabled and backup codes invalidated
+
+        **Usage Examples:**
+        ```bash
+        # Enable MFA
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/mfa/toggle?user-session-id=sess_123" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "action": "ENABLE",
+            "mfaType": "SOFTWARE_TOKEN_MFA",
+            "deviceName": "My Phone"
+          }'
+
+        # Disable MFA
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/mfa/toggle?user-session-id=sess_123" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "action": "DISABLE",
+            "mfaCode": "123456"
+          }'
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html#7-mfa-toggle)
+      operationId: toggleMFA
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session ID for tracking(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MFAToggleRequest"
+            examples:
+              enable_mfa:
+                summary: Enable MFA
+                value:
+                  email: "user@example.com"
+                  action: "ENABLE"
+                  mfaType: "SOFTWARE_TOKEN_MFA"
+                  deviceName: "My Phone"
+              disable_mfa:
+                summary: Disable MFA
+                value:
+                  email: "user@example.com"
+                  action: "DISABLE"
+                  mfaCode: "123456"
+      responses:
+        "200":
+          description: MFA toggled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MFAToggleResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/mfa/status:
+    get:
+      tags: [Multi-Factor Authentication]
+      summary: Get MFA Status
+      description: |
+        Retrieve current MFA configuration and status for authenticated user.
+
+        **Features:**
+        - Current MFA settings
+        - Device information
+        - Backup codes status
+        - Temporary backup code status
+        - Last activity information
+
+        **Information Provided:**
+        - MFA enabled status
+        - Configured MFA methods
+        - Backup codes status
+        - Temporary backup code status
+        - Device information
+        - Last usage timestamps
+
+        **Response Information:**
+        - MFA enabled/disabled status
+        - Preferred MFA method
+        - Available MFA methods
+        - Backup codes remaining count
+        - Temporary backup code status
+        - Device details and last usage
+
+        **Usage Examples:**
+        ```bash
+        curl -X GET "https://api.cometbid.org/v1/auth/mfa/status?sessionId=sess_123" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html#6-get-mfa-status)
+      operationId: getMFAStatus
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session ID for tracking(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "sess_456..."
+      responses:
+        "200":
+          description: MFA status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MFAStatusResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/UserNotFoundError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/mfa/totp/signin:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Verify TOTP Code
+      description: |
+        Verify Time-based One-Time Password (TOTP) and complete authentication.
+
+        **Features:**
+        - TOTP code validation
+        - Time window verification (±30 seconds)
+        - Authentication completion
+        - Session management
+        - Token generation
+
+        **Usage Context:**
+        - Called after initial sign-in when MFA is required
+        - Primary MFA verification method
+        - Used after initial password authentication
+        - Requires valid MFA session from sign-in
+        - Completes the authentication flow
+
+        **Code Requirements:**
+        - 6-digit numeric code
+        - Generated by authenticator app
+        - Valid for 30-second window
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://api.cometbid.org/v1/auth/mfa/verify-totp?session-id=mfa_sess_456" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "totpCode": "123456",
+            "password": "userpassword",
+            "staySignedIn": false
+          }'
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html#5-verify-totp-code)
+      operationId: verifyTOTP
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: MFA session ID from sign-in response(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "mfa_sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TOTPVerifyRequest"
+            examples:
+              totp_verify:
+                summary: TOTP verification
+                value:
+                  email: "user@example.com"
+                  totpCode: "123456"
+                  password: "userpassword"
+                  staySignedIn: false
+      responses:
+        "200":
+          description: TOTP verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignInSuccessResponse"
+        "400":
+          $ref: "#/components/responses/InvalidTOTPCodeError"
+        "401":
+          $ref: "#/components/responses/InvalidMFASessionError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/mfa/backup-code:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Reset Backup Codes
+      description: |
+        Generate new set of backup codes, invalidating all previous ones.
+
+        **Features:**
+        - New backup codes generation (typically 5-10 codes)
+        - Previous codes invalidation
+        - Secure code generation
+        - Email notification
+        - Audit logging
+
+        **Security Considerations:**
+        - Requires valid access token
+        - Email verification for ownership
+        - MFA must be enabled
+        - Rate limited to prevent abuse
+
+        **Use Cases:**
+        - Security compromise suspected
+        - Periodic security maintenance
+        - Running low on backup codes
+        - Device migration
+        - Emergency access
+
+        **Response Information:**
+        - New backup codes
+        - Remaining backup codes count
+        - Backup codes expiration timestamp
+        - Backup codes remaining count
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://api.cometbid.org/v1/auth/mfa/reset-backup-codes?userSessionId=sess_123" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{"email": "user@example.com"}'
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html#3-reset-backup-codes)
+      operationId: resetBackupCodes
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user-session-id
+          in: query
+          description: User session identifier
+          required: true
+          schema:
+            type: string
+            example: "sess_123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetBackupCodeRequest"
+      responses:
+        "200":
+          description: Backup codes reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BackupCodesResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/MFANotEnabledError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/mfa/temp-backup-code:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Generate Temporary Backup Code
+      description: |
+        Generate temporary backup code for emergency access when primary MFA device is unavailable.
+
+        **Features:**
+        - Single-use temporary code generation
+        - Short expiration time (typically 1 hour)
+        - Emergency access provision
+        - Device tracking
+        - Usage logging
+        - Requires valid MFA session
+        - Cannot be regenerated while active
+
+        **Use Cases:**
+        - Lost or broken MFA device
+        - Travel without primary device
+        - Emergency account access
+        - Temporary device replacement
+        - Travel scenarios
+
+        **Security Features:**
+        - Requires valid MFA session
+        - Limited usage (single use)
+        - Short expiration window
+        - Comprehensive audit logging
+        - Only one temporary code can be active at a time
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://api.cometbid.org/v1/auth/mfa/generate-temp-backup-code?sessionId=mfa_sess_456" \
+          -H "Content-Type: application/json"
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html#1-generate-temporary-backup-code)
+      operationId: generateTempBackupCode
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: MFA session ID from sign-in response(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "mfa_sess_456..."
+      responses:
+        "200":
+          description: Temporary backup code generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TempBackupCodeResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/InvalidMFASessionError"
+        "403":
+          $ref: "#/components/responses/AccountLockedError"
+        "409":
+          $ref: "#/components/responses/TempBackupCodeExistsError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/mfa/temp-backup-code/signin:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Verify temporary backup code
+      description: |
+        Verify temporary backup code and complete authentication.
+
+        **Features:**
+        - Single-use verification
+        - Completes full authentication flow
+        - Invalidates temporary code after use
+        - Returns full token set
+
+        **Reference:** [MFA Documentation](/public/specs/docs/mfa-usage-doc.html#2-verify-temporary-backup-code)
+      operationId: verifyTempBackupCode
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: MFA session ID from sign-in response(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "mfa_sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TempBackupCodeVerifyRequest"
+      responses:
+        "200":
+          description: Temporary backup code verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignInSuccessResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/AccountLockedError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /auth/mfa/backup-code/signin:
+    post:
+      tags: [Multi-Factor Authentication]
+      summary: Verify Backup Code
+      description: |
+        Verify backup code for authentication when primary MFA is unavailable.
+
+        **Features:**
+        - Backup code validation
+        - Single-use enforcement
+        - Authentication completion
+        - Code invalidation after use
+        - Remaining codes tracking
+
+        **Usage Scenarios:**
+        - Primary MFA device lost or unavailable
+        - Authenticator app malfunction
+        - Emergency access situations
+
+        **Usage Context:**
+        - Alternative to TOTP when primary device unavailable
+        - Emergency authentication method
+        - Part of MFA authentication flow
+
+        **Security:**
+        - Each backup code is single-use
+        - Codes are invalidated after use
+        - Limited number of codes available
+
+        **Usage Examples:**
+        ```bash
+        curl -X POST "https://dev-api.cometbid.org/v1/auth/mfa/backup-code/signin?session-id=mfa_sess_456" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "email": "user@example.com",
+            "backupCode": "12345678",
+            "password": "Userpassword_123",
+            "staySignedIn": false
+          }'
+        ```
+
+        **Reference:** [MFA Usage Guide](/public/specs/docs/mfa-usage-doc.html#4-verify-backup-code)
+      operationId: verifyBackupCode
+      parameters:
+        - name: X-Session-Id
+          in: header
+          description: MFA session ID from sign-in response(this can also be a query parameter - 'session-id')
+          required: true
+          schema:
+            type: string
+            example: "mfa_sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BackupCodeVerifyRequest"
+      responses:
+        "200":
+          description: Backup code verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignInSuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  # User Profile Management Endpoints
+  /users/profile:
+    get:
+      tags: [User Profile]
+      summary: Get User Profile
+      description: |
+        Retrieve user profile information with flexible categorization and schema support.
+
+        **Features:**
+        - Categorized profile data (basic, professional, location, etc.)
+        - Selective field retrieval
+        - Schema introspection
+        - HATEOAS navigation links
+        - Schema information available
+        - Flexible response customization
+        - Full profile or specific categories
+
+        **Available Categories:**
+        - **basic**: Core user information (name, email, etc.)
+        - **membership**: Membership details and status
+        - **professional**: Job title, company, experience
+        - **location**: Address and geographic information
+        - **preferences**: User preferences and settings
+        - **social**: Social media profiles
+        - **security**: Security-related information
+        - **metadata**: System metadata and timestamps
+
+        **Usage Examples:**
+        ```bash
+        # Get basic profile
+        curl -X GET "https://dev-api.cometbid.org/v1/user/profile?user-session-id=sess_123" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."
+
+        # Get specific categories
+        curl -X GET "https://dev-api.cometbid.org/v1/user/profile?user-session-id=sess_123&categories=basic,professional,location" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."
+
+        # Get profile schema
+        curl -X GET "https://dev-api.cometbid.org/v1/user/profile?schema=true" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."
+        ```
+
+        **Reference:** [User Profile Management](/public/specs/docs/usage-user-profile.html#2-get-user-profile-api)
+      operationId: getUserProfile
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session Identifier(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "sess_456..."
+        - name: schema
+          in: query
+          description: Return profile schema instead of data
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: categories
+          in: query
+          description: Comma-separated list of categories to include
+          required: false
+          schema:
+            type: string
+            example: "basic,professional,location"
+        - name: includeFullProfile
+          in: query
+          description: Include all profile categories
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: fields
+          in: query
+          description: Comma-separated list of specific fields
+          required: false
+          schema:
+            type: string
+            example: "firstName,lastName,email"
+        - name: noLinks
+          in: query
+          description: Exclude HATEOAS links from response
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/UserProfileResponse"
+                  - $ref: "#/components/schemas/UserProfileSchemaResponse"
+              examples:
+                profile_data:
+                  summary: Profile data response
+                  value:
+                    message: "User profile retrieved successfully"
+                    code: "GET_USER_SUCCESS"
+                    user:
+                      basic:
+                        userId: "12345"
+                        email: "j***e@e***e.com"
+                        firstName: "John"
+                        lastName: "Doe"
+                        membershipName: "johndoe123"
+                      professional:
+                        jobTitle: "Software Engineer"
+                        companyName: "Tech Company"
+                        selfEmployed: false
+                schema_response:
+                  summary: Schema response
+                  value:
+                    message: "Schema available"
+                    schema:
+                      basic:
+                        - name: "firstName"
+                          description: "User's first name"
+                          isComposite: false
+                    availableCategories: ["basic", "professional", "location"]
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/UserNotFoundError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+    put:
+      tags: [User Profile]
+      summary: Update User Profile
+      description: |
+        Update user profile information with flexible field updates across categories.
+
+        **Features:**
+        - Partial updates across multiple categories
+        - Field-level validation
+        - Automatic categorization
+        - Update tracking and audit
+        - Sensitive field detection
+        - Response customization
+
+        **Updatable Categories:**
+        - **Basic**: firstName, lastName, phoneNumber, profileImageUrl
+        - **Professional**: jobTitle, companyName, selfEmployed, yearsOfExperience
+        - **Location**: streetAddress, city, state, country, postalCode
+        - **Preferences**: preferredLanguage, theme, timezone
+        - **Social**: Social media profile URLs
+        - **Skills & Interests**: Professional skills and personal interests
+
+        **Validation Rules:**
+        - Email cannot be changed (use separate endpoint)
+        - Phone numbers must be valid format
+        - URLs must be valid format
+        - Required fields cannot be set to null
+
+        **Usage Examples:**
+        ```bash
+        # Update basic information
+        curl -X PUT "https://dev-api.cometbid.org/v1/user/profile?user-session-id=sess_123" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "firstName": "John",
+            "lastName": "Smith",
+            "jobTitle": "Senior Software Engineer",
+            "city": "Seattle",
+            "state": "WA"
+          }'
+
+        # Update with response customization
+        curl -X PUT "https://dev-api.cometbid.org/v1/user/profile?user-session-id=sess_123&includeFullProfile=true" \
+          -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..." \
+          -H "Content-Type: application/json" \
+          -d '{
+            "preferredLanguage": "en",
+            "socialProfiles": {
+              "linkedinUrl": "https://linkedin.com/in/johnsmith",
+              "githubUrl": "https://github.com/johnsmith"
+            }
+          }'
+        ```
+
+        **Reference:** [User Profile Management](/public/specs/docs/usage-user-profile.html#3-update-user-profile-api)
+      operationId: updateUserProfile
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: User session Identifier(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "sess_456..."
+        - name: categories
+          in: query
+          description: Categories to include in response
+          required: false
+          schema:
+            type: string
+            example: "basic,professional"
+        - name: includeFullProfile
+          in: query
+          description: Include full updated profile in response
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: noLinks
+          in: query
+          description: Exclude HATEOAS links from response
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserProfileRequest"
+            examples:
+              basic_update:
+                summary: Basic information update
+                value:
+                  firstName: "John"
+                  lastName: "Smith"
+                  phoneNumber: "+1234567890"
+              professional_update:
+                summary: Professional information update
+                value:
+                  jobTitle: "Senior Software Engineer"
+                  companyName: "Tech Corp"
+                  yearsOfExperience: 8
+                  professionalBio: "Experienced engineer specializing in cloud architecture"
+              comprehensive_update:
+                summary: Multi-category update
+                value:
+                  firstName: "John"
+                  lastName: "Smith"
+                  jobTitle: "Senior Software Engineer"
+                  city: "Seattle"
+                  state: "WA"
+                  preferredLanguage: "en"
+                  socialProfiles:
+                    linkedinUrl: "https://linkedin.com/in/johnsmith"
+                    githubUrl: "https://github.com/johnsmith"
+                  skills: ["JavaScript", "Java"]
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateUserProfileResponse"
+              examples:
+                basic_update:
+                  summary: Basic information update response
+                  value:
+                    message: "Profile updated successfully"
+                    code: "UPDATE_USER_SUCCESS"
+                    user:
+                      basic:
+                        firstName: "John"
+                        lastName: "Smith"
+                        phoneNumber: "+1234567890"
+                professional_update:
+                  summary: Professional information update response
+                  value:
+                    message: "Profile updated successfully"
+                    code: "UPDATE_USER_SUCCESS"
+                    user:
+                      professional:
+                        jobTitle: "Senior Software Engineer"
+                        companyName: "Tech Corp"
+                        yearsOfExperience: 8
+                        professionalBio: "Experienced engineer specializing in cloud architecture"
+                comprehensive_update:
+                  summary: Multi-category update response
+                  value:
+                    message: "Profile updated successfully"
+                    code: "UPDATE_USER_SUCCESS"
+                    user:
+                      basic:
+                        firstName: "John"
+                        lastName: "Smith"
+                        phoneNumber: "+1234567890"
+                      professional:
+                        jobTitle: "Senior Software Engineer"
+                        companyName: "Tech Corp"
+                        yearsOfExperience: 8
+                      location:
+                        city: "Seattle"
+                        state: "WA"
+                      preferences:
+                        preferredLanguage: "en"
+                      social:
+                        socialProfiles:
+                          linkedinUrl: "https://linkedin.com/in/johnsmith"
+                          githubUrl: "https://github.com/johnsmith"
+                      metadata:
+                        skills: ["JavaScript", "Java"]
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/UserNotFoundError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /users/search:
+    get:
+      tags: [User Profile, Administration]
+      summary: Search users (Admin)
+      description: |
+        Search users with filters and pagination (admin only).
+
+        **Search Criteria:**
+        - Email, membership name, role, status
+        - Membership plan and tier
+        - Location (city, state, country)
+        - Date ranges and custom filters
+
+        **Response:**
+        - User data
+        - Pagination metadata
+
+        **Pagination:**
+        - Page-based pagination
+        - Token-based pagination for large datasets
+        - Configurable page sizes
+        - Sort options
+
+        **Reference:** [User Profile Documentation](/public/specs/docs/usage-user-profile.html#1-search-users-api)
+      operationId: searchUsers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: email
+          in: query
+          description: Filter by email address
+          schema:
+            type: string
+        - name: membershipName
+          in: query
+          description: Filter by membership name
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by user status
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE, PENDING, DISABLED]
+        - name: membershipPlan
+          in: query
+          description: Filter by membership plan
+          schema:
+            type: string
+            enum: [INDIVIDUAL, GROUP, ORGANIZATION]
+        - name: page
+          in: query
+          description: Page number (1-based)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          description: Number of results per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: sortBy
+          in: query
+          description: Field to sort by
+          schema:
+            type: string
+            default: "createdAt"
+        - name: sortOrder
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: "desc"
+        - name: nextPageToken
+          in: query
+          description: Token for next page (alternative to page number)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Users found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchUsersResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/ProfileNotFoundError" 
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  # Admin Management Endpoints
+  /users/admin/status:
+    put:
+      tags: [Administration]
+      summary: Toggle user enable/disable status
+      description: |
+        Enable or disable user accounts (admin only).
+
+        **Admin Operations:**
+        - Enable disabled user accounts
+        - Disable active user accounts for security
+        - Provide reason for audit trail
+        - Cannot disable own account
+
+        **Use Cases:**
+        - Security incidents (disable compromised accounts)
+        - Account recovery (re-enable after resolution)
+        - Compliance requirements
+        - Temporary account suspension
+
+        **Security:**
+        - Requires admin role
+        - Full audit logging
+        - Cannot self-disable
+        - Reason tracking for compliance
+
+        **Reference:** [Admin role Documentation](/public/specs/docs/usage-toggle-user-status.html#toggle-user-enabledisable)
+      operationId: toggleUserEnable
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user-session-id
+          in: query
+          required: true
+          description: Admin user session identifier
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToggleUserEnableRequest"
+            examples:
+              disable_user:
+                summary: Disable user account
+                value:
+                  email: "user@example.com"
+                  action: "disable"
+                  reason: "Account compromised - suspicious activity detected"
+              enable_user:
+                summary: Enable user account
+                value:
+                  email: "user@example.com"
+                  action: "enable"
+                  reason: "Issue resolved - account restored"
+      responses:
+        "200":
+          description: User status updated successfully
+          headers:
+            X-Correlation-ID:
+              description: Request correlation ID
+              schema:
+                type: string
+            X-Session-ID:
+              description: Admin session ID
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStatusChangeResponse"
+              examples:
+                disable_success:
+                  summary: User disabled successfully
+                  value:
+                    message: "User disabled successfully"
+                    code: "USER_DISABLED_SUCCESS"
+                    action: "disable"
+                    email: "user@example.com"
+                    timestamp: 1623456789000
+                    correlationId: "12345678-1234-1234-1234-123456789012"
+                enable_success:
+                  summary: User enabled successfully
+                  value:
+                    message: "User enabled successfully"
+                    code: "USER_ENABLED_SUCCESS"
+                    action: "enable"
+                    email: "user@example.com"
+                    timestamp: 1623456789000
+                    correlationId: "12345678-1234-1234-1234-123456789012"
+        "403":
+          description: Insufficient permissions or self-action attempt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Insufficient permissions to perform this action"
+                  code:
+                    type: string
+                    enum: [AUTHORIZATION_ERROR, CANNOT_DISABLE_SELF]
+        "400":
+          $ref: "#/components/responses/AdminEnableValidationError"  
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/SearchResultsNotFoundError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+  /users/admin/activation:
+    put:
+      tags: [Administration]
+      summary: Toggle user activation status
+      description: |
+        Activate or deactivate user accounts (admin only).
+
+        **Activation vs Enable:**
+        - **Enable/Disable**: Account access control
+        - **Activate/Deactivate**: Account lifecycle management
+
+        **Operations:**
+        - Activate pending or deactivated accounts
+        - Deactivate accounts for maintenance
+        - Bulk account lifecycle management
+        - Temporary account suspension
+
+        **Reference:** [Admin role Documentation](/public/specs/docs/usage-toggle-user-status.html#toggle-user-activation)
+      operationId: toggleUserActivation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-User-Session-Id
+          in: header
+          description: Admin user session identifier(this can also be a query parameter - 'user-session-id')
+          required: true
+          schema:
+            type: string
+            example: "user_sess_456..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToggleUserActivationRequest"
+            examples:
+              deactivate_user:
+                summary: Deactivate user account
+                value:
+                  email: "user@example.com"
+                  action: "deactivate"
+                  reason: "User requested account deactivation"
+              activate_user:
+                summary: Activate user account
+                value:
+                  email: "user@example.com"
+                  action: "activate"
+                  reason: "User requested account reactivation"
+      responses:
+        "200":
+          description: User activation status updated
+          headers:
+            X-Correlation-ID:
+              description: Request correlation ID
+              schema:
+                type: string
+            X-Session-ID:
+              description: Admin session ID
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAccountActivationResponse"
+              examples:
+                deactivate_success:
+                  summary: User account de-activated successfully
+                  value:
+                    message: "User de-activated successfully"
+                    code: "USER_DEACTIVATED_SUCCESS"
+                    action: "deactivate"
+                    email: "user@example.com"
+                    timestamp: 1623456789000
+                    correlationId: "12345678-1234-1234-1234-123456789012"
+                activate_success:
+                  summary: User account activated successfully
+                  value:
+                    message: "User activated successfully"
+                    code: "USER_ACTIVATED_SUCCESS"
+                    action: "activate"
+                    email: "user@example.com"
+                    timestamp: 1623456789000
+                    correlationId: "12345678-1234-1234-1234-123456789012"
+
+        "403":
+          description: Insufficient permissions or self-action attempt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Insufficient permissions to perform this action"
+                  code:
+                    type: string
+                    enum: [AUTHORIZATION_ERROR, CANNOT_DISABLE_SELF]
+        "400":
+          $ref: "#/components/responses/AdminActivationValidationError"  
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/UserNotFoundError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "501":
+          $ref: "#/components/responses/NotImplementedError"
+
+# Complete Schema Components
+components:
+  schemas:
+    # Add the missing SignUpRequest schema
+    SignUpRequest:
+      type: object
+      required:
+        [
+          email,
+          password,
+          firstName,
+          lastName,
+          membershipName,
+          membershipPlan,
+          jobTitle,
+          country,
+        ]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address (will be username)
+          example: "user@example.com"
+          maxLength: 254
+        password:
+          type: string
+          format: password
+          description: |
+            Password meeting security requirements:
+            - Minimum 8 characters
+            - At least one uppercase letter
+            - At least one lowercase letter
+            - At least one number
+            - At least one special character
+          minLength: 8
+          maxLength: 128
+        firstName:
+          type: string
+          description: User's first name
+          minLength: 1
+          maxLength: 50
+          example: "John"
+        lastName:
+          type: string
+          description: User's last name
+          minLength: 1
+          maxLength: 50
+          example: "Doe"
+        membershipName:
+          type: string
+          description: |
+            Unique membership identifier/username.
+            - Must be unique across all users
+            - Alphanumeric characters and underscores only
+            - 3-50 characters
+          minLength: 3
+          maxLength: 50
+          pattern: "^[a-zA-Z0-9_]+$"
+          example: "johndoe123"
+        membershipPlan:
+          type: string
+          enum: [INDIVIDUAL, GROUP, ORGANIZATION]
+          description: |
+            Membership plan type:
+            - `INDIVIDUAL`: Personal membership
+            - `GROUP`: Small team membership (2-10 users)
+            - `ORGANIZATION`: Enterprise membership (10+ users)
+        membershipTier:
+          type: string
+          enum: [BASIC, PRO, PREMIUM, ENTERPRISE]
+          description: Optional membership tier for enhanced features
+        jobTitle:
+          type: string
+          description: User's job title or role
+          maxLength: 100
+          example: "Software Engineer"
+        companyName:
+          type: string
+          description: User's company or organization name
+          maxLength: 100
+          example: "Tech Company"
+        selfEmployed:
+          type: boolean
+          description: Whether user is self-employed
+          default: false
+        city:
+          type: string
+          description: User's city
+          maxLength: 50
+          example: "San Francisco"
+        state:
+          type: string
+          description: User's state or province
+          maxLength: 50
+          example: "CA"
+        country:
+          type: string
+          description: User's country (required)
+          maxLength: 50
+          example: "USA"
+
+    # Add the corresponding response schema
+    SignUpResponse:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+        message:
+          type: string
+          example: "User registration successful"
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp
+        detailMessage:
+          type: string
+          example: "Please check your email for a verification code to complete your registration"
+        email:
+          type: string
+          description: Masked email address for privacy
+          example: "u***r@e***e.com"
+        sessionId:
+          type: string
+          description: Session ID for verification process
+          example: "abcdef-1234-5678-90ab-cdef12345678"
+        verificationRequired:
+          type: boolean
+          description: Whether email verification is required
+          example: true
+        csrfToken:
+          type: string
+          description: CSRF token for verification process
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    # Add other missing schemas that might be referenced
+    BasicProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+          example: "12345"
+        username:
+          type: string
+          example: "johndoe123"
+        email:
+          type: string
+          description: Masked for privacy
+          example: "j***e@e***e.com"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+
+    MembershipProfile:
+      type: object
+      properties:
+        membershipName:
+          type: string
+          example: "johndoe123"
+        membershipPlan:
+          type: string
+          enum: [INDIVIDUAL, GROUP, ORGANIZATION]
+        membershipStatus:
+          type: string
+          enum: [ACTIVE, INACTIVE, PENDING]
+
+    ProfessionalProfile:
+      type: object
+      properties:
+        jobTitle:
+          type: string
+          example: "Software Engineer"
+        companyName:
+          type: string
+          example: "Tech Company"
+        selfEmployed:
+          type: boolean
+          example: false
+
+    LocationProfile:
+      type: object
+      properties:
+        city:
+          type: string
+          example: "San Francisco"
+        state:
+          type: string
+          example: "CA"
+        country:
+          type: string
+          example: "USA"
+
+    PreferencesProfile:
+      type: object
+      properties:
+        preferredLanguage:
+          type: string
+          example: "en"
+        theme:
+          type: string
+          enum: [light, dark, system]
+
+    SocialProfile:
+      type: object
+      properties:
+        linkedinUrl:
+          type: string
+          format: uri
+        githubUrl:
+          type: string
+          format: uri
+
+    SecurityProfile:
+      type: object
+      properties:
+        mfaEnabled:
+          type: boolean
+          example: true
+        lastLoginDate:
+          type: string
+          format: date-time
+
+    ToggleUserActivationRequest:
+      type: object
+      required: [email, action]
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of user to activate/deactivate
+          example: "user@example.com"
+        action:
+          type: string
+          enum: [activate, deactivate]
+          description: |
+            Action to perform:
+            - `activate`: Activate user account (make active)
+            - `deactivate`: Deactivate user account (make inactive)
+        reason:
+          type: string
+          description: Reason for the action (recommended for audit trail)
+          maxLength: 500
+          example: "User requested account deactivation"
+
+    AdminAccountActivationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Human-readable success message
+          example: "User activated successfully"
+        code:
+          type: string
+          description: Machine-readable success code
+          enum:
+            [
+              USER_ACTIVATED_SUCCESS,
+              USER_DEACTIVATED_SUCCESS,
+            ]
+        action:
+          type: string
+          description: Action that was performed
+          enum: [activate, deactivate]
+        email:
+          type: string
+          description: Email of affected user
+          example: "user@example.com"
+        timestamp:
+          type: integer
+          description: Action timestamp
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracing
+          example: "req-12345"
+
+    AdminStatusChangeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Human-readable success message
+          example: "User enabled successfully"
+        code:
+          type: string
+          description: Machine-readable success code
+          enum:
+            [
+              USER_DISABLED_SUCCESS,
+              USER_ENABLED_SUCCESS,
+            ]
+        action:
+          type: string
+          description: Action that was performed
+          enum: [enable, disable]
+        email:
+          type: string
+          description: Email of affected user
+          example: "user@example.com"
+        timestamp:
+          type: integer
+          description: Action timestamp
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracing
+          example: "req-12345"
+          
+    ConfirmSignupRequest:
+      type: object
+      required: [email, verificationCode]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        verificationCode:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: 6-digit verification code from email
+          example: "123456"
+        csrfToken:
+          type: string
+          description: CSRF token from registration response
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ConfirmSignupResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Email verification completed successfully"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracing
+          example: "req-12345"
+
+    # Email Verification Schemas
+    EmailVerificationRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to verify
+          example: "user@example.com"
+        vMode:
+          type: string
+          enum: [CODE, LINK]
+          description: |
+            Verification mode:
+            - `CODE`: Send 6-digit verification code
+            - `LINK`: Send clickable verification link
+          default: "CODE"
+        csrfToken:
+          type: string
+          description: CSRF token if session exists
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    EmailVerificationResponse:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        message:
+          type: string
+          example: "Verification code(or link) sent to your email address"
+        sessionId:
+          type: string
+          description: Verification session ID
+          example: "22334-12345-e566567"
+        email:
+          type: string
+          description: Masked email address
+          example: "u***r@e***e.com"
+        csrfToken:
+          type: string
+          description: CSRF token for verification
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    VerifyEmailRequest:
+      type: object
+      required: [email, verificationCode]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        verificationCode:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: 6-digit verification code
+          example: "123456"
+        csrfToken:
+          type: string
+          description: CSRF token from verification request
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    VerifyEmailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Email verification completed successfully"
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+
+    # Username Recovery Schemas
+    UsernameRecoveryRequest:
+      type: object
+      required: [firstName, lastName, membershipName]
+      properties:
+        firstName:
+          type: string
+          description: User's first name
+          example: "John"
+        lastName:
+          type: string
+          description: User's last name
+          example: "Doe"
+        membershipName:
+          type: string
+          description: User's membership name/username
+          example: "johndoe123"
+
+    UsernameRecoveryResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User found"
+        code:
+          type: string
+          enum: [USERNAME_RECOVERY_SUCCESS]
+        email:
+          type: string
+          description: Masked email address to help user identify account
+          example: "j***e@e***e.com"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+        additionalInfo:
+          type: object
+          description: Optional additional information
+          properties:
+            accountCreatedAt:
+              type: string
+              format: date-time
+              description: When the account was created
+            accountActive:
+              type: boolean
+              description: Whether the account is currently active
+
+    # Authentication Request/Response Schemas
+    SignInRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address (used as username)
+          example: "user@example.com"
+          maxLength: 254
+        password:
+          type: string
+          format: password
+          description: User's password
+          minLength: 8
+          maxLength: 128
+        staySignedIn:
+          type: boolean
+          description: |
+            Keep user signed in for extended period.
+            - `true`: 30-day refresh token lifetime
+            - `false`: 7-day refresh token lifetime
+          default: false
+
+    SignInSuccessResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [SIGNIN_SUCCESS]
+          description: Success code indicating complete authentication
+        message:
+          type: string
+          example: "Sign-in successful"
+        userSessionId:
+          type: string
+          description: Session identifier for subsequent requests
+          example: "sess_abc123"
+        tokens:
+          $ref: "#/components/schemas/AuthTokens"
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+              description: Masked email for privacy
+              example: "u***@example.com"
+            emailVerified:
+              type: boolean
+            mfaEnabled:
+              type: boolean
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    MFARequiredResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [MFA_REQUIRED]
+        message:
+          type: string
+          example: "MFA verification required"
+        mfaSession:
+          type: object
+          properties:
+            sessionId:
+              type: string
+              description: MFA session ID for verification
+              example: "mfa_sess_456"
+            expiresAt:
+              type: string
+              format: date-time
+              description: MFA session expiration time
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    SignOutRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        refreshToken:
+          type: string
+          description: |
+            Refresh token to invalidate. Can also be provided via:
+            - Cookie: `refreshToken=<token>`
+            - Header: `X-Refresh-Token: <token>`
+        globalSignout:
+          type: boolean
+          description: Sign out from all devices
+          default: false
+
+    SignOutResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [SIGNOUT_SUCCESS]
+        message:
+          type: string
+          example: "Sign-out successful"
+        globalSignout:
+          type: boolean
+          description: Whether global sign-out was performed
+        userSessionId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    RefreshTokenRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address for token ownership validation
+          example: "user@example.com"
+        refreshToken:
+          type: string
+          description: |
+            Valid refresh token. Can also be provided via:
+            - Cookie: `refreshToken=<token>`
+            - Header: `X-Refresh-Token: <token>`
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [REFRESH_TOKEN_SUCCESS]
+        message:
+          type: string
+          example: "Token refreshed successfully"
+        userSessionId:
+          type: string
+        tokens:
+          $ref: "#/components/schemas/AuthTokens"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    AuthTokens:
+      type: object
+      description: JWT token set for authentication
+      properties:
+        accessToken:
+          type: string
+          description: |
+            JWT access token for API authentication.
+            **Lifetime:** 1 hour
+            **Usage:** Include in Authorization header
+          example: "eyJhbGciOiJSUzI1NiIs..."
+        refreshToken:
+          type: string
+          description: |
+            JWT refresh token for obtaining new access tokens.
+            **Lifetime:** 7-30 days (based on staySignedIn)
+            **Usage:** Use with refresh-token endpoint
+          example: "eyJjdHkiOiJKV1QiLCJlbmMi..."
+        idToken:
+          type: string
+          description: |
+            JWT ID token containing user identity information.
+            **Usage:** Client-side user information
+          example: "eyJhbGciOiJSUzI1NiIs..."
+        tokenType:
+          type: string
+          enum: [Bearer]
+          description: Token type for Authorization header
+        expiresIn:
+          type: integer
+          description: Access token lifetime in seconds
+          example: 3600
+
+    # MFA Setup Schemas
+    MFASetupRequest:
+      type: object
+      required: [mfaType, email]
+      properties:
+        mfaType:
+          type: string
+          enum: [SOFTWARE_TOKEN_MFA, SMS_MFA]
+          description: Type of MFA to setup
+          example: "SOFTWARE_TOKEN_MFA"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        deviceName:
+          type: string
+          description: Name for the MFA device
+          maxLength: 50
+          example: "My iPhone"
+
+    MFASetupResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "MFA setup initiated successfully"
+        qrCodeUrl:
+          type: string
+          format: uri
+          description: |
+            TOTP URL for QR code generation.
+            Format: `otpauth://totp/Label?secret=SECRET&issuer=ISSUER`
+          example: "otpauth://totp/TCTF:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=TCTF"
+        qrCode:
+          type: string
+          description: Base64-encoded QR code image
+        setupId:
+          type: string
+          description: Setup session identifier
+        secretCode:
+          type: string
+          description: Base32-encoded secret for manual entry
+          example: "JBSWY3DPEHPK3PXP"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    MFASetupVerifyRequest:
+      type: object
+      required: [email, deviceName, code1]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        deviceName:
+          type: string
+          description: Name for the MFA device
+          example: "My iPhone"
+        code1:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: First TOTP code
+          example: "123456"
+        code2:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: Second TOTP code (optional but recommended)
+          example: "789012"
+
+    MFASetupCompleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "MFA setup completed successfully"
+        backupCodes:
+          type: array
+          items:
+            type: string
+          description: Generated backup codes (store securely)
+          example: ["12345678", "87654321", "11223344", "44332211", "55667788"]
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    MFAToggleRequest:
+      type: object
+      required: [email, action]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        action:
+          type: string
+          enum: [ENABLE, DISABLE]
+          description: Action to perform
+        mfaType:
+          type: string
+          enum: [SOFTWARE_TOKEN_MFA, SMS_MFA]
+          description: Required when enabling MFA
+        deviceName:
+          type: string
+          description: Required when enabling MFA
+          example: "My Authenticator App"
+        mfaCode:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: Required when disabling MFA
+          example: "123456"
+
+    MFAToggleResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "MFA enabled successfully"
+        detailMessage:
+          type: string
+          example: "MFA has been enabled for your account"
+        mfaResponse:
+          type: object
+          description: Present when enabling MFA
+          properties:
+            secretCode:
+              type: string
+              description: Base32-encoded secret
+            qrCodeUrl:
+              type: string
+              format: uri
+            backupCodes:
+              type: array
+              items:
+                type: string
+        userSessionId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    MFAStatusResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "MFA status retrieved successfully"
+        userSessionId:
+          type: string
+        mfaStatus:
+          type: object
+          properties:
+            mfaEnabled:
+              type: boolean
+              description: Whether MFA is enabled
+            preferredMfaSetting:
+              type: string
+              enum: [SMS_MFA, SOFTWARE_TOKEN_MFA]
+              description: User's preferred MFA method
+            userMfaSettingList:
+              type: array
+              items:
+                type: string
+                enum: [SMS_MFA, SOFTWARE_TOKEN_MFA]
+              description: Available MFA methods
+            tempBackupCode:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                expiresAt:
+                  type: string
+                  format: date-time
+                  nullable: true
+        deviceInfo:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "desktop"
+            lastAccess:
+              type: integer
+              format: int64
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    # MFA Verification Schemas
+    TOTPVerifyRequest:
+      type: object
+      required: [email, totpCode, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        totpCode:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: 6-digit TOTP code from authenticator app
+          example: "123456"
+        password:
+          type: string
+          format: password
+          description: User's password for additional security
+        staySignedIn:
+          type: boolean
+          default: false
+
+    BackupCodeVerifyRequest:
+      type: object
+      required: [email, backupCode, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        backupCode:
+          type: string
+          description: 8-digit backup code
+          example: "12345678"
+        password:
+          type: string
+          format: password
+          description: User's password for additional security
+        staySignedIn:
+          type: boolean
+          default: false
+
+    TempBackupCodeVerifyRequest:
+      type: object
+      required: [email, tempBackupCode, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        tempBackupCode:
+          type: string
+          description: Temporary backup code
+          example: "123456"
+        password:
+          type: string
+          format: password
+          description: User's password for additional security
+        staySignedIn:
+          type: boolean
+          default: false
+
+    ResetBackupCodeRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+
+    BackupCodesResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Backup codes reset successfully"
+        backupCodes:
+          type: array
+          items:
+            type: string
+          description: |
+            New backup codes (8 codes total).
+            **Important:** Store these codes securely - they won't be shown again.
+          example:
+            [
+              "12345678",
+              "87654321",
+              "11223344",
+              "44332211",
+              "55667788",
+              "99887766",
+              "66554433",
+              "33221100",
+            ]
+        userSessionId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    TempBackupCodeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Temporary backup code generated successfully"
+        code:
+          type: string
+          enum: [TEMP_BACKUP_CODE_SUCCESS]
+        sessionId:
+          type: string
+          description: Session ID for verification
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the temporary code expires
+          example: "2024-01-01T13:00:00Z"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    # Password Management Schemas
+    ChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+          format: password
+          description: User's current password
+          minLength: 8
+        newPassword:
+          type: string
+          format: password
+          description: |
+            New password meeting security requirements:
+            - Minimum 8 characters
+            - At least one uppercase letter
+            - At least one lowercase letter  
+            - At least one number
+            - At least one special character
+          minLength: 8
+          maxLength: 128
+
+    PasswordChangeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Password changed successfully"
+        code:
+          type: string
+          enum: [CHANGE_PASSWORD_SUCCESS]
+        userSessionId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+
+    ForgotPasswordResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Password reset code sent successfully"
+        sessionId:
+          type: string
+          description: Reset session identifier
+          example: "sess_1234"
+        expiresIn:
+          type: integer
+          description: Code expiration time in seconds
+          example: 1800
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    VerifyResetCodeRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          pattern: "^[0-9]{6}$"
+          description: 6-digit verification code from email
+          example: "123456"
+
+    VerifyResetCodeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Reset code verified successfully"
+        email:
+          type: string
+          description: Masked email address
+          example: "u***@example.com"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    ConfirmPasswordResetRequest:
+      type: object
+      required: [email, newPassword]
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        newPassword:
+          type: string
+          format: password
+          description: New password meeting security requirements
+          minLength: 8
+          maxLength: 128
+
+    ConfirmPasswordResetResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Password reset completed successfully"
+        email:
+          type: string
+          description: Masked email address
+          example: "u***@example.com"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    UserProfileSchemaResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Schema available"
+        schema:
+          type: object
+          description: Profile schema information
+        availableCategories:
+          type: array
+          items:
+            type: string
+          example: ["basic", "membership", "professional", "location"]
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    UpdateUserProfileRequest:
+      type: object
+      description: |
+        Flexible profile update request. Include only fields you want to update.
+        Fields are organized by categories but can be mixed in a single request.
+      properties:
+        # Basic fields
+        firstName:
+          type: string
+          maxLength: 50
+        lastName:
+          type: string
+          maxLength: 50
+        phoneNumber:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+        profileImageUrl:
+          type: string
+          format: uri
+        # Professional fields
+        jobTitle:
+          type: string
+          maxLength: 100
+        companyName:
+          type: string
+          maxLength: 100
+        selfEmployed:
+          type: boolean
+        yearsOfExperience:
+          type: integer
+          minimum: 0
+          maximum: 70
+        professionalBio:
+          type: string
+          maxLength: 1000
+        # Location fields
+        streetAddress:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 50
+        state:
+          type: string
+          maxLength: 50
+        country:
+          type: string
+          maxLength: 50
+        postalCode:
+          type: string
+          maxLength: 20
+        # Preferences
+        preferredLanguage:
+          type: string
+          pattern: "^[a-z]{2}$"
+        theme:
+          type: string
+          enum: [light, dark, system]
+        timezone:
+          type: string
+        # Social profiles
+        socialProfiles:
+          type: object
+          properties:
+            linkedinUrl:
+              type: string
+              format: uri
+            githubUrl:
+              type: string
+              format: uri
+            twitterUrl:
+              type: string
+              format: uri
+            websiteUrl:
+              type: string
+              format: uri
+
+    UpdateUserProfileResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User profile updated successfully"
+        code:
+          type: string
+          enum: [UPDATE_USER_SUCCESS]
+        updates:
+          type: object
+          properties:
+            updatedFields:
+              type: array
+              items:
+                type: string
+              example: ["firstName", "lastName", "jobTitle"]
+            updatedCategories:
+              type: array
+              items:
+                type: string
+              example: ["basic", "professional"]
+            sensitiveFieldsUpdated:
+              type: boolean
+              description: Whether sensitive fields were updated
+        _links:
+          type: object
+          description: HATEOAS links for related operations
+        userSessionId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    SearchUsersResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Users found successfully"
+        code:
+          type: string
+          enum: [SEARCH_USERS_SUCCESS]
+        users:
+          type: array
+          items:
+            type: object
+            properties:
+              basic:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    example: "12345"
+                  email:
+                    type: string
+                    description: Masked email for privacy
+                    example: "j***e@e***e.com"
+                  firstName:
+                    type: string
+                    example: "John"
+                  lastName:
+                    type: string
+                    example: "Doe"
+                  membershipName:
+                    type: string
+                    example: "johndoe123"
+              membership:
+                type: object
+                properties:
+                  membershipPlan:
+                    type: string
+                    enum: [INDIVIDUAL, GROUP, ORGANIZATION]
+                    example: "INDIVIDUAL"
+                  membershipTier:
+                    type: string
+                    enum: [BASIC, PRO, PREMIUM, ENTERPRISE]
+                    example: "PRO"
+                  membershipStatus:
+                    type: string
+                    enum: [ACTIVE, INACTIVE, PENDING]
+                    example: "ACTIVE"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2023-01-15T10:30:00Z"
+              professional:
+                type: object
+                properties:
+                  jobTitle:
+                    type: string
+                    example: "Software Engineer"
+                  companyName:
+                    type: string
+                    example: "Tech Company"
+                  yearsOfExperience:
+                    type: integer
+                    example: 5
+              location:
+                type: object
+                properties:
+                  city:
+                    type: string
+                    example: "San Francisco"
+                  state:
+                    type: string
+                    example: "CA"
+                  country:
+                    type: string
+                    example: "USA"
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            pageSize:
+              type: integer
+              example: 20
+            totalItems:
+              type: integer
+              example: 42
+            totalPages:
+              type: integer
+              example: 3
+            nextPageToken:
+              type: string
+              description: Token for retrieving next page
+              example: "eyJwYWdlIjoyLCJsYXN0S2V5IjoiMTIzNDUifQ=="
+        _links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: "/user/search?pageSize=20&page=1"
+            last:
+              type: string
+              example: "/user/search?pageSize=20&page=3"
+            next:
+              type: string
+              example: "/user/search?pageSize=20&page=2"
+            prev:
+              type: string
+              nullable: true
+              example: null
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    # Admin Management Schemas
+    ToggleUserEnableRequest:
+      type: object
+      required: [email, action]
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of user to enable/disable
+          example: "user@example.com"
+        action:
+          type: string
+          enum: [enable, disable]
+          description: |
+            Action to perform:
+            - `enable`: Enable user account (allow access)
+            - `disable`: Disable user account (block access)
+        reason:
+          type: string
+          description: Reason for the action (recommended for audit trail)
+          maxLength: 500
+          example: "Account compromised - suspicious activity detected"
+
+    # Common Success Response Schema
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+        code:
+          type: string
+          description: Success code
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    # User Profile Schemas
+    UserProfileResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User profile retrieved successfully"
+        code:
+          type: string
+          enum: [GET_USER_SUCCESS]
+        user:
+          type: object
+          description: User profile data organized by categories
+          properties:
+            basic:
+              $ref: "#/components/schemas/BasicProfile"
+            membership:
+              $ref: "#/components/schemas/MembershipProfile"
+            professional:
+              $ref: "#/components/schemas/ProfessionalProfile"
+            location:
+              $ref: "#/components/schemas/LocationProfile"
+            preferences:
+              $ref: "#/components/schemas/PreferencesProfile"
+            social:
+              $ref: "#/components/schemas/SocialProfile"
+            security:
+              $ref: "#/components/schemas/SecurityProfile"
+        _links:
+          type: object
+          description: HATEOAS links for related operations
+        userSessionId:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+
+    # Keep only the actual data schemas:
+    ErrorResponse:
+      type: object
+      required: [message, code, timestamp, correlationId]
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Your account is currently disabled."
+        code:
+          type: string
+          description: Machine-readable error code
+          example: "INVALID_CREDENTIALS"
+        timestamp:
+          type: integer
+          format: int64
+          description: Error timestamp in milliseconds
+          example: 1704110400000
+        correlationId:
+          type: string
+          description: Request correlation ID for tracking
+          example: "12345678-1234-1234-1234-123456789012"
+        details:
+          type: string
+          description: Additional error details (optional)
+          example: "Error occured while processing your request. Please contact support via email with your request Id as subject of the email"
+        remainingAttempts:
+          type: integer
+          description: Remaining attempts before lockout (for auth errors)
+          example: 4
+        cooldownEndTime:
+          type: string
+          description: When lockout expires (for locked accounts)
+          example: "1704117600000"
+        retryAfter:
+          type: integer
+          description: Seconds to wait before retry (for rate limits)
+          example: 300
+
+  responses:
+    MFANotEnabledError:
+      description: MFA not enabled or insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            mfa_not_enabled:
+              summary: MFA not enabled
+              value:
+                message: "MFA is not enabled for this account"
+                code: "MFA_NOT_ENABLED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            email_mismatch:
+              summary: Email mismatch
+              value:
+                message: "Email does not match authenticated user"
+                code: "EMAIL_MISMATCH"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            account_locked:
+              summary: Account locked
+              value:
+                message: "Account is locked"
+                code: "ACCOUNT_LOCKED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    MFASetupValidationError:
+      description: MFA setup validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_totp_codes:
+              summary: Invalid TOTP codes
+              value:
+                message: "Invalid TOTP codes provided"
+                code: "INVALID_TOTP_CODES"
+                details: "Two consecutive valid codes are required"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            mfa_already_enabled:
+              summary: MFA already enabled
+              value:
+                message: "MFA is already enabled for this account"
+                code: "MFA_ALREADY_ENABLED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            invalid_setup_session:
+              summary: Invalid setup session
+              value:
+                message: "Invalid or expired MFA setup session"
+                code: "INVALID_SETUP_SESSION"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+    
+    # Add specific AdminValidationError for admin toggle endpoints
+    AdminEnableValidationError:
+      description: Invalid admin request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_action:
+              summary: Invalid action value
+              value:
+                message: "Invalid action. Must be 'enable' or 'disable'"
+                code: "INVALID_ACTION"
+                details: "Action must be one of: enable, disable"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            invalid_email:
+              summary: Invalid email format
+              value:
+                message: "Invalid email format"
+                code: "INVALID_EMAIL_FORMAT"
+                details: "Email must be a valid email address"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            missing_required_fields:
+              summary: Missing required fields
+              value:
+                message: "Missing required fields"
+                code: "MISSING_REQUIRED_FIELDS"
+                details: "Required fields: email, action"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            reason_too_long:
+              summary: Reason text too long
+              value:
+                message: "Reason text exceeds maximum length"
+                code: "REASON_TOO_LONG"
+                details: "Reason must be 500 characters or less"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            self_action_attempt:
+              summary: Cannot perform action on self
+              value:
+                message: "Cannot perform this action on your own account"
+                code: "CANNOT_MODIFY_SELF"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+  
+    AdminActivationValidationError:
+      description: Invalid admin request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_action:
+              summary: Invalid action value
+              value:
+                message: "Invalid action. Must be 'activate' or 'deactivate'"
+                code: "INVALID_ACTION"
+                details: "Action must be one of: activate, deactivate"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            invalid_email:
+              summary: Invalid email format
+              value:
+                message: "Invalid email format"
+                code: "INVALID_EMAIL_FORMAT"
+                details: "Email must be a valid email address"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            missing_required_fields:
+              summary: Missing required fields
+              value:
+                message: "Missing required fields"
+                code: "MISSING_REQUIRED_FIELDS"
+                details: "Required fields: email, action"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            reason_too_long:
+              summary: Reason text too long
+              value:
+                message: "Reason text exceeds maximum length"
+                code: "REASON_TOO_LONG"
+                details: "Reason must be 500 characters or less"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            self_action_attempt:
+              summary: Cannot perform action on self
+              value:
+                message: "Cannot perform this action on your own account"
+                code: "CANNOT_MODIFY_SELF"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+                
+    TempBackupCodeExistsError:
+      description: Temporary backup code already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            temp_code_exists:
+              summary: Temporary backup code already exists
+              value:
+                message: "Temporary backup code already exists"
+                code: "TEMP_BACKUP_CODE_EXISTS"
+                expiresAt: "2024-01-01T13:00:00Z"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            concurrent_generation:
+              summary: Concurrent generation attempt
+              value:
+                message: "Another temporary backup code generation is in progress"
+                code: "CONCURRENT_GENERATION"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    InvalidTOTPCodeError:
+      description: Invalid TOTP code
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_totp:
+              summary: Invalid TOTP code
+              value:
+                message: "Invalid TOTP code"
+                code: "INVALID_TOTP_CODE"
+                remainingAttempts: 4
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            expired_totp:
+              summary: Expired TOTP code
+              value:
+                message: "TOTP code has expired"
+                code: "EXPIRED_TOTP_CODE"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            totp_code_used:
+              summary: TOTP code already used
+              value:
+                message: "TOTP code has already been used"
+                code: "TOTP_CODE_ALREADY_USED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Add missing InvalidMFASessionError for line 1640 (/auth/mfa/verify-totp POST 401)
+    InvalidMFASessionError:
+      description: Invalid MFA session or credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_mfa_session:
+              summary: Invalid MFA session
+              value:
+                message: "Invalid or expired MFA session"
+                code: "INVALID_MFA_SESSION"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            invalid_credentials:
+              summary: Invalid credentials
+              value:
+                message: "Invalid credentials provided"
+                code: "INVALID_CREDENTIALS"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            session_expired:
+              summary: MFA session expired
+              value:
+                message: "MFA session has expired"
+                code: "MFA_SESSION_EXPIRED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    InvalidRequestError:
+      description: Invalid search parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_parameters:
+              summary: Invalid search parameters
+              value:
+                message: "Invalid search parameters"
+                code: "VALIDATION_ERROR"
+                details: "Page size must be between 1 and 50"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            invalid_sort_field:
+              summary: Invalid sort field
+              value:
+                message: "Invalid sort field"
+                code: "INVALID_SORT_FIELD"
+                details: "Sort field must be one of: createdAt, lastName, email"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            invalid_filter:
+              summary: Invalid filter value
+              value:
+                message: "Invalid filter value"
+                code: "INVALID_FILTER_VALUE"
+                details: "Status must be one of: ACTIVE, INACTIVE, PENDING"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    InvalidResetCodeError:
+      description: Invalid or expired reset code
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_code:
+              summary: Invalid verification code
+              value:
+                message: "Invalid verification code"
+                code: "INVALID_VERIFICATION_CODE"
+                remainingAttempts: "2"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            expired_session:
+              summary: Reset session expired
+              value:
+                message: "Reset session has expired"
+                code: "RESET_PASSWORD_SESSION_EXPIRED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            already_verified:
+              summary: Already verified
+              value:
+                message: "Reset code already verified"
+                code: "RESET_CODE_ALREADY_VERIFIED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    AccountRecoveryRequiredError:
+      description: Account recovery required or email not verified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            email_not_verified:
+              summary: Email not verified
+              value:
+                message: "Email address not verified"
+                code: "EMAIL_NOT_VERIFIED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            account_disabled:
+              summary: Account disabled
+              value:
+                message: "Account is disabled"
+                code: "ACCOUNT_DISABLED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            account_recovery_required:
+              summary: Account recovery required
+              value:
+                message: "Account recovery required"
+                code: "ACCOUNT_RECOVERY_REQUIRED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    SessionNotFoundError:
+      description: Session not found or expired
+      content:
+        text/html:
+          schema:
+            type: string
+            description: HTML error page for session not found
+            example: |
+              <!DOCTYPE html>
+              <html>
+              <head><title>Session Not Found</title></head>
+              <body>
+                <h1>Session Not Found</h1>
+                <p>The verification session has expired or does not exist.</p>
+                <a href="/signup">Register Again</a>
+              </body>
+              </html>
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            session_not_found:
+              summary: Session not found
+              value:
+                message: "Email verification failed"
+                code: "EMAIL_VERIFICATION_FAILED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    EmailNotVerifiedError:
+      description: Email address not verified
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            email_not_verified:
+              summary: Email not verified
+              value:
+                message: "Email address not verified"
+                code: "EMAIL_NOT_VERIFIED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            account_recovery_required:
+              summary: Account recovery required
+              value:
+                message: "Account recovery required"
+                code: "ACCOUNT_RECOVERY_REQUIRED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    InvalidVerificationLinkError:
+      description: Invalid verification link or token
+      content:
+        text/html:
+          schema:
+            type: string
+            description: HTML error page for invalid verification links
+            example: |
+              <!DOCTYPE html>
+              <html>
+              <head><title>Verification Failed</title></head>
+              <body>
+                <h1>Email Verification Failed</h1>
+                <p>The verification link is invalid or has expired.</p>
+                <a href="/login">Sign In</a>
+              </body>
+              </html>
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalid_link:
+              summary: Invalid verification link
+              value:
+                message: "Invalid verification link"
+                code: "EMAIL_VERIFICATION_FAILED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    InvalidVerificationCodeError:
+      description: Invalid verification code or token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalid_code:
+              summary: Invalid verification code
+              value:
+                message: "Invalid verification code"
+                code: "INVALID_VERIFICATION_CODE"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            email_verification_failed:
+              summary: Email verification failed
+              value:
+                message: "Invalid verification link"
+                code: "EMAIL_VERIFICATION_FAILED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Add other missing responses for verification endpoints
+    VerificationSuccessResponse:
+      description: Email verification successful
+      content:
+        text/html:
+          schema:
+            type: string
+            description: HTML success page for email verification
+            example: |
+              <!DOCTYPE html>
+              <html>
+              <head><title>Email Verified</title></head>
+              <body>
+                <h1>Email Verification Successful</h1>
+                <p>Your email has been verified successfully. You can now sign in to your account.</p>
+                <a href="/login">Sign In</a>
+              </body>
+              </html>
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessResponse"
+          examples:
+            verification_success:
+              summary: Verification successful
+              value:
+                message: "Email verification completed successfully"
+                code: "EMAIL_VERIFICATION_SUCCESS"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+    
+    InvalidPasswordError:
+      description: Current password is incorrect
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            incorrect_password:
+              summary: Incorrect current password
+              value:
+                message: "Current password is incorrect"
+                code: "INCORRECT_PASSWORD"
+                remainingAttempts: 4
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Add missing AccountDisabledOrLockedError for line 1274
+    AccountStatusError:
+      description: Account is disabled or locked
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            account_disabled:
+              summary: Account disabled
+              value:
+                message: "Account is disabled or deactivated"
+                code: "ACCOUNT_DISABLED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            account_locked:
+              summary: Account locked
+              value:
+                message: "Account is locked"
+                code: "ACCOUNT_LOCKED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    SessionExpiredError:
+      description: Session has expired
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            session_expired:
+              summary: Session expired
+              value:
+                message: "Session has expired"
+                code: "SESSION_EXPIRED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Add the missing TokenOwnershipError response
+    TokenOwnershipError:
+      description: Refresh token doesn't belong to user
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            token_ownership_mismatch:
+              summary: Token ownership mismatch
+              value:
+                message: "Refresh token does not belong to this user"
+                code: "TOKEN_OWNERSHIP_MISMATCH"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Also add any other missing responses that might be referenced
+    InvalidRefreshTokenError:
+      description: Invalid or expired refresh token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalid_refresh_token:
+              summary: Invalid refresh token
+              value:
+                message: "Invalid or expired refresh token"
+                code: "INVALID_REFRESH_TOKEN"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+    
+    EmailAlreadyVerifiedError:
+      description: Email address is already verified
+      content:
+        text/html:
+          schema:
+            type: string
+            description: HTML page for already verified email
+            example: |
+              <!DOCTYPE html>
+              <html>
+              <head><title>Already Verified</title></head>
+              <body>
+                <h1>Email Already Verified</h1>
+                <p>Your email address has already been verified.</p>
+                <a href="/login">Sign In</a>
+              </body>
+              </html>
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            already_verified:
+              summary: Email already verified
+              value:
+                message: "Email address is already verified"
+                code: "EMAIL_ALREADY_VERIFIED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Add missing UserNotFoundError
+    UserNotFoundError:
+      description: User not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            user_not_found:
+              summary: User not found
+              value:
+                message: "User not found"
+                code: "USER_NOT_FOUND"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+    
+    # Add specific 404 response for user profile
+    ProfileNotFoundError:
+      description: User profile not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            profile_not_found:
+              summary: Profile not found
+              value:
+                message: "User profile not found"
+                code: "PROFILE_NOT_FOUND"
+                details: "The requested user profile does not exist"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            deleted_profile:
+              summary: Deleted profile
+              value:
+                message: "User profile has been deleted"
+                code: "PROFILE_DELETED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            inactive_profile:
+              summary: Inactive profile
+              value:
+                message: "User profile is inactive"
+                code: "PROFILE_INACTIVE"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Add specific 404 response for search results
+    SearchResultsNotFoundError:
+      description: No search results found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            no_results:
+              summary: No search results
+              value:
+                message: "No users found matching the search criteria"
+                code: "NO_SEARCH_RESULTS"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            empty_result_set:
+              summary: Empty result set
+              value:
+                message: "Search returned empty result set"
+                code: "EMPTY_RESULT_SET"
+                details: "Try broadening your search criteria"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Add generic 501 Not Implemented response
+    NotImplementedError:
+      description: Feature not implemented or endpoint not available
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            not_implemented:
+              summary: Feature not implemented
+              value:
+                message: "This feature is not yet implemented"
+                code: "NOT_IMPLEMENTED"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            endpoint_not_available:
+              summary: Endpoint not available
+              value:
+                message: "This endpoint is not available in the current version"
+                code: "ENDPOINT_NOT_AVAILABLE"
+                details: "Feature planned for future release"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            method_not_supported:
+              summary: HTTP method not supported
+              value:
+                message: "HTTP method not supported for this endpoint"
+                code: "METHOD_NOT_SUPPORTED"
+                details: "Supported methods: GET, POST"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            feature_disabled:
+              summary: Feature temporarily disabled
+              value:
+                message: "This feature is temporarily disabled"
+                code: "FEATURE_DISABLED"
+                details: "Feature under maintenance"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            version_not_supported:
+              summary: API version not supported
+              value:
+                message: "API version not supported"
+                code: "VERSION_NOT_SUPPORTED"
+                details: "Please use API version 1.0 or higher"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    # Replace InternalServerError with more generic ServerError
+    ServerError:
+      description: Server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            internal_server_error:
+              summary: Internal server error
+              value:
+                message: "An internal server error occurred"
+                code: "INTERNAL_SERVER_ERROR"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            service_unavailable:
+              summary: Service temporarily unavailable
+              value:
+                message: "Service temporarily unavailable"
+                code: "SERVICE_UNAVAILABLE"
+                details: "Please try again later"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            database_error:
+              summary: Database connection error
+              value:
+                message: "Database operation failed"
+                code: "DATABASE_ERROR"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            external_service_error:
+              summary: External service error
+              value:
+                message: "External service error"
+                code: "EXTERNAL_SERVICE_ERROR"
+                details: "Email service temporarily unavailable"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            timeout_error:
+              summary: Request timeout
+              value:
+                message: "Request timeout"
+                code: "REQUEST_TIMEOUT"
+                details: "Operation took too long to complete"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+            configuration_error:
+              summary: Server configuration error
+              value:
+                message: "Server configuration error"
+                code: "CONFIGURATION_ERROR"
+                timestamp: 1704110400000
+                correlationId: "req-12345"
+
+    InvalidCredentialsError:
+      description: Invalid email or password
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    InvalidTokenError:
+      description: Invalid or expired token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    AccountDisabledError:
+      description: User account is disabled
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    AccountLockedError:
+      description: Account locked due to failed attempts
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    UnauthorizedError:
+      description: Authentication required or invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ForbiddenError:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ConflictError:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    RateLimitError:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT access token for API authentication.
+
+        **Format:** `Bearer <access_token>`
+        **Lifetime:** 1 hour (3600 seconds)
+        **Usage:** Include in Authorization header for authenticated endpoints
+tags:
+  - name: User Registration
+    description: |
+      User registration and account confirmation operations.
+
+      **Registration Flow:**
+      1. Submit comprehensive registration details
+      2. Receive verification email (code or clickable link)
+      3. Verify email address to activate account
+      4. Account ready for authentication
+
+      **Features:**
+      - Comprehensive profile creation
+      - Multiple membership plans and tiers
+      - Email and username uniqueness validation
+      - CSRF protection for enhanced security
+      - Flexible verification methods (code/link)
+      - Mobile-responsive HTML for link verification
+      - Duplicate account prevention
+
+      **Security:**
+      - Password strength validation
+      - Rate limiting on registration attempts
+      - Email verification required
+      - Audit logging for compliance
+
+      **Documentation:** [User Registration Guide](/public/specs/docs/usage-create-profile.html)
+
+  - name: Email Verification
+    description: |
+      Email verification operations for account security.
+
+      **Verification Methods:**
+      - **Code Verification**: 6-digit numeric code via email
+      - **Link Verification**: One-click verification via email link
+
+      **Use Cases:**
+      - New account email verification
+      - Email address change verification
+      - Periodic security verification
+      - Re-verification for security compliance
+
+      **Features:**
+      - Dual verification modes (code/link)
+      - Code and link-based verification
+      - CSRF protection
+      - Resend functionality
+      - Compression support for HTML responses
+      - Mobile-friendly HTML responses
+      - Session management
+      - Rate limiting protection
+
+      **Documentation:** [Email Verification Guide](/public/specs/docs/usage-email-verification.html)
+
+  - name: Authentication
+    description: |
+      Core authentication operations including sign-in, sign-out, and token refresh.
+
+      **Key Features:**
+      - JWT-based authentication with access/refresh tokens
+      - MFA support (TOTP, SMS, backup codes)
+      - Account lockout protection after failed attempts
+      - Session management with device tracking
+      - Rate limiting on all authentication endpoints
+      - Device tracking
+
+      **Security Measures:**
+      - Rate limiting on all endpoints
+      - Consistent timing to prevent timing attacks
+      - Token rotation on refresh
+      - Secure cookie support for web clients
+      - Comprehensive audit logging
+      - Rate limited, idempotent operations with comprehensive audit logging.
+
+      **Documentation:** [Authentication Documentation](/public/specs/docs/authentication-doc.html)
+
+  - name: Password Management
+    description: |
+      Password management operations including change, reset, and recovery.
+
+      **Security Features:**
+      - Strong password requirements enforcement
+      - Rate limiting on all password operations
+      - Secure reset code generation and validation
+      - Session-based reset process with expiration
+      - Comprehensive audit logging
+
+      **Reset Process:**
+      1. Request reset → Email sent with verification code
+      2. Verify code → Code validation and session marking
+      3. Set new password → Complete reset and session cleanup
+
+      **Documentation:** [Password Management Guide](/public/specs/docs/password-usage-doc.html)
+
+  - name: Multi-Factor Authentication
+    description: |
+      Complete MFA authentication implementation with TOTP and backup code support.
+
+      **Features:**
+      - TOTP setup and verification
+      - Backup code generation and management
+      - Temporary backup codes for emergency access
+      - MFA status management
+
+      **Verification Flow:**
+      1. User signs in with password
+      2. System returns MFA challenge
+      3. User provides MFA code (TOTP, backup, or temp)
+      4. System validates and returns tokens
+
+      **Rate Limits:**
+      - TOTP verification: 10 attempts per 5 minutes
+      - Backup code verification: 5 attempts per 15 minutes
+      - Temporary code verification: 3 attempts per session
+
+      **Documentation:** [MFA Verification Guide](/public/specs/docs/mfa-usage-doc.html#verification-methods)
+
+
+  - name: Account Recovery
+    description: |
+      Account recovery operations for users who forgot their credentials.
+
+      **Recovery Methods:**
+      - Username/email recovery using personal information
+      - Password reset via email verification process
+      - Account unlock procedures for locked accounts
+
+      **Features:**
+      - Username recovery by personal information
+      - Secure information matching
+      - Masked email responses
+      - Rate limiting protection
+
+      **Security Features:**
+      - Information masking for privacy protection
+      - Rate limiting to prevent enumeration attacks
+      - Comprehensive audit logging for security
+      - Multi-factor verification for sensitive operations
+
+      **Documentation:** [Username Recovery Guide](/public/specs/docs/usage-username-recovery.html)
+
+  - name: User Profile
+    description: |
+      User profile management operations with flexible data organization.
+
+      **Profile Categories:**
+      - Basic: Core user information (name, email, contact)
+      - Membership: Subscription and membership details
+      - Professional: Work-related information
+      - Location: Address and location data
+      - Preferences: User settings and preferences
+      - Social: Social media profiles
+      - Security: Security-related information
+
+      **Features:**
+      - Comprehensive profile data management
+      - Categorized updates (basic, professional, location, etc.)
+      - Partial updates with field-level validation
+      - HATEOAS navigation for API discoverability
+      - Schema introspection for dynamic UIs
+      - Admin search capabilities with advanced filtering
+
+      **Documentation:** [User Profile Guide](/public/specs/docs/usage-user-profile.html)
+
+  - name: Administration
+    description: |
+      Administrative operations for user account management (admin role required).
+
+      **Admin Operations:**
+      - Enable/disable user accounts for access control
+      - Activate/deactivate accounts for lifecycle management
+      - Search users with advanced filtering capabilities
+      - Bulk account management operations
+
+      **Security & Compliance:**
+      - Role-based access control (admin role required)
+      - Comprehensive audit logging for all actions
+      - Reason tracking for compliance requirements
+      - Self-action prevention (cannot disable own account)
+
+      **Use Cases:**
+      - Security incident response
+      - Compliance enforcement
+      - Account lifecycle management
+      - User support operations
+
+      **Documentation:** [Admin Guide](/public/specs/docs/usage-toggle-user-status.html)
+
+  - name: Rate Limiting
+    description: |
+      Rate limiting information and status monitoring.
+
+      **Rate Limits by Endpoint:**
+      - Authentication: 10 attempts per 5 minutes
+      - Password operations: 5 attempts per hour
+      - MFA verification: 10 attempts per 5 minutes
+      - Registration: 3 attempts per hour
+      - Admin operations: 20 requests per minute
+
+      **Features:**
+      - Real-time rate limit status
+      - Remaining request counts
+      - Reset time information
+      - Retry-After headers for exceeded limits
+
+# API Information and External Documentation
+externalDocs:
+  description: |
+    Complete API documentation, guides, and examples.
+
+    **Additional Resources:**
+    - [API Usage Examples](./docs/examples/)
+    - [Security Best Practices](./docs/security/)
+    - [Integration Guides](./docs/integration/)
+    - [Troubleshooting Guide](./docs/troubleshooting/)
+    - [FAQ](http://www.cometbid.org/faq)
+  url: http://www.cometbid.org/docs
+
+
+x-status-codes:
+  "200":
+    description: "Success"
+    usage: "Standard success response"
+  "201":
+    description: "Created"
+    usage: "Resource created successfully"
+  "400":
+    description: "Bad Request"
+    usage: "Invalid input parameters"
+  "401":
+    description: "Unauthorized"
+    usage: "Missing or invalid authentication"
+  "403":
+    description: "Forbidden"
+    usage: "Authentication valid but insufficient permissions"
+  "404":
+    description: "Not Found"
+    usage: "Resource not found"
+  "409":
+    description: "Conflict"
+    usage: "Resource already exists or state conflict"
+  "423":
+    description: "Locked"
+    usage: "Resource is locked (account locked)"
+  "429":
+    description: "Too Many Requests"
+    usage: "Rate limit exceeded"
+  "500":
+    description: "Internal Server Error"
+    usage: "Server-side error"
+  "501":
+    description: "Not Implemented"
+    usage: "Feature not yet implemented"
+
+x-pagination:
+  strategies:
+    - name: "page-based"
+      parameters: ["page", "pageSize"]
+      response-format:
+        pagination:
+          page: 1
+          pageSize: 20
+          totalItems: 42
+          totalPages: 3
+    - name: "cursor-based"
+      parameters: ["nextPageToken"]
+      response-format:
+        pagination:
+          nextPageToken: "eyJwYWdlIjoyLCJsYXN0S2V5IjoiMTIzNDUifQ=="
+  
+# API Metadata
+x-api-metadata:
+  version: "1.0.0"
+  lastUpdated: "2024-01-01"
+  environment: "production"
+  region: "us-east-1"
+  supportEmail: "support@cometbid.org"
+  documentationUrl: "http://www.cometbid.org/docs"
+  statusPage: "https://status.cometbid.org"
+
+x-rate-limits:
+  global:
+    requests: 1000
+    window: "1h"
+  authenticated:
+    requests: 5000
+    window: "1h"
+  admin:
+    requests: 10000
+    window: "1h"
+
+x-security-features:
+  - "JWT-based authentication"
+  - "Multi-factor authentication (TOTP, SMS, backup codes)"
+  - "Rate limiting on all endpoints"
+  - "CSRF protection"
+  - "Account lockout protection"
+  - "Comprehensive audit logging"
+  - "Input validation and sanitization"
+  - "Secure password requirements"
+  - "Session management with device tracking"
+  - "Idempotency protection"

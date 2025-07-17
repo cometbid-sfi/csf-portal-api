@@ -1,0 +1,557 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>usage-toggle-user-status - API Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --banner-bg: #3A7BC8;
+      --banner-text: #ffffff;
+      --main-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --code-font: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --text-color: #333333;
+      --link-color: #0366d6;
+      --border-color: #e1e4e8;
+      --code-bg: #f6f8fa;
+      --blockquote-color: #6a737d;
+      --section-bg: #f8f9fa;
+      --callout-bg: #e8f4fd;
+      --callout-border: #79b8ff;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--main-font);
+      line-height: 1.6;
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+    }
+    
+    /* Sticky header with responsive design */
+    .top-banner {
+      background-color: var(--banner-bg);
+      color: var(--banner-text);
+      padding: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      max-width: 100%;
+    }
+    
+    .logo-link:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    
+    .banner-left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 200px;
+      max-width: 60%; /* Add this to limit width */
+    }
+    
+    .logo-placeholder {
+      min-width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    
+    .top-banner h1 {
+      margin: 0;
+      font-size: clamp(18px, 5vw, 24px); /* Increased from 16px-20px to 18px-24px */
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: white;
+      white-space: normal; /* Allow text to wrap */
+      overflow: visible; /* Don't hide overflow */
+      line-height: 1.2; /* Tighter line height for wrapped text */
+      max-width: 100%; /* Ensure text doesn't overflow its container */
+    }
+
+    .back-to-docs {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: var(--main-font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+      margin-left: 10px;
+    }
+    
+    .back-to-docs:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      text-decoration: none;
+    }
+    
+    /* Content container */
+    .content-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      width: 100%;
+      overflow-x: hidden;
+    }
+    
+    /* Typography with responsive sizes */
+    .markdown-body {
+      font-size: clamp(14px, 3vw, 16px);
+    }
+    
+    .markdown-body h1 {
+      font-size: clamp(1.8em, 5vw, 2.2em);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      word-break: break-word;
+    }
+    
+    .markdown-body h2 {
+      font-size: clamp(1.5em, 4vw, 1.8em);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      margin-bottom: 0.8em;
+      background-color: var(--section-bg);
+      padding: 8px 16px;
+      border-radius: 6px;
+      word-break: break-word;
+    }
+    
+    .markdown-body h3 {
+      font-size: clamp(1.2em, 3vw, 1.4em);
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    .markdown-body h4 {
+      font-size: clamp(1.1em, 2vw, 1.2em);
+      margin-top: 1.3em;
+      margin-bottom: 0.6em;
+    }
+    
+    /* Code blocks with responsive design */
+    .markdown-body pre {
+      background-color: var(--code-bg);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 1.2em 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Tables with responsive design */
+    .markdown-body table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 1.5em;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Media queries for better responsiveness */
+    @media (max-width: 768px) {
+      .top-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+      }
+      
+      .banner-left {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+      
+      .back-to-docs {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+      
+      .content-container {
+        padding: 20px 15px;
+      }
+      
+      .markdown-body pre {
+        padding: 12px;
+      }
+      
+      .markdown-body table th, 
+      .markdown-body table td {
+        padding: 8px 12px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .top-banner h1 {
+        font-size: 16px;
+      }
+      
+      .logo-placeholder {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      
+      .back-to-docs {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
+    
+    /* Keep the rest of your existing styles */
+  </style>
+</head>
+<body>
+  <!-- Sticky header that matches the main page -->
+  <div class="top-banner">
+    <div class="banner-left">
+      <a href="/csf-portal-api/" class="logo-link">
+        <div class="logo-placeholder">TCT</div>
+        <h1>TCT Foundation API Documentation</h1>
+      </a>
+    </div>
+    <a href="/csf-portal-api/" class="back-to-docs">Back to API Explorer</a>
+  </div>
+  
+  <div class="content-container">
+    <div class="markdown-body">
+      <h1>📄 User Management API Documentation</h1>
+<p>This document provides examples of how to use the User Management API endpoints for toggling user enable/disable status and activation/deactivation status.</p>
+<p>This is administrative task and requires user to belong to the Admin group.</p>
+<h2>📌 Authentication</h2>
+<p>All requests require:</p>
+<ul>
+<li>A valid access token in the <code>Authorization</code> header (Bearer token)</li>
+<li>A valid user session ID in the <code>userSessionId</code> query parameter</li>
+</ul>
+<h2>📌 Toggle User Enable/Disable</h2>
+<p>This endpoint allows administrators to enable or disable a user account.</p>
+<h3>🔹 Endpoint</h3>
+<p>POST /admin/users/status</p>
+<h3>🔹 Request Body</h3>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;disable&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;reason&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Account compromised&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Parameters:</p>
+<ul>
+<li>email (required): The email address of the user to enable/disable</li>
+<li>action (required): Either “enable” or “disable”</li>
+<li>reason (optional): Reason for the action</li>
+</ul>
+<h2>📌 cURL Example</h2>
+<h1>📄 Disable a user</h1>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">https://api.example.com/admin/users/status?userSessionId=SESSION_ID</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;action&quot;: &quot;disable&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;reason&quot;: &quot;Account compromised&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<h1>📄 Enable a user</h1>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">https://api.example.com/admin/users/status?userSessionId=SESSION_ID</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;action&quot;: &quot;enable&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;reason&quot;: &quot;Issue resolved&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<h2>📌 Postman Example</h2>
+<ol>
+<li>Create a new POST request to <a href="https://api.example.com/admin/users/status?userSessionId=SESSION_ID">https://api.example.com/admin/users/status?userSessionId=SESSION_ID</a></li>
+<li>Add header: Authorization: Bearer YOUR_ACCESS_TOKEN</li>
+<li>Set body type to “raw” and format to “JSON”</li>
+<li>Add the following JSON body:</li>
+</ol>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;disable&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;reason&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Account compromised&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<ol start="5">
+<li>Click “Send”</li>
+</ol>
+<p>Response Headers:</p>
+<p>HTTP/1.1 200 OK
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Session-ID: SESSION_ID
+userSessionId: SESSION_ID
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate</p>
+<p>Response Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User disabled successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USER_DISABLED_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;disable&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h2>📌 Toggle User Activation</h2>
+<p>This endpoint allows administrators to activate or deactivate a user account.</p>
+<p>Endpoint</p>
+<p>POST /admin/users/activation</p>
+<p>Request Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;deactivate&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;reason&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User requested account deactivation&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Parameters:</p>
+<ul>
+<li>email (required): The email address of the user to activate/deactivate</li>
+<li>action (required): Either “activate” or “deactivate”</li>
+<li>reason (optional): Reason for the action</li>
+</ul>
+<h2>📌 cURL Example</h2>
+<h1>📄 Deactivate a user</h1>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">https://api.example.com/admin/users/activation?userSessionId=SESSION_ID</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;action&quot;: &quot;deactivate&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;reason&quot;: &quot;User requested account deactivation&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<h1>📄 Activate a user</h1>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #6F42C1">curl</span><span style="color: #24292E"> </span><span style="color: #005CC5">-X</span><span style="color: #24292E"> </span><span style="color: #032F62">POST</span><span style="color: #24292E"> </span><span style="color: #032F62">https://api.example.com/admin/users/activation?userSessionId=SESSION_ID</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-H</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;Content-Type: application/json&quot;</span><span style="color: #24292E"> </span><span style="color: #005CC5">\</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">-d</span><span style="color: #24292E"> </span><span style="color: #032F62">&#39;{</span></span>
+<span class="line"><span style="color: #032F62">    &quot;email&quot;: &quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;action&quot;: &quot;activate&quot;,</span></span>
+<span class="line"><span style="color: #032F62">    &quot;reason&quot;: &quot;User requested account reactivation&quot;</span></span>
+<span class="line"><span style="color: #032F62">  }&#39;</span></span>
+<span class="line"></span></code></pre>
+<p>Postman Example:</p>
+<ol>
+<li>Create a new POST request to <a href="https://api.example.com/admin/users/activation?userSessionId=SESSION_ID">https://api.example.com/admin/users/activation?userSessionId=SESSION_ID</a></li>
+<li>Add header: Authorization: Bearer YOUR_ACCESS_TOKEN</li>
+<li>Set body type to “raw” and format to “JSON”</li>
+<li>Add the following JSON body:</li>
+</ol>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6F42C1">//</span><span style="color: #24292E"> </span><span style="color: #032F62">Example</span><span style="color: #24292E"> </span><span style="color: #032F62">command</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #6F42C1">&quot;email&quot;</span><span style="color: #005CC5">:</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;user@example.com&quot;,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #6F42C1">&quot;action&quot;</span><span style="color: #005CC5">:</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;deactivate&quot;,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #6F42C1">&quot;reason&quot;</span><span style="color: #005CC5">:</span><span style="color: #24292E"> </span><span style="color: #032F62">&quot;User requested account deactivation&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<ol start="5">
+<li>Click “Send”</li>
+</ol>
+<p>Response Headers:</p>
+<p>HTTP/1.1 200 OK
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Session-ID: SESSION_ID
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate</p>
+<p>Response Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User deactivated successfully&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USER_DEACTIVATED_SUCCESS&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;action&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;deactivate&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;email&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;user@example.com&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Error Responses:</p>
+<p>Authentication Error (401)</p>
+<p>Response Headers</p>
+<p>HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate</p>
+<p>Response Body</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid or expired access token&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;AUTHENTICATION_ERROR&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Authorization Error (403)</p>
+<p>Response Headers</p>
+<p>HTTP/1.1 403 Forbidden
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate</p>
+<p>Response Body:</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Insufficient permissions to perform this action&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;AUTHORIZATION_ERROR&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>Invalid Request (400)</p>
+<p>Response Headers</p>
+<p>HTTP/1.1 400 Bad Request
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate</p>
+<p>Response Body</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;Invalid request parameters&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;INVALID_REQUEST&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<p>User Not Found (404)</p>
+<p>Response Headers</p>
+<p>HTTP/1.1 404 Not Found
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate</p>
+<p>Response Body</p>
+<pre class="shiki github-light" style="background-color: #fff" tabindex="0"><code><span class="line"><span style="color: #6A737D">// Example response</span></span>
+<span class="line"><span style="color: #24292E">{</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;message&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;User not found&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;code&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;USER_NOT_FOUND&quot;</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;timestamp&quot;</span><span style="color: #24292E">: </span><span style="color: #005CC5">1623456789000</span><span style="color: #24292E">,</span></span>
+<span class="line"><span style="color: #24292E">  </span><span style="color: #005CC5">&quot;correlationId&quot;</span><span style="color: #24292E">: </span><span style="color: #032F62">&quot;12345678-1234-1234-1234-123456789012&quot;</span></span>
+<span class="line"><span style="color: #24292E">}</span></span>
+<span class="line"></span></code></pre>
+<h3>🔹 Response Headers</h3>
+<p>All API responses include the following headers:</p>
+<h4>Successful Response Headers</h4>
+<p>HTTP/1.1 200 OK
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Session-ID: SESSION_ID
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate
+Pragma: no-cache
+Expires: 0</p>
+<h4>Error Response Headers</h4>
+<p>HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+X-Correlation-ID: 12345678-1234-1234-1234-123456789012
+X-Request-ID: 98765432-9876-9876-9876-987654321098
+Cache-Control: no-cache, no-store, must-revalidate
+Pragma: no-cache
+Expires: 0</p>
+<h3>🔹 Header Descriptions</h3>
+<ul>
+<li><code>X-Correlation-ID</code>: Unique identifier for tracking the request through the system</li>
+<li><code>X-Session-ID</code>: The user session ID used for the request (only included when a valid session ID was provided)</li>
+<li><code>X-Request-ID</code>: Unique identifier for the API Gateway request</li>
+<li><code>Cache-Control</code>, <code>Pragma</code>, <code>Expires</code>: Headers to prevent caching of sensitive information</li>
+</ul>
+<p>Notes:</p>
+<ol>
+<li>Administrators cannot disable or deactivate their own accounts.</li>
+<li>Both endpoints update the user’s status in both Cognito and DynamoDB.</li>
+<li>The reason field is optional but recommended for audit purposes.</li>
+<li>All actions are logged and can be audited.</li>
+<li>The X-Session-ID header is only included in responses when a valid session ID was provided in the request.</li>
+</ol>
+
+    </div>
+  </div>
+  
+  <script>
+    // Add copy button to code blocks
+    document.querySelectorAll('pre').forEach(block => {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copy';
+      button.style.position = 'absolute';
+      button.style.top = '5px';
+      button.style.right = '5px';
+      button.style.padding = '4px 8px';
+      button.style.fontSize = '12px';
+      button.style.fontFamily = 'var(--main-font)';
+      button.style.border = 'none';
+      button.style.borderRadius = '4px';
+      button.style.backgroundColor = 'rgba(0,0,0,0.1)';
+      button.style.cursor = 'pointer';
+      
+      block.style.position = 'relative';
+      
+      button.addEventListener('click', () => {
+        const code = block.querySelector('code').innerText;
+        navigator.clipboard.writeText(code);
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = 'Copy';
+        }, 2000);
+      });
+      
+      block.appendChild(button);
+    });
+  </script>
+</body>
+</html>
+    

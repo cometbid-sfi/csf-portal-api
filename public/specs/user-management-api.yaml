@@ -1,0 +1,1329 @@
+openapi: "3.0.3"
+info:
+  title: CSF Portal Membership API
+  version: 1.0.0
+  description: |-
+    This is ***The Cometbid Software Foundation, CSF, Portal API*** documentation based on the OpenAPI 3.0 specification. You can test run the apis
+    against our live server with a pre-defined request, and get instant feedback on whether there was an error in the request, or the server could not process the request for some other reasons.
+    
+    You can also test our APIs in the sandbox environment, where you can make changes and test the APIs with a more robust data without affecting the production environment.
+    Our APIs are hosted on AWS, and we use the API Gateway service to manage the APIs. 
+
+    We are constantly improving our APIs based on feedback from our users and will love to hear your feedbacks on how we can improve the API interface or format. 
+    We use the OpenAPI specification to follow a design first approach in the implementation of this project!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code:
+
+    That way:
+    - You can get access to the API first and offer your ideas for improvements to the API.
+    - You have the benefit of using the API right away without waiting for the final release implementation.
+    - With time, we can improve the API in general based on your feedback, and expose some of the new features quicker.
+    
+    Please send your feedbacks to email, **cometbid@cometbid.org**
+    or visit our [support page](https://www.cometbid.org/support) to get in touch with us and if you have not done so already, join our community.
+    We are looking forward to hearing from you.
+
+    Thank you for your support!  
+    **The CSF Team**  
+    [The Cometbid Software Foundation Inc.](www.cometbid.org)
+
+    Some useful links:
+    - [The CSF's Portal Backend API repository](https://github.com/cometbid-sfi/csf-portal-backend)
+    - [The source API definition for the CSF's Portal Backend appliation](https://github.com/cometbid-sfi/csf-portal-backend/blob/master/src/openapi.yaml)
+
+    
+  termsOfService: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE
+  contact:
+    name: The Cometbid Software Foundation Inc.
+    url: http://www.cometbid.org/support
+    email: support@cometbid.org
+  license:
+    name: MIT License
+    url: https://github.com/cometbid-sfi/csf-portal-backend/blob/main/LICENSE
+externalDocs:
+  description: Any document link you want to generate along with API.
+  url: http://www.cometbid.org/faq
+
+
+servers:
+  - url: https://{apiId}.execute-api.{region}.amazonaws.com/{stage}
+    variables:
+      apiId:
+        default: your-api-id
+        description: API Gateway ID
+      stage:
+        default: Prod
+        description: API Deployment Stage
+
+
+tags:
+  - name: member
+    description: Everything about Members
+    externalDocs:
+      description: Find out more (extra document link)
+      url: http://cometbid.org/members
+  - name: project
+    description: Operations about projects
+    externalDocs:
+      description: Find out more about projects
+      url: http://cometbid.org/projects
+  - name: collaboration
+    description: Operations about community collaborations
+    externalDocs:
+      description: Find out more about collaborations
+      url: http://cometbid.org/collaborations
+
+
+paths:
+  /api/v1/members/list:
+    get:
+      tags:
+        - member
+      summary: Returns All Members
+      operationId: getAllMembers
+      description: Returns all members, or empty collection if no member was found, and 404 http-response code
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getAllMembersFunction.Arn}/invocations
+        httpMethod: GET
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      parameters:
+        - name: order
+          in: query
+          description: Ascending(asc) or Descending(desc). Defaults to ascending order of the sort parameter.
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Field to use in sorting
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Query page number.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: size
+          in: query
+          description: Query page size. Defaults to 10, maximum is 50.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        '200':
+          description: |-
+            Successful retrieval of all members (please note that if the records are much, you will need to multiple request to page through the data)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '404':
+          description: No members found
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+
+  /api/v1/members/{email}:
+    get:
+      tags:
+        - member
+      summary: Returns a Member with the email specified
+      operationId: getMember
+      description: Returns a member by email, or 404 http-response code if no member was found
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getMemberByEmailFunction.Arn}/invocations
+        httpMethod: GET
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      parameters:
+        - name: email
+          in: path
+          description: Email of the member to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful retrieval of the member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '404':
+          description: No member found
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+
+  /api/v1/members/{member_name}:
+    get:
+      tags:
+        - member
+      summary: Returns a Member with the specified membership name
+      operationId: getMemberByName
+      description: Returns a member by membership name, or 404 http-response code if no member was found
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getMemberbyNameFunction.Arn}/invocations
+        httpMethod: GET
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      parameters:
+        - name: member_name
+          in: path
+          description: Membership name of the member to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful retrieval of the member 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '404':
+          description: No member found
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+    post:
+      tags:
+        - member
+      summary: Create a new Member
+      operationId: createMember
+      description: Create a new member and return the created member details
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${createMemberFunction.Arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 201
+
+      requestBody:
+        description: Create member request model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMemberReqModel'
+      responses:
+        '201':
+          description: Successful creation of the Member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+                
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+
+    put:
+      tags:
+        - member
+      summary: Update a Member
+      operationId: updateMemberProfile
+      description: Update a member and return the updated member details
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateMemberFunction.Arn}/invocations
+        httpMethod: PUT
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      requestBody:
+        description: Update member request model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemberReqModel'
+      responses:
+        '200':
+          description: Successful update of the member's personal details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+   
+    delete:
+      tags:
+        - member
+      summary: Delete a Member
+      operationId: deleteMember
+      description: Delete a member and return the deleted member details
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteMemberFunction.Arn}/invocations
+        httpMethod: DELETE
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      requestBody:
+        description: Delete member request model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteMemberReqModel'
+      responses:
+        '200':
+          description: Successful deletion of the member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+
+  /api/v1/members/media:
+    post:
+      tags:
+        - member
+      summary: Create a new Member Social Media Links
+      operationId: createMemberSocialMedia
+      description: Create a new member social media links and return the created member social media links details
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateMemberMediaLinksFunction.Arn}/invocations
+        httpMethod: PUT
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      requestBody:
+        description: Create member social media links request model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberSocialMediaReqModel'
+      responses:
+        '200':
+          description: Successful creation of the members social media links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse' 
+
+    put:
+      tags:
+        - member
+      summary: Update a Member
+      operationId: updateMemberSocialMedia
+      description: Update a member and return the updated member details
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateMemberMediaLinksFunction.Arn}/invocations
+        httpMethod: PUT
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      requestBody:
+        description: Update member request model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberSocialMediaReqModel'
+      responses:
+        '200':
+          description: Successful update of the members social media links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+    
+  /api/v1/members/bio:
+    post:
+      tags:
+        - member
+      summary: Create a new Member Bio
+      operationId: createMemberBio
+      description: Create a new member bio and return the created member bio details
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${createMemberBioFunction.Arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 201
+      requestBody:
+        description: Create member bio request model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberBioReqModel'
+      responses:
+        '201':
+          description: Successful creation of the item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+    put:
+      tags:
+        - member
+      summary: Update a Member Bio
+      operationId: updateMemberBio
+      description: Update a member bio and return the updated member bio details
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateMemberBioFunction.Arn}/invocations
+        httpMethod: PUT
+        type: aws_proxy
+        responses:
+          default:
+            statusCode: 200
+      requestBody:
+        description: Update member bio request model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberBioReqModel'
+      responses:
+        '200':
+          description: Successful update of the member bio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/AppResponse'
+
+
+components:
+  schemas:
+    Member:
+      type: object
+      required:
+        - email
+        - firstName
+        - lastName
+        - jobTitle
+        - companyName
+        - membershipName
+        - membershipType
+        - country
+        - representative
+      properties:
+        email:
+          type: string
+          description: Email address of the member, which must be unique on the platform
+        firstName:
+          type: string
+          description: First name of the member
+        lastName:
+          type: string
+          description: Last name of the member
+        representative:
+          type: boolean
+          description: Indicates whether the member is a representative of the group/organization or not.
+        membershipName:
+          type: string
+          description: A unique name to identifies the members on the platform, and can substitute as their brand name.
+        membershipType:
+          type: enum 
+          description: The membership plans on the platform. Possible values are INDIVIDUAL, GROUP, ORGANIZATION
+          enum: 
+            - INDIVIDUAL
+            - GROUP
+            - ORGANIZATION
+        country:
+          type: string
+          description: Country of residence
+        linkedinUrl:
+          type: string
+          description: LinkedIn profile URL
+        twitterUrl:
+          type: string
+          description: Twitter profile URL
+        websiteUrl:
+          type: string
+          description: Website URL of the member
+        jobTitle:
+          type: string
+          description: Job title of the member
+        companyName:
+          type: string
+          description: Company name of the member
+        bio:
+          type: string
+          description: Long bio of the member
+        profilePhotoUrl:
+          type: string
+          description: Profile photo URL of the member
+        coverPhotoUrl:
+          type: string
+          description: Cover photo URL of the member
+        brandLogo:
+          type: string
+          description: Brand logo URL of the member
+        dateOfBirth:
+          type: date 
+          description: Date of Birth of the member (day, month, year)
+        recreationalInterest:
+          type: array 
+          description: Activities outside normal work member participates in leisurely
+          items:
+            type: string
+            description: Activity name
+          example: 
+            - Hiking
+            - Cycling
+            - Swimming
+            - Reading
+        profileStatus:
+          type: enum 
+          description: Profile status of the member. Possible values are ACTIVE, INACTIVE, PENDING
+          enum: 
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+        contactInfo:
+          type: 
+            $ref: '#/components/schemas/Contact'
+
+    Address:
+      type: object
+      properties:
+        number: 
+          description: house, flat or apartment number
+          type: string
+          example: 437
+        residency: 
+          description: Society or Building name
+          type: string
+          example: Bookshop Building
+        street:
+          description: Street name
+          type: string
+          example: Lytton street
+        city:
+          description: City name
+          type: string
+          example: Ikeja
+        prov/state:
+          description: Provincial or State name
+          type: string
+          example: Lagos
+        country:
+          description: Country name
+          type: string
+          example: Nigeria
+        zip/postal:
+          type: string
+          description: Zip/Postal code
+          example: '94301'
+      xml:
+        name: Address
+    
+    DeleteMemberReqModel:
+      type: object
+      required: true
+      xml:
+        name: DeleteMemberReqModel
+      description: request body to delete a member
+      content:
+        application/json:
+          schema:
+            type: array
+            description: List of email addresses of the members to delete
+            items:
+              type: string
+              description: Email address of the member
+              example: john.doe@example.com          
+
+    Contact:
+      type: object
+      required:
+        - address_1
+        - address_2
+        - city
+        - prov/state
+        - country
+      properties:
+        address:
+          type: 
+            $ref: '#/components/schemas/Address' 
+          description: Contact Address
+          example: 437 Lytton, Ikeja, Lagos, Nigeria
+        email:
+          type: string
+          description: Email address
+        website:
+          type: string
+          description: Website URL
+
+    Notifications:
+      type: object
+      required:
+        - messageTitle
+        - content
+        - sender
+        - recipient
+        - status
+      properties:
+        messageTitle:
+          type: string
+          description: Title of the message
+        content:
+          type: string
+          description: Content of the message
+        sender:
+          type: string
+          description: Sender of the message
+        recipient:
+          type: string
+          description: Recipient of the message
+        status:
+          type: enum
+          description: Possible values are READ, UNREAD
+          enum:
+            - READ
+            - UNREAD
+
+    Invitations:
+      type: object
+      required:
+        - invitee
+        - inviter
+        - date
+        - status
+        - expiration
+        - type
+        - resourceId
+        - resourceType
+      properties:
+        invitee:
+          type: string
+          description: Email address of the invitee
+        inviter:
+          type: string
+          description: Email address of the inviter
+        message:
+          type: string 
+          description: Message to the invitee
+        resourceId:
+          type: string
+          description: ID of the resource
+        resourceType:
+          type: enum
+          description: Possible values are MEMBERSHIP, PROJECT, WORKING_GROUP, INTEREST_GROUP, OTHERS
+          enum:
+            - MEMBERSHIP
+            - PROJECT
+            - WORKING_GROUP
+            - INTEREST_GROUP
+            - OTHERS
+        date:
+          type: date
+          description: Date of the invitation
+        expiration:
+          type: number
+          description: No of days to expiration
+        status:
+          type: enum
+          description: Possible values are PENDING, ACCEPTED, REJECTED, CANCELLED
+          enum: 
+            - PENDING
+            - ACCEPTED
+            - REJECTED
+            - CANCELLED
+
+    Schedules:
+      type: object
+      required:
+        - title
+        - description
+        - date
+        - time
+        - location
+        - organizer
+        - attendees
+        - status
+        - mode
+        - type
+        - resourceId
+        - resourceType
+      properties:
+        title:
+          type: string
+          description: Title of the schedule
+        description:
+          type: string
+          description: Description of the schedule
+        date:
+          type: date
+          description: Date of the schedule in UTC
+          example:
+            - 2023-05-01
+            - 2023-05-02
+            - 2023-05-03
+        time:
+          type: time
+          description: Time of the schedule
+          example: 12:00:00
+        location:
+          type: string
+          description: Location of the schedule
+          example: 123 Main St, London, UK
+        organizer:
+          type: string
+          description: Organizer of the schedule
+          example: John Doe, john.doe@example.com
+        attendees:
+          type: array
+          description: List of attendees
+          items:
+            type: string
+            description: Email address of the attendee
+            example: jane.doe@example.com
+          example:
+            - jane.doe@example.com
+            - alice.smith@example.com
+            - bob.johnson@example.com
+        status:
+          type: enum
+          description: Possible values are PENDING, ACCEPTED, REJECTED, CANCELLED
+          enum: 
+            - PENDING
+            - ACCEPTED
+            - REJECTED
+            - CANCELLED
+        mode:
+          type: enum
+          description: Possible values are ONLINE, PHYSICAL, VIRTUAL
+          enum: 
+            - ONLINE
+            - PHYSICAL
+            - VIRTUAL
+        type:
+          type: enum
+          description: Possible values are EVENT, APPOINTMENT, TASK, MEETING, TRAINING, WORKSHOP, OTHERS
+          enum: 
+            - EVENT
+            - APPOINTMENT
+            - TASK
+            - MEETING
+            - TRAINING
+            - WORKSHOP
+            - OTHERS
+        resourceId:
+          type: string
+          description: ID of the resource
+        resourceType:
+          type: enum
+          description: Possible values are MEMBERSHIP, PROJECT, WORKING_GROUP, INTEREST_GROUP, OTHERS
+          enum:
+            - MEMBERSHIP
+            - PROJECT
+            - WORKING_GROUP
+            - INTEREST_GROUP
+            - OTHERS
+
+    JobRoles:
+      type: object
+      required:
+        - title
+        - description
+        - status
+        - resourceId
+        - resourceType
+        - joinedDate
+      properties:
+        title:
+          type: string
+          description: Title of the job role
+        description:
+          type: string
+          description: Description of the job role
+        joinedDate:
+          type: date
+          description: Date the member joined the job role
+        status:
+          type: enum
+          description: Possible values are ACTIVE, INACTIVE, PENDING
+        resourceId:
+          type: string
+          description: ID of the resource
+        resourceType:
+          type: enum
+          description: Possible values are MEMBERSHIP, PROJECT, WORKING_GROUP, INTEREST_GROUP, OTHERS
+          enum: 
+            - MEMBERSHIP
+            - PROJECT
+            - WORKING_GROUP
+            - INTEREST_GROUP
+            - OTHERS
+
+    Tag:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - status
+        - resourceId
+        - resourceType
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the tag
+        name:
+          type: string
+          description: Name of the tag
+        description:
+          type: string
+          description: Description of the tag
+        status:
+          type: enum
+          description: Possible values are ACTIVE, INACTIVE, PENDING
+
+    Projects:
+      type: object
+      required:
+        - title
+        - name
+        - code
+        - dateStarted
+        - description
+        - status
+        - resourceId
+        - resourceType
+        - tags
+      properties:
+        title:
+          type: string
+          description: Title of the project
+        description:
+          type: string
+          description: Description of the project
+        name:  
+          type: string
+          description: Name of the project
+        code:
+          type: string
+          description: Code of the project
+        dateStarted:
+          type: date
+          description: Date the project started
+        status:
+          type: enum
+          description: Possible values are ACTIVE, INACTIVE, PENDING
+        resourceId:
+          type: string
+          description: ID of the resource
+        resourceType:
+          type: enum
+          description: Possible values are MEMBERSHIP, PROJECT, WORKING_GROUP, INTEREST_GROUP, OTHERS
+        tags:
+          type: array
+          description: List of tags
+          items:
+            type: 
+              $ref: '#/components/schemas/Tag'
+
+    CreateMemberReqModel:
+      type: object
+      description: Create member request model
+      required:
+        - email
+        - firstName
+        - lastName
+        - jobTitle
+        - companyName
+        - membershipName
+        - membershipType
+        - country
+      properties:
+        firstName:
+          type: string
+          description: First name of the member
+        lastName:
+          type: string
+          description: Last name of the member
+        email:
+          type: string
+          description: Email address of the member
+        membershipName:
+          type: string
+          description: Name to identity the member's brand on the platform
+        membershipType:
+          type: enum 
+          description: The membership plans on the platform. Possible values are INDIVIDUAL, GROUP, ORGANIZATION
+          enum: 
+            - INDIVIDUAL
+            - GROUP
+            - ORGANIZATION
+        country:
+          type: string
+          description: Country of residence
+        jobTitle:
+          type: string
+          description: Job title of the member
+        companyName:
+          type: string
+          description: Company name of the member
+    
+    UpdateMemberReqModel:
+      type: object
+      description: Update member request model
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: Email address of the member
+        firstName:
+          type: string
+          description: First name of the member
+        lastName:
+          type: string
+          description: Last name of the member
+        profilePhotoUrl:
+          type: string
+          description: Profile photo URL of the member
+        coverPhotoUrl:
+          type: string
+          description: Cover photo URL of the member
+        websiteUrl: 
+          type: string
+          description: Website URL of the member
+        jobTitle:
+          type: string
+          description: Job title of the member
+        companyName:
+          type: string
+          description: Company name of the member
+    
+    MemberSocialMediaReqModel:
+      type: object
+      required: true
+      xml:
+        name: MemberSocialMediaReqModel
+      description: request body to create a member's social media
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              memberId:
+                type: string
+                description: Email of the member
+                example: john.doe@example.com
+              socialMediaLinks:
+                type: array
+                description: List of social media links
+                items:
+                  $ref: '#/components/schemas/SocialMediaReqModel'
+                example:
+                  - socialMediaName: TWITTER
+                    socialMediaUrl: XXXXXXXXXXXXXXXXXXXXXXXXXXX
+                  - socialMediaName: LINKEDIN
+                    socialMediaUrl: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                  - socialMediaName: GITHUB
+                    socialMediaUrl: XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                  - socialMediaName: GITLAB
+                    socialMediaUrl: XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+    SocialMediaReqModel:
+      type: object
+      required: true
+      description: member's social media
+      xml:
+        name: SocialMediaReqModel
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              socialMediaName:
+                type: enum
+                description: Name of the social media. Possible values are TWITTER, LINKEDIN, FACEBOOK, INSTAGRAM, OTHERS
+                enum:
+                  - TWITTER
+                  - LINKEDIN
+                  - GITHUB
+                  - BITBUCKET
+                  - GITLAB
+                example: TWITTER
+              socialMediaUrl:
+                type: string
+                description: URL of the social media
+                example: https://twitter.com/johndoe
+                xml:
+                  attribute: true
+                  wrapped: true
+                  name: socialMediaUrl
+
+    MemberBioReqModel:
+      type: object
+      required: true
+      xml:
+        name: CreateMemberBioReqModel
+      description: request body to create a member's bio
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              memberId:
+                type: string
+                description: Email of the member
+                example: john.doe@example.com
+              bio:
+                type: string
+                description: Bio of the member
+                example: I am a software engineer
+
+    Entity:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the entity
+        name:
+          type: string
+          description: Name of the entity
+        description:
+          type: string
+          description: Description of the entity
+
+    ApiSubError:         
+      type: array
+      name: errorDetails
+      description: list of sub-errors that happened. This is used for validation errors
+      items:
+        properties:
+          field:
+            description: field the caused the error
+            type: string
+          rejectedValue:
+            description: value the caused the error
+            type: string
+          message:
+            type: string
+
+    AppResponse:
+      type: object
+      properties:
+        path:
+          description: REST endpoint URI of the Request
+          type: string
+        method:
+          description: Request method type 'GET, POST, PUT, DELETE' etc.
+          example: 'GET'
+          type: string
+        status:
+          description: HttpStatus of the (error) response
+          type: string
+        code:
+          description: Unique application (error) code
+          type: string
+        traceId:
+          description: unique id used to track error in a log
+          type: string
+        timestamp:
+          description: date and time the error occured
+          type: string
+          format: date-time
+          example: '2023-05-01T12:00:00.000Z'
+        debugMessage:
+          description: detail error message (of the error) to aid debugging
+          type: string
+        statusCode:
+          description: status code of the error response
+          type: string
+        data:
+          description: response data
+          type: object
+          anyOf: 
+            - $ref: '#/components/schemas/ApiSubError'
+            - $ref: '#/components/schemas/Entity'
+        success: 
+          description: Flag indicating whether the request succeeded or failed
+          type: boolean
+        message: 
+          description: simple message about the outcome of the request
+          type: string  
+        metadata: 
+          $ref: '#/components/schemas/AppResponseMetadata'
+      xml:
+        name: '##default'   
+        
+    AppResponseMetadata:
+      type: object
+      properties: 
+        apiVersion:
+          description: Current version of the Api
+          type: string
+          example: 1.1.0
+        sendReportUri:
+          description: URL to with a form to send error report
+          type: string
+        moreInfoUrl:
+          description: URL link to frequently asked questions
+          type: string
+        technical:
+          description: Email address of the technical team
+          type: string
+          example: tech@cometbid.org
+        support:
+          description: Email address of the support team
+          type: string
+          example: support@cometbid.org
+
+
+  requestBodies:
+    CreateMemberReq:
+      type: object
+      required: true
+      xml:
+        name: CreateMemberReq
+      description: request body to create a member
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateMemberReqModel'
+
+    MemberArray:
+      description: List of member object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CreateMemberReqModel'
+
+    UpdateMemberReqModel:
+      type: object
+      required: true
+      xml:
+        name: UpdateMemberReqModel
+      description: request body to update a member
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateMemberReqModel'
+
+    DeleteMemberReqModel:
+      type: object
+      required: true
+      xml:
+        name: DeleteMemberReqModel
+      description: request body to delete a member
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: '#/components/schemas/DeleteMemberReqModel'
+    
+    MemberSocialMediaReqModel:
+      type: object
+      required: true
+      xml:
+        name: MemberSocialMediaReqModel
+      description: request body to create a member's social media
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: '#/components/schemas/MemberSocialMediaReqModel'
+
+    MemberBioReqModel:
+      type: object
+      required: true
+      xml:
+        name: MemberBioReqModel
+      description: request body to create a member's bio
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: '#/components/schemas/MemberBioReqModel'
+
+    CreateMemberJobRoleReqModel:
+      type: object
+      required: true
+      xml:
+        name: CreateMemberJobRoleReqModel
+      description: request body to create a member's job role
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              memberId:
+                type: string
+                description: Email of the member
+                example: john.doe@example.com
+              jobRoles:
+                type: array
+                description: List of job roles
+                items:
+                  $ref: '#/components/schemas/JobRoles'         
